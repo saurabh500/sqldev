@@ -1,0 +1,78 @@
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: release-please
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          # Top-level config files are read from the repo root.
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build-artifacts:
+    name: build artifacts (${{ matrix.target }})
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu }
+          - { os: macos-latest, target: x86_64-apple-darwin }
+          - { os: macos-latest, target: aarch64-apple-darwin }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc }
+    env:
+      TAG: ${{ needs.release-please.outputs.tag_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+      - name: Build sqldev
+        shell: bash
+        run: cargo build --release --locked --target ${{ matrix.target }} -p sqldev-cli
+
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          NAME="sqldev-${TAG}-${{ matrix.target }}"
+          mkdir -p "dist/${NAME}"
+          cp "target/${{ matrix.target }}/release/sqldev" "dist/${NAME}/"
+          cp README.md LICENSE-MIT LICENSE-APACHE CHANGELOG.md "dist/${NAME}/" 2>/dev/null || true
+          tar -C dist -czf "dist/${NAME}.tar.gz" "${NAME}"
+          (cd dist && shasum -a 256 "${NAME}.tar.gz" > "${NAME}.tar.gz.sha256")
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $name = "sqldev-$env:TAG-${{ matrix.target }}"
+          New-Item -ItemType Directory -Path "dist/$name" | Out-Null
+          Copy-Item "target/${{ matrix.target }}/release/sqldev.exe" "dist/$name/"
+          foreach ($f in "README.md","LICENSE-MIT","LICENSE-APACHE","CHANGELOG.md") {
+            if (Test-Path $f) { Copy-Item $f "dist/$name/" }
+          }
+          Compress-Archive -Path "dist/$name/*" -DestinationPath "dist/$name.zip"
+          (Get-FileHash "dist/$name.zip" -Algorithm SHA256).Hash | Out-File "dist/$name.zip.sha256" -Encoding ascii
+
+      - name: Upload to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: gh release upload "${TAG}" dist/sqldev-* --clobber
