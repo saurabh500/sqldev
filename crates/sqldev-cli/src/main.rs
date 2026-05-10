@@ -3,6 +3,7 @@
 #![forbid(unsafe_code)]
 
 mod cmd_config;
+mod cmd_explain;
 mod cmd_init;
 mod cmd_introspect;
 mod cmd_migrate;
@@ -55,6 +56,8 @@ enum Cmd {
     Init(cmd_init::Args),
     /// Apply or roll back versioned T-SQL migrations.
     Migrate(cmd_migrate::Args),
+    /// Analyze a query plan for common anti-patterns.
+    Explain(cmd_explain::Args),
     /// Manage anonymous usage telemetry (opt-in, off by default).
     Telemetry(cmd_telemetry::Args),
 }
@@ -86,6 +89,7 @@ async fn main() -> Result<()> {
         Cmd::Config(args) => cmd_config::run(args, &ctx),
         Cmd::Init(args) => cmd_init::run(args, &ctx).await,
         Cmd::Migrate(args) => cmd_migrate::run(args, &ctx).await,
+        Cmd::Explain(args) => Box::pin(cmd_explain::run(args, &ctx)).await,
         Cmd::Telemetry(args) => cmd_telemetry::run(&args),
     };
     let exit_code = i32::from(result.is_err());
@@ -102,6 +106,7 @@ fn command_name(cmd: &Cmd) -> &'static str {
         Cmd::Config(_) => "config",
         Cmd::Init(_) => "init",
         Cmd::Migrate(_) => "migrate",
+        Cmd::Explain(_) => "explain",
         Cmd::Telemetry(_) => "telemetry",
     }
 }
