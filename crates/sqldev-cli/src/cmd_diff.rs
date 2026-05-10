@@ -19,17 +19,19 @@ use sqldev_diff::DiffResult;
 #[derive(ClapArgs, Debug)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct Args {
-    /// Old (current) schema-graph JSON file.
-    #[arg(long, conflicts_with = "old_db", group = "old_src")]
+    /// Old (current) schema-graph JSON file. Aliased as `--source`.
+    #[arg(long, alias = "source", conflicts_with = "old_db", group = "old_src")]
     pub old: Option<PathBuf>,
-    /// New (target) schema-graph JSON file.
-    #[arg(long, conflicts_with = "new_db", group = "new_src")]
+    /// New (target) schema-graph JSON file. Aliased as `--target`.
+    #[arg(long, alias = "target", conflicts_with = "new_db", group = "new_src")]
     pub new: Option<PathBuf>,
     /// Treat the configured connection as the "old" side; live-introspect it.
-    #[arg(long, conflicts_with = "old", group = "old_src")]
+    /// Aliased as `--source-db`.
+    #[arg(long, alias = "source-db", conflicts_with = "old", group = "old_src")]
     pub old_db: bool,
     /// Treat the configured connection as the "new" side; live-introspect it.
-    #[arg(long, conflicts_with = "new", group = "new_src")]
+    /// Aliased as `--target-db`.
+    #[arg(long, alias = "target-db", conflicts_with = "new", group = "new_src")]
     pub new_db: bool,
 
     #[command(flatten)]

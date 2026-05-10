@@ -539,3 +539,77 @@ fn live_diff_output_apply_round_trip_is_empty() {
         "round-trip not empty:\n{stdout}"
     );
 }
+
+#[test]
+#[ignore = "live test; requires SQL Server (run with --ignored)"]
+fn live_snapshot_save_round_trips_through_diff() {
+    await_ready();
+    reset_test_db();
+    seed_schema();
+
+    let tmp = tempfile::tempdir().expect("tempdir");
+    let snap = tmp.path().join("dev.json");
+
+    // 1. Save snapshot to an explicit path.
+    let mut cmd = sqldev();
+    cmd.args(["snapshot", "save", "--output"]).arg(&snap);
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn snapshot save");
+    require_success("snapshot save", &out);
+    assert!(snap.exists(), "{} missing", snap.display());
+
+    // File must contain a valid SchemaGraph JSON.
+    let text = std::fs::read_to_string(&snap).unwrap();
+    let v: serde_json::Value = serde_json::from_str(&text).expect("snapshot is JSON");
+    assert!(v.get("schemas").is_some(), "snapshot missing schemas");
+
+    // 2. Diff snapshot against the live DB using the new --source/--target
+    //    spelling — must be empty.
+    let mut cmd = sqldev();
+    cmd.args(["diff", "--source"])
+        .arg(&snap)
+        .arg("--target-db")
+        .arg("--quiet");
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn diff snapshot vs live");
+    require_success("diff snapshot vs live", &out);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        stdout.trim() == "-- no changes",
+        "snapshot drift:\n{stdout}"
+    );
+
+    // 3. Save by name into a directory; verify path resolution + --force.
+    let dir = tmp.path().join("snaps");
+    let mut cmd = sqldev();
+    cmd.args(["snapshot", "save", "dev", "--dir"]).arg(&dir);
+    common_conn_flags(&mut cmd, TEST_DB);
+    require_success(
+        "snapshot save by name",
+        &cmd.output().expect("spawn snapshot save name"),
+    );
+    let by_name = dir.join("dev.json");
+    assert!(by_name.exists(), "{} missing", by_name.display());
+
+    // Re-saving without --force should fail.
+    let mut cmd = sqldev();
+    cmd.args(["snapshot", "save", "dev", "--dir"]).arg(&dir);
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn snapshot save no-force");
+    assert!(
+        !out.status.success(),
+        "expected failure without --force; stderr={}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    // With --force it should succeed.
+    let mut cmd = sqldev();
+    cmd.args(["snapshot", "save", "dev", "--dir"])
+        .arg(&dir)
+        .arg("--force");
+    common_conn_flags(&mut cmd, TEST_DB);
+    require_success(
+        "snapshot save --force",
+        &cmd.output().expect("spawn snapshot save force"),
+    );
+}

@@ -9,6 +9,7 @@ mod cmd_init;
 mod cmd_introspect;
 mod cmd_migrate;
 mod cmd_query;
+mod cmd_snapshot;
 mod cmd_telemetry;
 mod config_ctx;
 mod conn_flags;
@@ -61,6 +62,8 @@ enum Cmd {
     Explain(cmd_explain::Args),
     /// Diff two schema graphs and emit a T-SQL migration script.
     Diff(cmd_diff::Args),
+    /// Capture the live schema graph as JSON for offline diffing in CI.
+    Snapshot(cmd_snapshot::Args),
     /// Manage anonymous usage telemetry (opt-in, off by default).
     Telemetry(cmd_telemetry::Args),
 }
@@ -94,6 +97,7 @@ async fn main() -> Result<()> {
         Cmd::Migrate(args) => cmd_migrate::run(args, &ctx).await,
         Cmd::Explain(args) => Box::pin(cmd_explain::run(args, &ctx)).await,
         Cmd::Diff(args) => Box::pin(cmd_diff::run(args, &ctx)).await,
+        Cmd::Snapshot(args) => Box::pin(cmd_snapshot::run(args, &ctx)).await,
         Cmd::Telemetry(args) => cmd_telemetry::run(&args),
     };
     let exit_code = i32::from(result.is_err());
@@ -112,6 +116,7 @@ fn command_name(cmd: &Cmd) -> &'static str {
         Cmd::Migrate(_) => "migrate",
         Cmd::Explain(_) => "explain",
         Cmd::Diff(_) => "diff",
+        Cmd::Snapshot(_) => "snapshot",
         Cmd::Telemetry(_) => "telemetry",
     }
 }
