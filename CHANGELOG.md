@@ -10,6 +10,14 @@ Conventional Commits.
 ## [Unreleased]
 
 ### Added
+- `README.md` with status, install, quickstart, config reference, and
+  repo layout.
+- `docs/getting-started.md` — 10-minute walkthrough that takes you from
+  a fresh machine to running queries against AdventureWorks2022 in
+  Docker.
+- `docs/demo-script.md` and `scripts/demo.sh` — a Clipchamp-ready
+  recording plan for a 2-minute "what is sqldev?" demo, plus a runnable
+  script that drives the same commands.
 - Pre-release work towards M1.4 (typed JSON, CSV, NDJSON, aligned text
   table) and other M1 milestones. See open issues at
   https://github.com/saurabh500/sqldev/issues.
