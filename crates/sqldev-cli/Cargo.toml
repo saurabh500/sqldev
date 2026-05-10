@@ -19,6 +19,7 @@ sqldev-introspect = { workspace = true }
 
 anyhow = { workspace = true }
 clap = { workspace = true }
+csv = { workspace = true }
 mssql-tiberius-bridge = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
