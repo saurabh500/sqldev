@@ -10,6 +10,7 @@ mod cmd_query;
 mod config_ctx;
 mod conn_flags;
 mod output;
+mod repl;
 
 use std::path::PathBuf;
 
@@ -72,7 +73,7 @@ async fn main() -> Result<()> {
 
     match cli.cmd {
         Cmd::Introspect(args) => cmd_introspect::run(args, &ctx).await,
-        Cmd::Query(args) => cmd_query::run(args, &ctx).await,
+        Cmd::Query(args) => Box::pin(cmd_query::run(args, &ctx)).await,
         Cmd::Config(args) => cmd_config::run(args, &ctx),
         Cmd::Init(args) => cmd_init::run(args, &ctx).await,
         Cmd::Migrate(args) => cmd_migrate::run(args, &ctx).await,
