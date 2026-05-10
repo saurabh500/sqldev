@@ -1,0 +1,18 @@
+[package]
+name = "sqldev-conn"
+description = "TDS connection layer for sqldev (wraps mssql-tiberius-bridge)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+sqldev-core = { workspace = true }
+
+anyhow = { workspace = true }
+mssql-tiberius-bridge = { workspace = true }
+serde = { workspace = true }
+
+[lints]
+workspace = true

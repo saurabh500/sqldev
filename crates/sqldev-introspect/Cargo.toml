@@ -1,0 +1,17 @@
+[package]
+name = "sqldev-introspect"
+description = "Walks the SQL Server system catalog and produces a SchemaGraph."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+sqldev-core = { workspace = true }
+
+anyhow = { workspace = true }
+mssql-tiberius-bridge = { workspace = true }
+
+[lints]
+workspace = true
