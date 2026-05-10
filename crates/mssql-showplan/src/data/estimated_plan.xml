@@ -8,6 +8,9 @@
                     StatementId="1"
                     StatementCompId="1"
                     StatementType="SELECT"
+                    StatementOptmLevel="FULL"
+                    StatementOptmEarlyAbortReason="GoodEnoughPlanFound"
+                    CardinalityEstimationModelVersion="150"
                     QueryHash="0xA1B2C3D4E5F60718"
                     QueryPlanHash="0x1234567890ABCDEF">
           <QueryPlan CachedPlanSize="48"
@@ -16,10 +19,18 @@
                      CompileMemory="256"
                      DegreeOfParallelism="1"
                      MemoryGrant="1024">
+            <MemoryGrantInfo SerialRequiredMemory="512"
+                             SerialDesiredMemory="1024"
+                             RequiredMemory="512"
+                             DesiredMemory="1024"
+                             RequestedMemory="1024"
+                             GrantedMemory="1024"
+                             MaxUsedMemory="768"
+                             GrantWaitTime="0" />
             <RelOp NodeId="0" PhysicalOp="Sort" LogicalOp="Sort"
                    EstimateRows="500" EstimateCPU="0.05" EstimateIO="0.02"
-                   EstimatedTotalSubtreeCost="1.234" Parallel="false"
-                   EstimateRebinds="0" EstimateRewinds="0">
+                   AvgRowSize="120" EstimateRebinds="0" EstimateRewinds="0"
+                   EstimatedTotalSubtreeCost="1.234" Parallel="false">
               <OutputList>
                 <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderID" />
                 <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderDate" />
@@ -33,8 +44,8 @@
                 </OrderBy>
                 <RelOp NodeId="1" PhysicalOp="Hash Match" LogicalOp="Inner Join"
                        EstimateRows="500" EstimateCPU="0.03" EstimateIO="0"
-                       EstimatedTotalSubtreeCost="0.987" Parallel="false"
-                       EstimateRebinds="0" EstimateRewinds="0">
+                       AvgRowSize="120" EstimateRebinds="0" EstimateRewinds="0"
+                       EstimatedTotalSubtreeCost="0.987" Parallel="false">
                   <OutputList>
                     <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderID" />
                     <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderDate" />
@@ -50,6 +61,7 @@
                     </HashKeysProbe>
                     <RelOp NodeId="2" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan"
                            EstimateRows="1000" EstimateCPU="0.005" EstimateIO="0.01"
+                           AvgRowSize="50" EstimateRebinds="0" EstimateRewinds="0"
                            EstimatedTotalSubtreeCost="0.015" Parallel="false"
                            TableCardinality="1000">
                       <OutputList>
@@ -70,6 +82,7 @@
                     </RelOp>
                     <RelOp NodeId="3" PhysicalOp="Index Seek" LogicalOp="Index Seek"
                            EstimateRows="500" EstimateCPU="0.003" EstimateIO="0.008"
+                           AvgRowSize="30" EstimateRebinds="0" EstimateRewinds="0"
                            EstimatedTotalSubtreeCost="0.011" Parallel="false"
                            TableCardinality="10000">
                       <OutputList>
@@ -112,6 +125,10 @@
                 </RelOp>
               </Sort>
             </RelOp>
+            <ParameterList>
+              <ColumnReference Column="@StartDate" ParameterDataType="datetime"
+                               ParameterCompiledValue="'2024-01-01'" ParameterRuntimeValue="'2024-01-01'" />
+            </ParameterList>
           </QueryPlan>
         </StmtSimple>
       </Statements>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan"
+             Version="1.6" Build="15.0.4123.1">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="SELECT a.*, b.* FROM TableA a CROSS JOIN TableB b"
+                    StatementId="1"
+                    StatementType="SELECT"
+                    QueryHash="0xWARN0001">
+          <QueryPlan CachedPlanSize="24"
+                     CompileTime="2"
+                     CompileCPU="1"
+                     CompileMemory="64"
+                     DegreeOfParallelism="4">
+            <Warnings NoJoinPredicate="true" />
+            <RelOp NodeId="0" PhysicalOp="Hash Match" LogicalOp="Inner Join"
+                   EstimateRows="1000000" EstimateCPU="1.5" EstimateIO="0.5"
+                   AvgRowSize="400" EstimateRebinds="0" EstimateRewinds="0"
+                   EstimatedTotalSubtreeCost="5.0" Parallel="true">
+              <OutputList>
+                <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[TableA]" Column="ID" />
+              </OutputList>
+              <Warnings>
+                <SpillOccurred />
+                <SpillToTempDb SpillLevel="1" SpilledThreadCount="2" />
+                <SpillToTempDb SpillLevel="2" SpilledThreadCount="1" />
+                <MemoryGrantWarning GrantWarningKind="Excessive Grant"
+                                    RequestedMemory="65536"
+                                    GrantedMemory="65536"
+                                    MaxUsedMemory="8192" />
+              </Warnings>
+              <Hash>
+                <DefinedValues />
+                <RelOp NodeId="1" PhysicalOp="Table Scan" LogicalOp="Table Scan"
+                       EstimateRows="1000" EstimateCPU="0.01" EstimateIO="0.05"
+                       AvgRowSize="200" EstimateRebinds="0" EstimateRewinds="0"
+                       EstimatedTotalSubtreeCost="0.06" Parallel="true">
+                  <OutputList>
+                    <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[TableA]" Column="ID" />
+                  </OutputList>
+                  <Warnings>
+                    <ColumnsWithNoStatistics>
+                      <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[TableA]" Column="Value" />
+                    </ColumnsWithNoStatistics>
+                  </Warnings>
+                  <RunTimeInformation>
+                    <RunTimeCountersPerThread Thread="1"
+                                              ActualRows="500"
+                                              ActualEndOfScans="1"
+                                              ActualExecutions="1"
+                                              ActualElapsedms="10"
+                                              ActualCPUms="8"
+                                              ActualScans="1"
+                                              ActualLogicalReads="100"
+                                              ActualPhysicalReads="10"
+                                              ActualReadAheads="50" />
+                    <RunTimeCountersPerThread Thread="2"
+                                              ActualRows="500"
+                                              ActualEndOfScans="1"
+                                              ActualExecutions="1"
+                                              ActualElapsedms="12"
+                                              ActualCPUms="9"
+                                              ActualScans="1"
+                                              ActualLogicalReads="100"
+                                              ActualPhysicalReads="8"
+                                              ActualReadAheads="40" />
+                  </RunTimeInformation>
+                  <TableScan Ordered="false">
+                    <DefinedValues />
+                    <Object Database="[TestDB]" Schema="[dbo]" Table="[TableA]" />
+                  </TableScan>
+                </RelOp>
+                <RelOp NodeId="2" PhysicalOp="Table Scan" LogicalOp="Table Scan"
+                       EstimateRows="1000" EstimateCPU="0.01" EstimateIO="0.05"
+                       AvgRowSize="200" EstimateRebinds="0" EstimateRewinds="0"
+                       EstimatedTotalSubtreeCost="0.06" Parallel="true">
+                  <OutputList>
+                    <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[TableB]" Column="ID" />
+                  </OutputList>
+                  <TableScan Ordered="false">
+                    <DefinedValues />
+                    <Object Database="[TestDB]" Schema="[dbo]" Table="[TableB]" />
+                  </TableScan>
+                </RelOp>
+              </Hash>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>
