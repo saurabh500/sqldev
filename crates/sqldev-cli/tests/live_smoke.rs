@@ -457,6 +457,17 @@ fn live_diff_output_apply_round_trip_is_empty() {
     let baseline = tmp.path().join("baseline.json");
     let target = tmp.path().join("target.json");
     let migrations = tmp.path().join("migrations");
+    std::fs::create_dir_all(&migrations).unwrap();
+
+    // Ensure the migrations tracking table exists on the *target* side too,
+    // so the round-trip diff doesn't see it as a spurious extra table.
+    let mut cmd = sqldev();
+    cmd.args(["migrate", "status", "--path"]).arg(tmp.path());
+    common_conn_flags(&mut cmd, TEST_DB);
+    require_success(
+        "migrate status (target seed)",
+        &cmd.output().expect("spawn status"),
+    );
 
     // 1. Capture target schema (with sales.Customer / sales.[Order]).
     let mut cmd = sqldev();
@@ -466,8 +477,17 @@ fn live_diff_output_apply_round_trip_is_empty() {
     require_success("introspect target", &out);
     std::fs::write(&target, &out.stdout).unwrap();
 
-    // 2. Reset to empty DB and capture baseline.
+    // 2. Reset to empty DB, then create tracking table on the baseline side
+    //    too (same reason as above).
     reset_test_db();
+    let mut cmd = sqldev();
+    cmd.args(["migrate", "status", "--path"]).arg(tmp.path());
+    common_conn_flags(&mut cmd, TEST_DB);
+    require_success(
+        "migrate status (baseline seed)",
+        &cmd.output().expect("spawn status"),
+    );
+
     let mut cmd = sqldev();
     cmd.arg("introspect");
     common_conn_flags(&mut cmd, TEST_DB);
