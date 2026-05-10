@@ -1438,6 +1438,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "roxmltree"
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1964b10c76125c36f8afe190065a4bf9a87bf324842c05701330bba9f1cacbb"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "rust_decimal"
 version = "1.42.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1708,6 +1717,7 @@ dependencies = [
  "sqldev-conn",
  "sqldev-core",
  "sqldev-ddl",
+ "sqldev-explain",
  "sqldev-introspect",
  "tempfile",
  "thiserror 1.0.69",
@@ -1752,6 +1762,15 @@ name = "sqldev-ddl"
 version = "0.1.0"
 dependencies = [
  "sqldev-core",
+]
+
+[[package]]
+name = "sqldev-explain"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "roxmltree",
+ "serde",
 ]
 
 [[package]]

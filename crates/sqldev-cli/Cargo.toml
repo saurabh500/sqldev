@@ -17,6 +17,7 @@ sqldev-conn = { workspace = true }
 sqldev-config = { workspace = true }
 sqldev-introspect = { workspace = true }
 sqldev-ddl = { workspace = true }
+sqldev-explain = { workspace = true }
 
 anyhow = { workspace = true }
 clap = { workspace = true }
