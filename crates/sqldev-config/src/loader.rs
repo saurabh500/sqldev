@@ -107,7 +107,7 @@ mod tests {
         // when env vars are involved; here we use a static value so the
         // process env doesn't matter.
         let f = write_tmp(
-            r#"
+            r"
 default_env: dev
 envs:
   dev:
@@ -119,7 +119,7 @@ envs:
       user: sa
       password: hunter2
     trust_server_certificate: true
-"#,
+",
         );
         let cfg = load_from(f.path()).unwrap();
         assert_eq!(cfg.default_env.as_deref(), Some("dev"));
@@ -133,14 +133,14 @@ envs:
     #[test]
     fn unknown_field_rejected() {
         let f = write_tmp(
-            r#"
+            r"
 envs:
   dev:
     host: x
     database: y
     auth: { kind: sql, user: u, password: p }
     bogus: 1
-"#,
+",
         );
         let err = load_from(f.path()).unwrap_err();
         matches!(err, ConfigLoadError::Parse { .. });
@@ -149,12 +149,12 @@ envs:
     #[test]
     fn select_env_explicit() {
         let f = write_tmp(
-            r#"
+            r"
 default_env: dev
 envs:
   dev: { host: a, database: a, auth: { kind: sql, user: u, password: p } }
   prod: { host: b, database: b, auth: { kind: sql, user: u, password: p }, protected: true }
-"#,
+",
         );
         let cfg = load_from(f.path()).unwrap();
         let (name, env) = cfg.select_env(Some("prod")).unwrap();
@@ -165,10 +165,10 @@ envs:
     #[test]
     fn select_env_unknown_errors() {
         let f = write_tmp(
-            r#"
+            r"
 envs:
   dev: { host: a, database: a, auth: { kind: sql, user: u, password: p } }
-"#,
+",
         );
         let cfg = load_from(f.path()).unwrap();
         assert!(cfg.select_env(Some("nope")).is_err());

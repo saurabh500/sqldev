@@ -2,7 +2,7 @@
 //!
 //! Currently this crate holds:
 //! - [`schema`] — the v0.1 schema graph contract (validated against
-//!   AdventureWorks2022 in the M0 spikes).
+//!   `AdventureWorks2022` in the M0 spikes).
 //! - [`error`] — typed top-level error.
 //!
 //! It deliberately does no I/O. Network calls live in `sqldev-conn`,

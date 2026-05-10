@@ -7,7 +7,7 @@
 //! - Optional scalars MAY be skipped via `Option::is_none`.
 //! - Field renames are breaking. Bumping `version` is the contract.
 //!
-//! This shape was validated against AdventureWorks2022 in the M0 spike:
+//! This shape was validated against `AdventureWorks2022` in the M0 spike:
 //! 71 tables, 486 columns, 90 FKs, 89 checks, 101 indexes, 6 UDDTs, 10
 //! triggers — round-tripped through `spike-diff` with 8/8 passing migrations.
 
