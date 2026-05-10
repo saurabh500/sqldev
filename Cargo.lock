@@ -1717,6 +1717,7 @@ dependencies = [
  "sqldev-conn",
  "sqldev-core",
  "sqldev-ddl",
+ "sqldev-diff",
  "sqldev-explain",
  "sqldev-introspect",
  "tempfile",
@@ -1761,6 +1762,14 @@ dependencies = [
 name = "sqldev-ddl"
 version = "0.1.0"
 dependencies = [
+ "sqldev-core",
+]
+
+[[package]]
+name = "sqldev-diff"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
  "sqldev-core",
 ]
 
