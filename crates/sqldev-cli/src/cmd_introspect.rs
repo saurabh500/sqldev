@@ -4,6 +4,7 @@ use anyhow::{Context, Result};
 use clap::Args as ClapArgs;
 use std::time::Instant;
 
+use crate::config_ctx::ConfigContext;
 use crate::conn_flags::ConnectionFlags;
 
 #[derive(ClapArgs, Debug)]
@@ -16,8 +17,11 @@ pub struct Args {
     pub pretty: bool,
 }
 
-pub async fn run(args: Args) -> Result<()> {
-    let opts = args.conn.to_options();
+pub async fn run(args: Args, ctx: &ConfigContext) -> Result<()> {
+    let opts = args
+        .conn
+        .resolve(ctx.env_block())
+        .context("resolve connection options")?;
     let started = Instant::now();
     let mut client = sqldev_conn::connect(&opts)
         .await
