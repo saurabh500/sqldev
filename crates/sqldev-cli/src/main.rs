@@ -5,6 +5,7 @@
 mod cmd_config;
 mod cmd_init;
 mod cmd_introspect;
+mod cmd_migrate;
 mod cmd_query;
 mod config_ctx;
 mod conn_flags;
@@ -48,6 +49,8 @@ enum Cmd {
     /// Bootstrap a new sqldev project (`.sqldev.yml`, baseline migration,
     /// `migrations/` / `seeds/` / `models/` folders).
     Init(cmd_init::Args),
+    /// Apply or roll back versioned T-SQL migrations.
+    Migrate(cmd_migrate::Args),
 }
 
 #[tokio::main]
@@ -72,5 +75,6 @@ async fn main() -> Result<()> {
         Cmd::Query(args) => cmd_query::run(args, &ctx).await,
         Cmd::Config(args) => cmd_config::run(args, &ctx),
         Cmd::Init(args) => cmd_init::run(args, &ctx).await,
+        Cmd::Migrate(args) => cmd_migrate::run(args, &ctx).await,
     }
 }

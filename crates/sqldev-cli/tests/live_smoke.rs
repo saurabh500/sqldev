@@ -294,3 +294,154 @@ fn live_query_table_format_renders_columns() {
 
 #[allow(dead_code)]
 fn _silence_unused(_p: &Path) {}
+
+#[test]
+#[ignore = "live test; requires SQL Server (run with --ignored)"]
+fn live_migrate_up_status_down_round_trip() {
+    await_ready();
+    reset_test_db();
+
+    let tmp = tempfile::tempdir().expect("tempdir");
+    let migrations = tmp.path().join("migrations");
+    std::fs::create_dir_all(&migrations).unwrap();
+
+    // Two migrations exercising both Up and Down sections, plus a multi-batch
+    // body separated by `GO`.
+    std::fs::write(
+        migrations.join("0001_create_widgets.sql"),
+        "-- +sqldev Up\n\
+         CREATE TABLE dbo.Widget (Id INT NOT NULL CONSTRAINT PK_Widget PRIMARY KEY, Name NVARCHAR(50) NOT NULL);\n\
+         GO\n\
+         INSERT INTO dbo.Widget (Id, Name) VALUES (1, N'first');\n\
+         -- +sqldev Down\n\
+         DROP TABLE dbo.Widget;\n",
+    )
+    .unwrap();
+    std::fs::write(
+        migrations.join("0002_add_gadget.sql"),
+        "-- +sqldev Up\n\
+         CREATE TABLE dbo.Gadget (Id INT NOT NULL CONSTRAINT PK_Gadget PRIMARY KEY);\n\
+         -- +sqldev Down\n\
+         DROP TABLE dbo.Gadget;\n",
+    )
+    .unwrap();
+
+    // --- migrate up (apply all) ---
+    let mut cmd = sqldev();
+    cmd.args(["migrate", "up", "--path"]).arg(tmp.path());
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn migrate up");
+    require_success("migrate up", &out);
+
+    // Both tables exist.
+    let q = run_query(
+        TEST_DB,
+        "SELECT (CASE WHEN OBJECT_ID('dbo.Widget') IS NOT NULL THEN 1 ELSE 0 END) AS w, \
+                (CASE WHEN OBJECT_ID('dbo.Gadget') IS NOT NULL THEN 1 ELSE 0 END) AS g, \
+                (SELECT COUNT(*) FROM dbo.Widget) AS rows",
+    );
+    require_success("post-up check", &q);
+    let stdout = String::from_utf8_lossy(&q.stdout);
+    assert!(stdout.contains('1'), "expected widget to exist: {stdout}");
+
+    // Tracking table records both versions.
+    let q = run_query(
+        TEST_DB,
+        "SELECT version FROM dbo.__sqldev_migrations ORDER BY version",
+    );
+    require_success("tracking rows", &q);
+    let rows = String::from_utf8_lossy(&q.stdout);
+    assert!(rows.contains("0001"));
+    assert!(rows.contains("0002"));
+
+    // --- migrate up (idempotent) ---
+    let mut cmd = sqldev();
+    cmd.args(["migrate", "up", "--path"]).arg(tmp.path());
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn migrate up #2");
+    require_success("migrate up (idempotent)", &out);
+
+    // --- migrate status ---
+    let mut cmd = sqldev();
+    cmd.args(["migrate", "status", "--path"]).arg(tmp.path());
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn status");
+    require_success("status", &out);
+    let s = String::from_utf8_lossy(&out.stdout);
+    assert!(s.contains("0001"), "status missing 0001:\n{s}");
+    assert!(s.contains("0002"), "status missing 0002:\n{s}");
+    assert!(s.contains("applied"), "status missing applied label:\n{s}");
+
+    // --- migrate down (default = 1 step) ---
+    let mut cmd = sqldev();
+    cmd.args(["migrate", "down", "--path"]).arg(tmp.path());
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn migrate down");
+    require_success("migrate down", &out);
+
+    let q = run_query(
+        TEST_DB,
+        "SELECT (CASE WHEN OBJECT_ID('dbo.Gadget') IS NOT NULL THEN 1 ELSE 0 END) AS g",
+    );
+    require_success("post-down check", &q);
+    let stdout = String::from_utf8_lossy(&q.stdout);
+    assert!(
+        stdout.lines().any(|l| l.trim() == "0"),
+        "expected Gadget to be dropped:\n{stdout}"
+    );
+
+    // --- migrate down --to 0000 (rolls back everything) ---
+    let mut cmd = sqldev();
+    cmd.args(["migrate", "down", "--to", "0000", "--path"])
+        .arg(tmp.path());
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn migrate down --to");
+    require_success("migrate down --to 0000", &out);
+
+    let q = run_query(TEST_DB, "SELECT COUNT(*) AS n FROM dbo.__sqldev_migrations");
+    require_success("count tracking", &q);
+    let stdout = String::from_utf8_lossy(&q.stdout);
+    assert!(
+        stdout.lines().any(|l| l.trim() == "0"),
+        "tracking table should be empty:\n{stdout}"
+    );
+}
+
+#[test]
+#[ignore = "live test; requires SQL Server (run with --ignored)"]
+fn live_migrate_dry_run_makes_no_changes() {
+    await_ready();
+    reset_test_db();
+
+    let tmp = tempfile::tempdir().expect("tempdir");
+    let migrations = tmp.path().join("migrations");
+    std::fs::create_dir_all(&migrations).unwrap();
+    std::fs::write(
+        migrations.join("0001_dry.sql"),
+        "-- +sqldev Up\nCREATE TABLE dbo.ShouldNotExist (Id INT);\n-- +sqldev Down\nDROP TABLE dbo.ShouldNotExist;\n",
+    )
+    .unwrap();
+
+    let mut cmd = sqldev();
+    cmd.args(["migrate", "up", "--dry-run", "--path"])
+        .arg(tmp.path());
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn dry-run");
+    require_success("dry-run", &out);
+    let s = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        s.contains("CREATE TABLE dbo.ShouldNotExist"),
+        "dry-run did not echo SQL:\n{s}"
+    );
+
+    let q = run_query(
+        TEST_DB,
+        "SELECT (CASE WHEN OBJECT_ID('dbo.ShouldNotExist') IS NOT NULL THEN 1 ELSE 0 END) AS x",
+    );
+    require_success("post-dry-run check", &q);
+    let stdout = String::from_utf8_lossy(&q.stdout);
+    assert!(
+        stdout.lines().any(|l| l.trim() == "0"),
+        "dry-run should not have created table:\n{stdout}"
+    );
+}
