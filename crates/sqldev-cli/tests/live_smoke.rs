@@ -127,8 +127,13 @@ fn reset_test_db() {
 }
 
 fn seed_schema() {
+    // `CREATE SCHEMA` must be the only statement in its batch, so issue it
+    // separately from the table DDL.
+    require_success(
+        "create sales schema",
+        &run_query(TEST_DB, "CREATE SCHEMA sales"),
+    );
     let ddl = r"
-        CREATE SCHEMA sales;
         CREATE TABLE sales.Customer (
             Id INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Customer PRIMARY KEY,
             Email NVARCHAR(255) NOT NULL CONSTRAINT UQ_Customer_Email UNIQUE,
