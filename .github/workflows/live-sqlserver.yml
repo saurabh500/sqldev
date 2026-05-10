@@ -1,0 +1,81 @@
+name: live-sqlserver
+
+# Runs the integration tests marked `#[ignore]` in
+# `crates/sqldev-cli/tests/live_smoke.rs` against a real SQL Server 2025
+# instance running as a service container. Triggered on PRs and pushes to
+# main, in parallel with the regular `ci` workflow.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: live-sqlserver-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+  SA_PASSWORD: "Dev!Pass2025"
+
+jobs:
+  live:
+    name: live SQL Server 2025
+    runs-on: ubuntu-latest
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2025-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "Dev!Pass2025"
+          MSSQL_PID: "Developer"
+        ports:
+          - 1433:1433
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Wait for SQL Server (TCP)
+        run: |
+          for i in $(seq 1 60); do
+            if (exec 3<>/dev/tcp/127.0.0.1/1433) 2>/dev/null; then
+              exec 3<&- 3>&-
+              echo "TCP 1433 open after ${i} attempts"
+              # Give SQL another moment to finish bootstrapping the system DBs.
+              sleep 5
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Timed out waiting for SQL Server"
+          docker ps -a
+          docker logs $(docker ps -aq --filter "ancestor=mcr.microsoft.com/mssql/server:2025-latest") || true
+          exit 1
+
+      - name: Build sqldev
+        run: cargo build -p sqldev-cli --locked
+
+      - name: Run live integration tests
+        env:
+          SQLDEV_LIVE_HOST: 127.0.0.1
+          SQLDEV_LIVE_PORT: "1433"
+          SQLDEV_LIVE_USER: SA
+          SQLDEV_LIVE_PASSWORD: ${{ env.SA_PASSWORD }}
+        run: |
+          cargo test -p sqldev-cli --test live_smoke --locked -- \
+            --ignored --test-threads=1 --nocapture
+
+      - name: Dump SQL Server logs on failure
+        if: failure()
+        run: |
+          docker ps -a
+          for c in $(docker ps -aq); do
+            echo "===== logs for $c ====="
+            docker logs --tail 200 "$c" || true
+          done
