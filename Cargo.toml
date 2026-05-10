@@ -9,6 +9,7 @@ members = [
     "crates/sqldev-diff",
     "crates/sqldev-explain",
     "crates/sqldev-cli",
+    "crates/mssql-showplan",
 ]
 exclude = [
     # Throwaway M0 spike crates. Self-contained, do not join the workspace

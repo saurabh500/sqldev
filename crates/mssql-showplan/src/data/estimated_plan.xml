@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan"
+             Version="1.6" Build="15.0.4123.1">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="SELECT o.OrderID, o.OrderDate, c.CustomerName&#xD;&#xA;FROM Orders o&#xD;&#xA;INNER JOIN Customers c ON o.CustomerID = c.CustomerID&#xD;&#xA;WHERE o.OrderDate &gt;= '2024-01-01'&#xD;&#xA;ORDER BY o.OrderDate DESC"
+                    StatementId="1"
+                    StatementCompId="1"
+                    StatementType="SELECT"
+                    QueryHash="0xA1B2C3D4E5F60718"
+                    QueryPlanHash="0x1234567890ABCDEF">
+          <QueryPlan CachedPlanSize="48"
+                     CompileTime="12"
+                     CompileCPU="8"
+                     CompileMemory="256"
+                     DegreeOfParallelism="1"
+                     MemoryGrant="1024">
+            <RelOp NodeId="0" PhysicalOp="Sort" LogicalOp="Sort"
+                   EstimateRows="500" EstimateCPU="0.05" EstimateIO="0.02"
+                   EstimatedTotalSubtreeCost="1.234" Parallel="false"
+                   EstimateRebinds="0" EstimateRewinds="0">
+              <OutputList>
+                <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderID" />
+                <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderDate" />
+                <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Customers]" Column="CustomerName" />
+              </OutputList>
+              <Sort Distinct="false">
+                <OrderBy>
+                  <OrderByColumn Ascending="false">
+                    <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderDate" />
+                  </OrderByColumn>
+                </OrderBy>
+                <RelOp NodeId="1" PhysicalOp="Hash Match" LogicalOp="Inner Join"
+                       EstimateRows="500" EstimateCPU="0.03" EstimateIO="0"
+                       EstimatedTotalSubtreeCost="0.987" Parallel="false"
+                       EstimateRebinds="0" EstimateRewinds="0">
+                  <OutputList>
+                    <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderID" />
+                    <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderDate" />
+                    <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Customers]" Column="CustomerName" />
+                  </OutputList>
+                  <Hash>
+                    <DefinedValues />
+                    <HashKeysBuild>
+                      <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Customers]" Column="CustomerID" />
+                    </HashKeysBuild>
+                    <HashKeysProbe>
+                      <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="CustomerID" />
+                    </HashKeysProbe>
+                    <RelOp NodeId="2" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan"
+                           EstimateRows="1000" EstimateCPU="0.005" EstimateIO="0.01"
+                           EstimatedTotalSubtreeCost="0.015" Parallel="false"
+                           TableCardinality="1000">
+                      <OutputList>
+                        <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Customers]" Column="CustomerID" />
+                        <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Customers]" Column="CustomerName" />
+                      </OutputList>
+                      <IndexScan Ordered="false" ForcedIndex="false">
+                        <DefinedValues>
+                          <DefinedValue>
+                            <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Customers]" Column="CustomerID" />
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Customers]" Column="CustomerName" />
+                          </DefinedValue>
+                        </DefinedValues>
+                        <Object Database="[TestDB]" Schema="[dbo]" Table="[Customers]" Index="[PK_Customers]" IndexKind="Clustered" />
+                      </IndexScan>
+                    </RelOp>
+                    <RelOp NodeId="3" PhysicalOp="Index Seek" LogicalOp="Index Seek"
+                           EstimateRows="500" EstimateCPU="0.003" EstimateIO="0.008"
+                           EstimatedTotalSubtreeCost="0.011" Parallel="false"
+                           TableCardinality="10000">
+                      <OutputList>
+                        <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderID" />
+                        <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="CustomerID" />
+                        <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderDate" />
+                      </OutputList>
+                      <IndexScan Ordered="true" ScanDirection="FORWARD" ForcedIndex="false">
+                        <DefinedValues>
+                          <DefinedValue>
+                            <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderID" />
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="CustomerID" />
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderDate" />
+                          </DefinedValue>
+                        </DefinedValues>
+                        <Object Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Index="[IX_Orders_OrderDate]" IndexKind="NonClustered" />
+                        <SeekPredicates>
+                          <SeekPredicateNew>
+                            <SeekKeys>
+                              <StartRange ScanType="GE">
+                                <RangeColumns>
+                                  <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderDate" />
+                                </RangeColumns>
+                                <RangeExpressions>
+                                  <ScalarOperator ScalarString="'2024-01-01'">
+                                    <Const ConstValue="'2024-01-01'" />
+                                  </ScalarOperator>
+                                </RangeExpressions>
+                              </StartRange>
+                            </SeekKeys>
+                          </SeekPredicateNew>
+                        </SeekPredicates>
+                      </IndexScan>
+                    </RelOp>
+                  </Hash>
+                </RelOp>
+              </Sort>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>
