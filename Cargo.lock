@@ -873,9 +873,9 @@ dependencies = [
 
 [[package]]
 name = "mssql-tiberius-bridge"
-version = "0.1.0-preview.2"
+version = "0.1.0-preview.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "35079eb8f9203c3395ea6b7ef463075a5f8bde892721f58551c65503aecf30e6"
+checksum = "aa62f1fe8f53595471d6ad62c347be6009f7bc9b799f2715b1f593a434c16588"
 dependencies = [
  "async-stream",
  "async-trait",
