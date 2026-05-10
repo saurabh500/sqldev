@@ -24,6 +24,7 @@ pub enum InterpolateError {
 ///
 /// `extra` is consulted before the process environment, so callers can
 /// inject overrides (useful in tests).
+#[allow(clippy::implicit_hasher)]
 pub fn interpolate(
     input: &str,
     extra: &HashMap<String, String>,

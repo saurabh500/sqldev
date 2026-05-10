@@ -33,15 +33,14 @@ pub enum OutputFormat {
 }
 
 pub async fn run(args: Args, ctx: &ConfigContext) -> Result<()> {
-    let sql = match args.sql {
-        Some(s) => s,
-        None => {
-            let mut buf = String::new();
-            std::io::stdin()
-                .read_to_string(&mut buf)
-                .context("read SQL from stdin")?;
-            buf
-        }
+    let sql = if let Some(s) = args.sql {
+        s
+    } else {
+        let mut buf = String::new();
+        std::io::stdin()
+            .read_to_string(&mut buf)
+            .context("read SQL from stdin")?;
+        buf
     };
     if sql.trim().is_empty() {
         bail!("no SQL provided (use --sql or pipe via stdin)");
