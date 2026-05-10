@@ -50,14 +50,18 @@ pub async fn run(opts: ConnectOptions, fmt: OutputFormat) -> Result<()> {
 
     let helper = SqlHelper::new();
     let config = Config::builder().auto_add_history(true).build();
-    let mut rl: Editor<SqlHelper, _> =
-        Editor::with_config(config).context("init rustyline")?;
+    let mut rl: Editor<SqlHelper, _> = Editor::with_config(config).context("init rustyline")?;
     rl.set_helper(Some(helper));
     if let Some(p) = &history_path {
         let _ = rl.load_history(p);
     }
 
-    println!("sqldev REPL — connected to {}@{} ({}). Type \\? for help, \\q to exit.", state.opts.database, state.opts.host, render_user(&state.opts));
+    println!(
+        "sqldev REPL — connected to {}@{} ({}). Type \\? for help, \\q to exit.",
+        state.opts.database,
+        state.opts.host,
+        render_user(&state.opts)
+    );
     println!();
 
     let mut buffer = String::new();
@@ -177,7 +181,7 @@ async fn run_sql(state: &mut ReplState, sql: &str) -> Result<()> {
 
     let started = Instant::now();
     let client = state.client().await?;
-    let exec = client.simple_query(cleaned.to_string());
+    let exec = client.simple_query(cleaned.clone());
 
     let result = tokio::select! {
         biased;
@@ -379,14 +383,75 @@ fn split_qualified_name(name: &str) -> (String, String) {
 // ---------------------------------------------------------------------------
 
 const KEYWORDS: &[&str] = &[
-    "SELECT", "FROM", "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE",
-    "JOIN", "LEFT", "RIGHT", "INNER", "OUTER", "CROSS", "ON", "AS", "AND", "OR", "NOT",
-    "NULL", "IS", "IN", "LIKE", "BETWEEN", "ORDER", "BY", "GROUP", "HAVING", "TOP",
-    "DISTINCT", "UNION", "ALL", "CREATE", "TABLE", "INDEX", "VIEW", "PROCEDURE",
-    "FUNCTION", "ALTER", "DROP", "TRUNCATE", "BEGIN", "END", "IF", "ELSE", "DECLARE",
-    "EXEC", "EXECUTE", "TRAN", "TRANSACTION", "COMMIT", "ROLLBACK", "GO", "USE",
-    "WITH", "CASE", "WHEN", "THEN", "RETURN", "PRIMARY", "KEY", "FOREIGN",
-    "REFERENCES", "CONSTRAINT", "UNIQUE", "CHECK", "DEFAULT", "IDENTITY",
+    "SELECT",
+    "FROM",
+    "WHERE",
+    "INSERT",
+    "INTO",
+    "VALUES",
+    "UPDATE",
+    "SET",
+    "DELETE",
+    "JOIN",
+    "LEFT",
+    "RIGHT",
+    "INNER",
+    "OUTER",
+    "CROSS",
+    "ON",
+    "AS",
+    "AND",
+    "OR",
+    "NOT",
+    "NULL",
+    "IS",
+    "IN",
+    "LIKE",
+    "BETWEEN",
+    "ORDER",
+    "BY",
+    "GROUP",
+    "HAVING",
+    "TOP",
+    "DISTINCT",
+    "UNION",
+    "ALL",
+    "CREATE",
+    "TABLE",
+    "INDEX",
+    "VIEW",
+    "PROCEDURE",
+    "FUNCTION",
+    "ALTER",
+    "DROP",
+    "TRUNCATE",
+    "BEGIN",
+    "END",
+    "IF",
+    "ELSE",
+    "DECLARE",
+    "EXEC",
+    "EXECUTE",
+    "TRAN",
+    "TRANSACTION",
+    "COMMIT",
+    "ROLLBACK",
+    "GO",
+    "USE",
+    "WITH",
+    "CASE",
+    "WHEN",
+    "THEN",
+    "RETURN",
+    "PRIMARY",
+    "KEY",
+    "FOREIGN",
+    "REFERENCES",
+    "CONSTRAINT",
+    "UNIQUE",
+    "CHECK",
+    "DEFAULT",
+    "IDENTITY",
 ];
 
 #[derive(Default)]
@@ -409,7 +474,12 @@ impl Highlighter for SqlHelper {
         Cow::Owned(highlight_line(line))
     }
 
-    fn highlight_char(&self, _line: &str, _pos: usize, _kind: rustyline::highlight::CmdKind) -> bool {
+    fn highlight_char(
+        &self,
+        _line: &str,
+        _pos: usize,
+        _kind: rustyline::highlight::CmdKind,
+    ) -> bool {
         true
     }
 }

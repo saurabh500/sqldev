@@ -57,7 +57,7 @@ pub async fn run(args: Args, ctx: &ConfigContext) -> Result<()> {
             OutputFormat::Text => OutputFormat::Table,
             other => other,
         };
-        return repl::run(opts, fmt).await;
+        return Box::pin(repl::run(opts, fmt)).await;
     }
 
     let sql = if let Some(s) = args.sql {
