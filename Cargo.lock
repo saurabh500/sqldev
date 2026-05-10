@@ -1700,6 +1700,7 @@ dependencies = [
  "dirs",
  "mssql-tiberius-bridge",
  "rustyline",
+ "serde",
  "serde_json",
  "serde_yaml",
  "sha2",
