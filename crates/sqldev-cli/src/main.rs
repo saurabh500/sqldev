@@ -7,12 +7,15 @@ mod cmd_init;
 mod cmd_introspect;
 mod cmd_migrate;
 mod cmd_query;
+mod cmd_telemetry;
 mod config_ctx;
 mod conn_flags;
 mod output;
 mod repl;
+mod telemetry;
 
 use std::path::PathBuf;
+use std::time::Instant;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
@@ -52,6 +55,8 @@ enum Cmd {
     Init(cmd_init::Args),
     /// Apply or roll back versioned T-SQL migrations.
     Migrate(cmd_migrate::Args),
+    /// Manage anonymous usage telemetry (opt-in, off by default).
+    Telemetry(cmd_telemetry::Args),
 }
 
 #[tokio::main]
@@ -64,6 +69,8 @@ async fn main() -> Result<()> {
         .with_writer(std::io::stderr)
         .init();
 
+    telemetry::install_panic_hook();
+
     let cli = Cli::parse();
 
     // `config show` requires a config file; everything else treats it as
@@ -71,11 +78,30 @@ async fn main() -> Result<()> {
     let require_config = matches!(cli.cmd, Cmd::Config(_));
     let ctx = config_ctx::load(cli.config.as_deref(), cli.env.as_deref(), require_config)?;
 
-    match cli.cmd {
+    let cmd_name = command_name(&cli.cmd);
+    let started = Instant::now();
+    let result = match cli.cmd {
         Cmd::Introspect(args) => cmd_introspect::run(args, &ctx).await,
         Cmd::Query(args) => Box::pin(cmd_query::run(args, &ctx)).await,
         Cmd::Config(args) => cmd_config::run(args, &ctx),
         Cmd::Init(args) => cmd_init::run(args, &ctx).await,
         Cmd::Migrate(args) => cmd_migrate::run(args, &ctx).await,
+        Cmd::Telemetry(args) => cmd_telemetry::run(&args),
+    };
+    let exit_code = i32::from(result.is_err());
+    if let Some(rec) = telemetry::Recorder::from_env() {
+        rec.record_command(cmd_name, exit_code, started.elapsed());
+    }
+    result
+}
+
+fn command_name(cmd: &Cmd) -> &'static str {
+    match cmd {
+        Cmd::Introspect(_) => "introspect",
+        Cmd::Query(_) => "query",
+        Cmd::Config(_) => "config",
+        Cmd::Init(_) => "init",
+        Cmd::Migrate(_) => "migrate",
+        Cmd::Telemetry(_) => "telemetry",
     }
 }
