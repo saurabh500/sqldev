@@ -6,11 +6,12 @@
 
 use anyhow::{Context, Result, bail};
 use clap::{Args as ClapArgs, ValueEnum};
-use std::io::{self, Read};
+use std::io::{self, IsTerminal, Read};
 
 use crate::config_ctx::ConfigContext;
 use crate::conn_flags::ConnectionFlags;
 use crate::output;
+use crate::repl;
 
 #[derive(ClapArgs, Debug)]
 pub struct Args {
@@ -20,6 +21,10 @@ pub struct Args {
     /// SQL to execute. If omitted, read from stdin.
     #[arg(long)]
     pub sql: Option<String>,
+
+    /// Force interactive REPL mode even if stdin is not a TTY.
+    #[arg(long, conflicts_with = "sql")]
+    pub repl: bool,
 
     /// Output format. `text` is tab-separated and pipe-friendly;
     /// `table` is an aligned, human-readable table; `json` is a typed
@@ -39,6 +44,22 @@ pub enum OutputFormat {
 }
 
 pub async fn run(args: Args, ctx: &ConfigContext) -> Result<()> {
+    // Decide REPL vs one-shot before reading stdin so we don't block on
+    // an interactive terminal.
+    let want_repl = args.repl || (args.sql.is_none() && io::stdin().is_terminal());
+    if want_repl {
+        let opts = args
+            .conn
+            .resolve(ctx.env_block())
+            .context("resolve connection options")?;
+        // Default to a friendly format inside the REPL.
+        let fmt = match args.format {
+            OutputFormat::Text => OutputFormat::Table,
+            other => other,
+        };
+        return Box::pin(repl::run(opts, fmt)).await;
+    }
+
     let sql = if let Some(s) = args.sql {
         s
     } else {
