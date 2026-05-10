@@ -445,3 +445,77 @@ fn live_migrate_dry_run_makes_no_changes() {
         "dry-run should not have created table:\n{stdout}"
     );
 }
+
+#[test]
+#[ignore = "live test; requires SQL Server (run with --ignored)"]
+fn live_diff_output_apply_round_trip_is_empty() {
+    await_ready();
+    reset_test_db();
+    seed_schema();
+
+    let tmp = tempfile::tempdir().expect("tempdir");
+    let baseline = tmp.path().join("baseline.json");
+    let target = tmp.path().join("target.json");
+    let migrations = tmp.path().join("migrations");
+
+    // 1. Capture target schema (with sales.Customer / sales.[Order]).
+    let mut cmd = sqldev();
+    cmd.arg("introspect");
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn introspect target");
+    require_success("introspect target", &out);
+    std::fs::write(&target, &out.stdout).unwrap();
+
+    // 2. Reset to empty DB and capture baseline.
+    reset_test_db();
+    let mut cmd = sqldev();
+    cmd.arg("introspect");
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn introspect baseline");
+    require_success("introspect baseline", &out);
+    std::fs::write(&baseline, &out.stdout).unwrap();
+
+    // 3. Generate migration via diff --output.
+    let mut cmd = sqldev();
+    cmd.args(["diff", "--old"])
+        .arg(&baseline)
+        .arg("--new")
+        .arg(&target)
+        .arg("--output")
+        .arg(&migrations)
+        .args(["--name", "round trip"]);
+    let out = cmd.output().expect("spawn diff --output");
+    require_success("diff --output", &out);
+    let mig_path = migrations.join("0001_round_trip.sql");
+    assert!(mig_path.exists(), "{} missing", mig_path.display());
+
+    // 4. Apply via migrate up.
+    let mut cmd = sqldev();
+    cmd.args(["migrate", "up", "--path"]).arg(tmp.path());
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn migrate up");
+    require_success("migrate up", &out);
+
+    // 5. Re-introspect and diff vs target → must be empty.
+    let mut cmd = sqldev();
+    cmd.arg("introspect");
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn introspect after apply");
+    require_success("introspect after apply", &out);
+    let after = tmp.path().join("after.json");
+    std::fs::write(&after, &out.stdout).unwrap();
+
+    let mut cmd = sqldev();
+    cmd.args(["diff", "--old"])
+        .arg(&after)
+        .arg("--new")
+        .arg(&target)
+        .arg("--quiet");
+    let out = cmd.output().expect("spawn final diff");
+    require_success("final diff", &out);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        stdout.trim() == "-- no changes",
+        "round-trip not empty:\n{stdout}"
+    );
+}
