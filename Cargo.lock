@@ -1503,7 +1503,9 @@ dependencies = [
  "sqldev-config",
  "sqldev-conn",
  "sqldev-core",
+ "sqldev-ddl",
  "sqldev-introspect",
+ "tempfile",
  "thiserror 1.0.69",
  "tokio",
  "tracing",
@@ -1539,6 +1541,13 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "sqldev-ddl"
+version = "0.1.0"
+dependencies = [
+ "sqldev-core",
 ]
 
 [[package]]

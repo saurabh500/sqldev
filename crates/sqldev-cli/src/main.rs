@@ -3,6 +3,7 @@
 #![forbid(unsafe_code)]
 
 mod cmd_config;
+mod cmd_init;
 mod cmd_introspect;
 mod cmd_query;
 mod config_ctx;
@@ -44,6 +45,9 @@ enum Cmd {
     Query(cmd_query::Args),
     /// Inspect resolved `.sqldev.yml` configuration.
     Config(cmd_config::Args),
+    /// Bootstrap a new sqldev project (`.sqldev.yml`, baseline migration,
+    /// `migrations/` / `seeds/` / `models/` folders).
+    Init(cmd_init::Args),
 }
 
 #[tokio::main]
@@ -67,5 +71,6 @@ async fn main() -> Result<()> {
         Cmd::Introspect(args) => cmd_introspect::run(args, &ctx).await,
         Cmd::Query(args) => cmd_query::run(args, &ctx).await,
         Cmd::Config(args) => cmd_config::run(args, &ctx),
+        Cmd::Init(args) => cmd_init::run(args, &ctx).await,
     }
 }

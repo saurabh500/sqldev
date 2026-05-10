@@ -16,6 +16,7 @@ sqldev-core = { workspace = true }
 sqldev-conn = { workspace = true }
 sqldev-config = { workspace = true }
 sqldev-introspect = { workspace = true }
+sqldev-ddl = { workspace = true }
 
 anyhow = { workspace = true }
 clap = { workspace = true }
@@ -30,3 +31,8 @@ tracing-subscriber = { workspace = true }
 
 [lints]
 workspace = true
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true }
+serde_json = { workspace = true }
