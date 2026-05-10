@@ -7,6 +7,7 @@ mod cmd_introspect;
 mod cmd_query;
 mod config_ctx;
 mod conn_flags;
+mod output;
 
 use std::path::PathBuf;
 

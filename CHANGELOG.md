@@ -10,6 +10,16 @@ Conventional Commits.
 ## [Unreleased]
 
 ### Added
+- **`sqldev query` typed output formats:**
+  - `--format table` — aligned, human-readable table with
+    right-aligned numerics and a visible `NULL` marker.
+  - `--format json` is now **typed**: numbers stay numbers, booleans
+    stay booleans, NULLs become JSON `null`.
+  - `--format ndjson` — newline-delimited typed JSON, one row per line.
+  - `--format csv` — RFC 4180 via the `csv` crate.
+  - Internal `output::CellValue` enum is open-ended so decimal,
+    datetime, UUID, and binary variants plug in later without changing
+    formatter signatures.
 - `README.md` with status, install, quickstart, config reference, and
   repo layout.
 - `docs/getting-started.md` — 10-minute walkthrough that takes you from
@@ -18,9 +28,6 @@ Conventional Commits.
 - `docs/demo-script.md` and `scripts/demo.sh` — a Clipchamp-ready
   recording plan for a 2-minute "what is sqldev?" demo, plus a runnable
   script that drives the same commands.
-- Pre-release work towards M1.4 (typed JSON, CSV, NDJSON, aligned text
-  table) and other M1 milestones. See open issues at
-  https://github.com/saurabh500/sqldev/issues.
 
 ## [0.1.0] — 2026-05-10
 
