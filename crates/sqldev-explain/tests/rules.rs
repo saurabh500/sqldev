@@ -173,8 +173,7 @@ fn detects_missing_index_hint() {
 
 #[test]
 fn detects_parallelism_cost_warning() {
-    let xml =
-        r#"<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan">
+    let xml = r#"<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan">
               <BatchSequence><Batch><Statements>
                 <StmtSimple StatementText="SELECT 1">
                   <QueryPlan DegreeOfParallelism="4">
