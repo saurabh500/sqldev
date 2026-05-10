@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/sqldev-core",
     "crates/sqldev-conn",
+    "crates/sqldev-config",
     "crates/sqldev-introspect",
     "crates/sqldev-cli",
 ]
@@ -27,6 +28,7 @@ clap = { version = "4", features = ["derive", "env"] }
 mssql-tiberius-bridge = "0.1.0-preview.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+serde_yaml = "0.9"
 thiserror = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 tracing = "0.1"
@@ -36,6 +38,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # Cargo.tomls so version bumps happen in one place.
 sqldev-core = { path = "crates/sqldev-core", version = "0.1.0" }
 sqldev-conn = { path = "crates/sqldev-conn", version = "0.1.0" }
+sqldev-config = { path = "crates/sqldev-config", version = "0.1.0" }
 sqldev-introspect = { path = "crates/sqldev-introspect", version = "0.1.0" }
 
 [workspace.lints.clippy]

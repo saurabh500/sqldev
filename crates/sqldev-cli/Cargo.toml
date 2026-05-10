@@ -14,12 +14,15 @@ path = "src/main.rs"
 [dependencies]
 sqldev-core = { workspace = true }
 sqldev-conn = { workspace = true }
+sqldev-config = { workspace = true }
 sqldev-introspect = { workspace = true }
 
 anyhow = { workspace = true }
 clap = { workspace = true }
 mssql-tiberius-bridge = { workspace = true }
 serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }

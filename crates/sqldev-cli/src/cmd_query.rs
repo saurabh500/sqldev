@@ -8,6 +8,7 @@ use anyhow::{Context, Result, bail};
 use clap::{Args as ClapArgs, ValueEnum};
 use std::io::Read;
 
+use crate::config_ctx::ConfigContext;
 use crate::conn_flags::ConnectionFlags;
 
 #[derive(ClapArgs, Debug)]
@@ -31,7 +32,7 @@ pub enum OutputFormat {
     Json,
 }
 
-pub async fn run(args: Args) -> Result<()> {
+pub async fn run(args: Args, ctx: &ConfigContext) -> Result<()> {
     let sql = match args.sql {
         Some(s) => s,
         None => {
@@ -46,7 +47,10 @@ pub async fn run(args: Args) -> Result<()> {
         bail!("no SQL provided (use --sql or pipe via stdin)");
     }
 
-    let opts = args.conn.to_options();
+    let opts = args
+        .conn
+        .resolve(ctx.env_block())
+        .context("resolve connection options")?;
     let mut client = sqldev_conn::connect(&opts)
         .await
         .context("connect to SQL Server")?;
