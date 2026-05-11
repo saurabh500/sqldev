@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan"
+             Version="1.6" Build="15.0.4123.1">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="SELECT * FROM Orders WHERE CustomerName LIKE '%Smith%' AND OrderDate > '2024-01-01'"
+                    StatementId="1"
+                    StatementType="SELECT"
+                    QueryHash="0xABCD1234"
+                    QueryPlanHash="0xDEADBEEF">
+          <QueryPlan CachedPlanSize="32"
+                     CompileTime="5"
+                     CompileCPU="3"
+                     CompileMemory="128"
+                     DegreeOfParallelism="1">
+            <MissingIndexes>
+              <MissingIndexGroup Impact="87.5">
+                <MissingIndex Database="[TestDB]" Schema="[dbo]" Table="[Orders]">
+                  <ColumnGroup Usage="EQUALITY">
+                    <Column Name="[CustomerName]" ColumnId="3" />
+                  </ColumnGroup>
+                  <ColumnGroup Usage="INEQUALITY">
+                    <Column Name="[OrderDate]" ColumnId="2" />
+                  </ColumnGroup>
+                  <ColumnGroup Usage="INCLUDE">
+                    <Column Name="[OrderID]" ColumnId="1" />
+                    <Column Name="[Status]" ColumnId="4" />
+                  </ColumnGroup>
+                </MissingIndex>
+              </MissingIndexGroup>
+            </MissingIndexes>
+            <RelOp NodeId="0" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan"
+                   EstimateRows="100" EstimateCPU="0.05" EstimateIO="0.1"
+                   AvgRowSize="200" EstimateRebinds="0" EstimateRewinds="0"
+                   EstimatedTotalSubtreeCost="0.15" Parallel="false">
+              <OutputList>
+                <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderID" />
+                <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderDate" />
+                <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="CustomerName" />
+                <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="Status" />
+              </OutputList>
+              <IndexScan Ordered="false">
+                <DefinedValues />
+                <Object Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Index="[PK_Orders]" IndexKind="Clustered" />
+              </IndexScan>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

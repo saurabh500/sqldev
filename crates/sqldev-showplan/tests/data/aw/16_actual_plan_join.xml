@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.599" Build="17.0.4035.5">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="SELECT TOP 50 sod.SalesOrderID, p.Name, sod.LineTotal FROM Sales.SalesOrderDetail sod JOIN Production.Product p ON sod.ProductID = p.ProductID WHERE sod.LineTotal &gt; 1000" StatementId="1" StatementCompId="1" StatementType="SELECT" RetrievedFromCache="true" StatementSubTreeCost="0.0368423" StatementEstRows="50" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0x61D6123C4D414D31" QueryPlanHash="0x3841B556D06BA82C" StatementOptmEarlyAbortReason="GoodEnoughPlanFound" CardinalityEstimationModelVersion="160">
+          <StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"/>
+          <QueryPlan DegreeOfParallelism="1" CachedPlanSize="40" CompileTime="86" CompileCPU="15" CompileMemory="632">
+            <MemoryGrantInfo SerialRequiredMemory="0" SerialDesiredMemory="0" GrantedMemory="0" MaxUsedMemory="0"/>
+            <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="327795" EstimatedPagesCached="163897" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="18129576"/>
+            <OptimizerStatsUsage>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.31" ModificationCount="0" SamplingPercent="100" Statistics="[PK_Product_ProductID]" Table="[Product]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:34.60" ModificationCount="0" SamplingPercent="100" Statistics="[AK_SalesOrderDetail_rowguid]" Table="[SalesOrderDetail]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2026-05-11T00:51:59.39" ModificationCount="0" SamplingPercent="91.2502" Statistics="[_WA_Sys_00000009_58D1301D]" Table="[SalesOrderDetail]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.49" ModificationCount="0" SamplingPercent="100" Statistics="[PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID]" Table="[SalesOrderDetail]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:34.68" ModificationCount="0" SamplingPercent="100" Statistics="[IX_SalesOrderDetail_ProductID]" Table="[SalesOrderDetail]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+            </OptimizerStatsUsage>
+            <QueryTimeStats ElapsedTime="0" CpuTime="0"/>
+            <RelOp NodeId="0" PhysicalOp="Top" LogicalOp="Top" EstimateRows="50" EstimateIO="0" EstimateCPU="5e-06" AvgRowSize="82" EstimatedTotalSubtreeCost="0.0368423" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+              <OutputList>
+                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="SalesOrderID"/>
+                <ColumnReference Table="[sod]" Column="LineTotal" ComputedColumn="1"/>
+                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+              </OutputList>
+              <RunTimeInformation>
+                <RunTimeCountersPerThread Thread="0" ActualRows="50" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"/>
+              </RunTimeInformation>
+              <Top RowCount="0" IsPercent="0" WithTies="0">
+                <TopExpression>
+                  <ScalarOperator ScalarString="(50)">
+                    <Const ConstValue="(50)"/>
+                  </ScalarOperator>
+                </TopExpression>
+                <RelOp NodeId="1" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="50" EstimateRowsWithoutRowGoal="33029.7" EstimateIO="0" EstimateCPU="0.138064" AvgRowSize="82" EstimatedTotalSubtreeCost="0.0368373" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                  <OutputList>
+                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="SalesOrderID"/>
+                    <ColumnReference Table="[sod]" Column="LineTotal" ComputedColumn="1"/>
+                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                  </OutputList>
+                  <RunTimeInformation>
+                    <RunTimeCountersPerThread Thread="0" ActualRows="50" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualEndOfScans="0" ActualExecutions="1" ActualExecutionMode="Row"/>
+                  </RunTimeInformation>
+                  <NestedLoops Optimized="0">
+                    <OuterReferences>
+                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="ProductID"/>
+                    </OuterReferences>
+                    <RelOp NodeId="2" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="50" EstimateRowsWithoutRowGoal="33029.7" EstimateIO="0" EstimateCPU="0.0121317" AvgRowSize="32" EstimatedTotalSubtreeCost="0.0048947" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                      <OutputList>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="SalesOrderID"/>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="ProductID"/>
+                        <ColumnReference Table="[sod]" Column="LineTotal" ComputedColumn="1"/>
+                      </OutputList>
+                      <ComputeScalar>
+                        <DefinedValues>
+                          <DefinedValue>
+                            <ColumnReference Table="[sod]" Column="LineTotal" ComputedColumn="1"/>
+                            <ScalarOperator ScalarString="[AdventureWorks2022].[Sales].[SalesOrderDetail].[LineTotal] as [sod].[LineTotal]">
+                              <Identifier>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="LineTotal" ComputedColumn="1"/>
+                              </Identifier>
+                            </ScalarOperator>
+                          </DefinedValue>
+                        </DefinedValues>
+                        <RelOp NodeId="3" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="50" EstimateRowsWithoutRowGoal="33029.7" EstimateIO="0" EstimateCPU="0.0121317" AvgRowSize="32" EstimatedTotalSubtreeCost="0.00487634" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                          <OutputList>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="SalesOrderID"/>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="ProductID"/>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="LineTotal" ComputedColumn="1"/>
+                          </OutputList>
+                          <ComputeScalar>
+                            <DefinedValues>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="LineTotal" ComputedColumn="1"/>
+                                <ScalarOperator ScalarString="isnull(CONVERT_IMPLICIT(numeric(19,4),[AdventureWorks2022].[Sales].[SalesOrderDetail].[UnitPrice] as [sod].[UnitPrice],0)*((1.0)-CONVERT_IMPLICIT(numeric(19,4),[AdventureWorks2022].[Sales].[SalesOrderDetail].[UnitPriceDiscount] as [sod].[UnitPriceDiscount],0))*CONVERT_IMPLICIT(numeric(5,0),[AdventureWorks2022].[Sales].[SalesOrderDetail].[OrderQty] as [sod].[OrderQty],0),(0.000000))">
+                                  <Intrinsic FunctionName="isnull">
+                                    <ScalarOperator>
+                                      <Arithmetic Operation="MULT">
+                                        <ScalarOperator>
+                                          <Arithmetic Operation="MULT">
+                                            <ScalarOperator>
+                                              <Convert DataType="numeric" Precision="19" Scale="4" Style="0" Implicit="1">
+                                                <ScalarOperator>
+                                                  <Identifier>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="UnitPrice"/>
+                                                  </Identifier>
+                                                </ScalarOperator>
+                                              </Convert>
+                                            </ScalarOperator>
+                                            <ScalarOperator>
+                                              <Arithmetic Operation="SUB">
+                                                <ScalarOperator>
+                                                  <Const ConstValue="(1.0)"/>
+                                                </ScalarOperator>
+                                                <ScalarOperator>
+                                                  <Convert DataType="numeric" Precision="19" Scale="4" Style="0" Implicit="1">
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="UnitPriceDiscount"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                  </Convert>
+                                                </ScalarOperator>
+                                              </Arithmetic>
+                                            </ScalarOperator>
+                                          </Arithmetic>
+                                        </ScalarOperator>
+                                        <ScalarOperator>
+                                          <Convert DataType="numeric" Precision="5" Scale="0" Style="0" Implicit="1">
+                                            <ScalarOperator>
+                                              <Identifier>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="OrderQty"/>
+                                              </Identifier>
+                                            </ScalarOperator>
+                                          </Convert>
+                                        </ScalarOperator>
+                                      </Arithmetic>
+                                    </ScalarOperator>
+                                    <ScalarOperator>
+                                      <Const ConstValue="(0.000000)"/>
+                                    </ScalarOperator>
+                                  </Intrinsic>
+                                </ScalarOperator>
+                              </DefinedValue>
+                            </DefinedValues>
+                            <RelOp NodeId="4" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="50" EstimateRowsWithoutRowGoal="33029.7" EstimatedRowsRead="183.648" EstimateIO="0.915718" EstimateCPU="0.133606" AvgRowSize="33" EstimatedTotalSubtreeCost="0.00485797" TableCardinality="121317" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                              <OutputList>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="SalesOrderID"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="OrderQty"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="ProductID"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="UnitPrice"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="UnitPriceDiscount"/>
+                              </OutputList>
+                              <RunTimeInformation>
+                                <RunTimeCountersPerThread Thread="0" ActualRows="50" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualScans="1" ActualLogicalReads="7" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRowsRead="101" ActualEndOfScans="0" ActualExecutions="1" ActualExecutionMode="Row"/>
+                              </RunTimeInformation>
+                              <IndexScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                <DefinedValues>
+                                  <DefinedValue>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="SalesOrderID"/>
+                                  </DefinedValue>
+                                  <DefinedValue>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="OrderQty"/>
+                                  </DefinedValue>
+                                  <DefinedValue>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="ProductID"/>
+                                  </DefinedValue>
+                                  <DefinedValue>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="UnitPrice"/>
+                                  </DefinedValue>
+                                  <DefinedValue>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="UnitPriceDiscount"/>
+                                  </DefinedValue>
+                                </DefinedValues>
+                                <Object Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Index="[PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID]" Alias="[sod]" IndexKind="Clustered" Storage="RowStore"/>
+                                <Predicate>
+                                  <ScalarOperator ScalarString="isnull(CONVERT_IMPLICIT(numeric(19,4),[AdventureWorks2022].[Sales].[SalesOrderDetail].[UnitPrice] as [sod].[UnitPrice],0)*((1.0)-CONVERT_IMPLICIT(numeric(19,4),[AdventureWorks2022].[Sales].[SalesOrderDetail].[UnitPriceDiscount] as [sod].[UnitPriceDiscount],0))*CONVERT_IMPLICIT(numeric(5,0),[AdventureWorks2022].[Sales].[SalesOrderDetail].[OrderQty] as [sod].[OrderQty],0),(0.000000))&gt;(1000.000000)">
+                                    <Compare CompareOp="GT">
+                                      <ScalarOperator>
+                                        <Intrinsic FunctionName="isnull">
+                                          <ScalarOperator>
+                                            <Arithmetic Operation="MULT">
+                                              <ScalarOperator>
+                                                <Arithmetic Operation="MULT">
+                                                  <ScalarOperator>
+                                                    <Convert DataType="numeric" Precision="19" Scale="4" Style="0" Implicit="1">
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="UnitPrice"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                    </Convert>
+                                                  </ScalarOperator>
+                                                  <ScalarOperator>
+                                                    <Arithmetic Operation="SUB">
+                                                      <ScalarOperator>
+                                                        <Const ConstValue="(1.0)"/>
+                                                      </ScalarOperator>
+                                                      <ScalarOperator>
+                                                        <Convert DataType="numeric" Precision="19" Scale="4" Style="0" Implicit="1">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="UnitPriceDiscount"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                        </Convert>
+                                                      </ScalarOperator>
+                                                    </Arithmetic>
+                                                  </ScalarOperator>
+                                                </Arithmetic>
+                                              </ScalarOperator>
+                                              <ScalarOperator>
+                                                <Convert DataType="numeric" Precision="5" Scale="0" Style="0" Implicit="1">
+                                                  <ScalarOperator>
+                                                    <Identifier>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="OrderQty"/>
+                                                    </Identifier>
+                                                  </ScalarOperator>
+                                                </Convert>
+                                              </ScalarOperator>
+                                            </Arithmetic>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(0.000000)"/>
+                                          </ScalarOperator>
+                                        </Intrinsic>
+                                      </ScalarOperator>
+                                      <ScalarOperator>
+                                        <Const ConstValue="(1000.000000)"/>
+                                      </ScalarOperator>
+                                    </Compare>
+                                  </ScalarOperator>
+                                </Predicate>
+                              </IndexScan>
+                            </RelOp>
+                          </ComputeScalar>
+                        </RelOp>
+                      </ComputeScalar>
+                    </RelOp>
+                    <RelOp NodeId="5" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="61" EstimatedTotalSubtreeCost="0.0316462" TableCardinality="504" Parallel="0" EstimateRebinds="49.4767" EstimateRewinds="0.523771" EstimatedExecutionMode="Row">
+                      <OutputList>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                      </OutputList>
+                      <RunTimeInformation>
+                        <RunTimeCountersPerThread Thread="0" ActualRows="50" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualScans="0" ActualLogicalReads="100" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRowsRead="50" ActualEndOfScans="0" ActualExecutions="50" ActualExecutionMode="Row"/>
+                      </RunTimeInformation>
+                      <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                        <DefinedValues>
+                          <DefinedValue>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                          </DefinedValue>
+                        </DefinedValues>
+                        <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Index="[PK_Product_ProductID]" Alias="[p]" IndexKind="Clustered" Storage="RowStore"/>
+                        <SeekPredicates>
+                          <SeekPredicateNew>
+                            <SeekKeys>
+                              <Prefix ScanType="EQ">
+                                <RangeColumns>
+                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ProductID"/>
+                                </RangeColumns>
+                                <RangeExpressions>
+                                  <ScalarOperator ScalarString="[AdventureWorks2022].[Sales].[SalesOrderDetail].[ProductID] as [sod].[ProductID]">
+                                    <Identifier>
+                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Alias="[sod]" Column="ProductID"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                </RangeExpressions>
+                              </Prefix>
+                            </SeekKeys>
+                          </SeekPredicateNew>
+                        </SeekPredicates>
+                      </IndexScan>
+                    </RelOp>
+                  </NestedLoops>
+                </RelOp>
+              </Top>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

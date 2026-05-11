@@ -1,0 +1,149 @@
+name: publish-sqldev-showplan
+
+# Publishes the `sqldev-showplan` crate to crates.io.
+#
+# Triggers:
+#   * Manual `workflow_dispatch` — run anytime from the Actions tab.
+#       - `dry_run` input: when true (default), only runs `cargo publish --dry-run`
+#         and never uploads. Use this to validate packaging without burning a
+#         crates.io version.
+#   * Push of a tag matching `sqldev-showplan-v*` (e.g. `sqldev-showplan-v0.1.0`).
+#     The tag's trailing version must equal the version in
+#     `crates/sqldev-showplan/Cargo.toml`, otherwise the job fails before any
+#     network call.
+#
+# Behavior:
+#   * Builds and tests the crate with `--all-features` before publishing.
+#   * Checks the crates.io index — if `sqldev-showplan @ <version>` is already
+#     published, the workflow exits successfully (idempotent, safe to re-run).
+#   * Requires the `CARGO_REGISTRY_TOKEN` repository secret. The job fails fast
+#     with a clear message if the secret is missing.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Run cargo publish --dry-run only (no upload)"
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "sqldev-showplan-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: publish to crates.io
+    runs-on: ubuntu-latest
+    env:
+      CRATE_DIR: crates/sqldev-showplan
+      CRATE_NAME: sqldev-showplan
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+
+      - name: Resolve crate version from Cargo.toml
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(awk -F\" '/^version[[:space:]]*=/ { print $2; exit }' "${CRATE_DIR}/Cargo.toml")
+          if [[ -z "${VERSION}" ]]; then
+            echo "Failed to parse version from ${CRATE_DIR}/Cargo.toml" >&2
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "Crate version: ${VERSION}"
+
+      - name: Verify tag matches Cargo.toml version
+        if: github.event_name == 'push'
+        shell: bash
+        env:
+          REF: ${{ github.ref_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          EXPECTED="sqldev-showplan-v${VERSION}"
+          if [[ "${REF}" != "${EXPECTED}" ]]; then
+            echo "Tag '${REF}' does not match Cargo.toml version (expected '${EXPECTED}')" >&2
+            exit 1
+          fi
+          echo "Tag matches Cargo.toml version."
+
+      - name: Check whether this version is already on crates.io
+        id: already_published
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          URL="https://crates.io/api/v1/crates/${CRATE_NAME}/${VERSION}"
+          HTTP=$(curl -sS -o /tmp/resp.json -w "%{http_code}" -A "sqldev-publish-workflow" "${URL}" || echo "000")
+          echo "GET ${URL} -> ${HTTP}"
+          if [[ "${HTTP}" == "200" ]]; then
+            echo "already_published=true" >> "${GITHUB_OUTPUT}"
+            echo "::notice::${CRATE_NAME} v${VERSION} is already published on crates.io — nothing to do."
+          else
+            echo "already_published=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Build & test the crate
+        if: steps.already_published.outputs.already_published != 'true'
+        run: |
+          cargo build -p "${CRATE_NAME}" --all-features --locked
+          cargo test  -p "${CRATE_NAME}" --all-features --locked
+
+      - name: cargo publish --dry-run
+        if: steps.already_published.outputs.already_published != 'true'
+        working-directory: ${{ env.CRATE_DIR }}
+        run: cargo publish --dry-run --locked --all-features
+
+      - name: Ensure CARGO_REGISTRY_TOKEN is set
+        if: >-
+          steps.already_published.outputs.already_published != 'true' &&
+          (github.event_name == 'push' || inputs.dry_run == false)
+        shell: bash
+        env:
+          TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          if [[ -z "${TOKEN}" ]]; then
+            echo "Repository secret CARGO_REGISTRY_TOKEN is not set." >&2
+            echo "Add a crates.io API token under Settings → Secrets and variables → Actions." >&2
+            exit 1
+          fi
+
+      - name: cargo publish
+        if: >-
+          steps.already_published.outputs.already_published != 'true' &&
+          (github.event_name == 'push' || inputs.dry_run == false)
+        working-directory: ${{ env.CRATE_DIR }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish --locked --all-features
+
+      - name: Summary
+        if: always()
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          ALREADY: ${{ steps.already_published.outputs.already_published }}
+          DRY: ${{ inputs.dry_run }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          {
+            echo "### sqldev-showplan publish"
+            echo
+            echo "- Version: \`${VERSION}\`"
+            echo "- Already on crates.io: \`${ALREADY:-unknown}\`"
+            echo "- Trigger: \`${EVENT}\`"
+            if [[ "${EVENT}" == "workflow_dispatch" ]]; then
+              echo "- Dry-run input: \`${DRY}\`"
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"

@@ -10,6 +10,7 @@ members = [
     "crates/sqldev-explain",
     "crates/sqldev-seed",
     "crates/sqldev-cli",
+    "crates/sqldev-showplan",
 ]
 exclude = [
     # Throwaway M0 spike crates. Self-contained, do not join the workspace

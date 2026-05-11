@@ -1,0 +1,696 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.599" Build="17.0.4035.5">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="WITH [BOM_cte]([ProductAssemblyID], [ComponentID], [ComponentDesc], [PerAssemblyQty], [StandardCost], [ListPrice], [BOMLevel], [RecursionLevel]) -- CTE name and columns&#13;&#10;    AS (&#13;&#10;        SELECT b.[ProductAssemblyID], b.[ComponentID], p.[Name], b.[PerAssemblyQty], p.[StandardCost], p.[ListPrice], b.[BOMLevel], 0 -- Get the initial list of components for the bike assembly&#13;&#10;        FROM [Production].[BillOfMaterials] b&#13;&#10;            INNER JOIN [Production].[Product] p &#13;&#10;            ON b.[ComponentID] = p.[ProductID] &#13;&#10;        WHERE b.[ProductAssemblyID] = @StartProductID &#13;&#10;            AND @CheckDate &gt;= b.[StartDate] &#13;&#10;            AND @CheckDate &lt;= ISNULL(b.[EndDate], @CheckDate)&#13;&#10;        UNION ALL&#13;&#10;        SELECT b.[ProductAssemblyID], b.[ComponentID], p.[Name], b.[PerAssemblyQty], p.[StandardCost], p.[ListPrice], b.[BOMLevel], [RecursionLevel] + 1 -- Join recursive member to anchor&#13;&#10;        FROM [BOM_cte] cte&#13;&#10;            INNER JOIN [Production].[BillOfMaterials] b &#13;&#10;            ON b.[ProductAssemblyID] = cte.[ComponentID]&#13;&#10;            INNER JOIN [Production].[Product] p &#13;&#10;            ON b.[ComponentID] = p.[ProductID] &#13;&#10;        WHERE @CheckDate &gt;= b.[StartDate] &#13;&#10;            AND @CheckDate &lt;= ISNULL(b.[EndDate], @CheckDate)&#13;&#10;        )&#13;&#10;    -- Outer select from the CTE&#13;&#10;    SELECT b.[ProductAssemblyID], b.[ComponentID], b.[ComponentDesc], SUM(b.[PerAssemblyQty]) AS [TotalQuantity] , b.[StandardCost], b.[ListPrice], b.[BOMLevel], b.[RecursionLevel]&#13;&#10;    FROM [BOM_cte] b&#13;&#10;    GROUP BY b.[ComponentID], b.[ComponentDesc], b.[ProductAssemblyID], b.[BOMLevel], b.[RecursionLevel], b.[StandardCost], b.[ListPrice]&#13;&#10;    ORDER BY b.[BOMLevel], b.[ProductAssemblyID], b.[ComponentID]&#13;&#10;    OPTION (MAXRECURSION 25)" StatementId="1" StatementCompId="4" StatementType="SELECT" RetrievedFromCache="true" StatementSubTreeCost="0.232773" StatementEstRows="45.2565" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0xD6F7870A22B853FF" QueryPlanHash="0x4ADE3D84AEC7FF9E" StatementOptmEarlyAbortReason="TimeOut" CardinalityEstimationModelVersion="160">
+          <StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"/>
+          <QueryPlan DegreeOfParallelism="1" MemoryGrant="1024" CachedPlanSize="88" CompileTime="26" CompileCPU="21" CompileMemory="952">
+            <MemoryGrantInfo SerialRequiredMemory="512" SerialDesiredMemory="544" RequiredMemory="512" DesiredMemory="544" RequestedMemory="1024" GrantWaitTime="0" MaxQueryMemory="4444432" GrantedMemory="1024" MaxUsedMemory="16" LastRequestedMemory="1024" IsMemoryGrantFeedbackAdjusted="No: Accurate Grant"/>
+            <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="327795" EstimatedPagesCached="163897" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="18126936"/>
+            <OptimizerStatsUsage>
+              <StatisticsInfo LastUpdate="2026-05-11T00:52:00.24" ModificationCount="0" SamplingPercent="100" Statistics="[_WA_Sys_00000004_31EC6D26]" Table="[BillOfMaterials]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.97" ModificationCount="0" SamplingPercent="100" Statistics="[PK_BillOfMaterials_BillOfMaterialsID]" Table="[BillOfMaterials]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.31" ModificationCount="0" SamplingPercent="100" Statistics="[PK_Product_ProductID]" Table="[Product]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.97" ModificationCount="0" SamplingPercent="100" Statistics="[IX_BillOfMaterials_UnitMeasureCode]" Table="[BillOfMaterials]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2026-05-11T00:52:00.23" ModificationCount="0" SamplingPercent="100" Statistics="[_WA_Sys_00000005_31EC6D26]" Table="[BillOfMaterials]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.97" ModificationCount="0" SamplingPercent="100" Statistics="[AK_BillOfMaterials_ProductAssemblyID_ComponentID_StartDate]" Table="[BillOfMaterials]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:38.53" ModificationCount="0" SamplingPercent="100" Statistics="[_WA_Sys_00000003_31EC6D26]" Table="[BillOfMaterials]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+            </OptimizerStatsUsage>
+            <QueryTimeStats ElapsedTime="1" CpuTime="1"/>
+            <RelOp NodeId="0" PhysicalOp="Stream Aggregate" LogicalOp="Aggregate" EstimateRows="45.2565" EstimateIO="0" EstimateCPU="5.06096e-05" AvgRowSize="108" EstimatedTotalSubtreeCost="0.232773" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+              <OutputList>
+                <ColumnReference Column="Recr1014"/>
+                <ColumnReference Column="Recr1015"/>
+                <ColumnReference Column="Recr1016"/>
+                <ColumnReference Column="Recr1018"/>
+                <ColumnReference Column="Recr1019"/>
+                <ColumnReference Column="Recr1020"/>
+                <ColumnReference Column="Recr1021"/>
+                <ColumnReference Column="Expr1022"/>
+              </OutputList>
+              <RunTimeInformation>
+                <RunTimeCountersPerThread Thread="0" ActualRows="87" Batches="0" ActualElapsedms="1" ActualCPUms="1" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"/>
+              </RunTimeInformation>
+              <StreamAggregate>
+                <DefinedValues>
+                  <DefinedValue>
+                    <ColumnReference Column="Expr1022"/>
+                    <ScalarOperator ScalarString="SUM([Recr1017])">
+                      <Aggregate Distinct="0" AggType="SUM">
+                        <ScalarOperator>
+                          <Identifier>
+                            <ColumnReference Column="Recr1017"/>
+                          </Identifier>
+                        </ScalarOperator>
+                      </Aggregate>
+                    </ScalarOperator>
+                  </DefinedValue>
+                </DefinedValues>
+                <GroupBy>
+                  <ColumnReference Column="Recr1020"/>
+                  <ColumnReference Column="Recr1014"/>
+                  <ColumnReference Column="Recr1015"/>
+                  <ColumnReference Column="Recr1016"/>
+                  <ColumnReference Column="Recr1021"/>
+                  <ColumnReference Column="Recr1018"/>
+                  <ColumnReference Column="Recr1019"/>
+                </GroupBy>
+                <RelOp NodeId="1" PhysicalOp="Sort" LogicalOp="Sort" EstimateRows="46.6356" EstimateIO="0.0112613" EstimateCPU="0.000503384" AvgRowSize="96" EstimatedTotalSubtreeCost="0.232723" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                  <OutputList>
+                    <ColumnReference Column="Recr1014"/>
+                    <ColumnReference Column="Recr1015"/>
+                    <ColumnReference Column="Recr1016"/>
+                    <ColumnReference Column="Recr1017"/>
+                    <ColumnReference Column="Recr1018"/>
+                    <ColumnReference Column="Recr1019"/>
+                    <ColumnReference Column="Recr1020"/>
+                    <ColumnReference Column="Recr1021"/>
+                  </OutputList>
+                  <MemoryFractions Input="1" Output="1"/>
+                  <RunTimeInformation>
+                    <RunTimeCountersPerThread Thread="0" ActualRows="89" Batches="0" ActualElapsedms="1" ActualCPUms="1" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRebinds="1" ActualRewinds="0" ActualEndOfScans="1" ActualExecutions="1" InputMemoryGrant="1024" OutputMemoryGrant="640" UsedMemoryGrant="16" ActualExecutionMode="Row"/>
+                  </RunTimeInformation>
+                  <Sort Distinct="0">
+                    <OrderBy>
+                      <OrderByColumn Ascending="1">
+                        <ColumnReference Column="Recr1020"/>
+                      </OrderByColumn>
+                      <OrderByColumn Ascending="1">
+                        <ColumnReference Column="Recr1014"/>
+                      </OrderByColumn>
+                      <OrderByColumn Ascending="1">
+                        <ColumnReference Column="Recr1015"/>
+                      </OrderByColumn>
+                      <OrderByColumn Ascending="1">
+                        <ColumnReference Column="Recr1016"/>
+                      </OrderByColumn>
+                      <OrderByColumn Ascending="1">
+                        <ColumnReference Column="Recr1021"/>
+                      </OrderByColumn>
+                      <OrderByColumn Ascending="1">
+                        <ColumnReference Column="Recr1018"/>
+                      </OrderByColumn>
+                      <OrderByColumn Ascending="1">
+                        <ColumnReference Column="Recr1019"/>
+                      </OrderByColumn>
+                    </OrderBy>
+                    <RelOp NodeId="2" PhysicalOp="Index Spool" LogicalOp="Lazy Spool" EstimateRows="46.6356" EstimateIO="0" EstimateCPU="1.2904e-07" AvgRowSize="96" EstimatedTotalSubtreeCost="0.220958" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                      <OutputList>
+                        <ColumnReference Column="Expr1026"/>
+                        <ColumnReference Column="Recr1014"/>
+                        <ColumnReference Column="Recr1015"/>
+                        <ColumnReference Column="Recr1016"/>
+                        <ColumnReference Column="Recr1017"/>
+                        <ColumnReference Column="Recr1018"/>
+                        <ColumnReference Column="Recr1019"/>
+                        <ColumnReference Column="Recr1020"/>
+                        <ColumnReference Column="Recr1021"/>
+                      </OutputList>
+                      <RunTimeInformation>
+                        <RunTimeCountersPerThread Thread="0" ActualRows="89" Batches="0" ActualElapsedms="1" ActualCPUms="1" ActualScans="1" ActualLogicalReads="179" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRebinds="1" ActualRewinds="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"/>
+                      </RunTimeInformation>
+                      <Spool Stack="1">
+                        <RelOp NodeId="3" PhysicalOp="Concatenation" LogicalOp="Concatenation" EstimateRows="46.6356" EstimateIO="0" EstimateCPU="2.58081e-08" AvgRowSize="96" EstimatedTotalSubtreeCost="0.217111" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                          <OutputList>
+                            <ColumnReference Column="Expr1026"/>
+                            <ColumnReference Column="Recr1014"/>
+                            <ColumnReference Column="Recr1015"/>
+                            <ColumnReference Column="Recr1016"/>
+                            <ColumnReference Column="Recr1017"/>
+                            <ColumnReference Column="Recr1018"/>
+                            <ColumnReference Column="Recr1019"/>
+                            <ColumnReference Column="Recr1020"/>
+                            <ColumnReference Column="Recr1021"/>
+                          </OutputList>
+                          <RunTimeInformation>
+                            <RunTimeCountersPerThread Thread="0" ActualRows="89" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"/>
+                          </RunTimeInformation>
+                          <Concat>
+                            <DefinedValues>
+                              <DefinedValue>
+                                <ColumnReference Column="Expr1026"/>
+                                <ColumnReference Column="Expr1023"/>
+                                <ColumnReference Column="Expr1025"/>
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Column="Recr1014"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Column="Recr1015"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Column="Recr1016"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Column="Recr1017"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Column="Recr1018"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Column="Recr1019"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Column="Recr1020"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Column="Recr1021"/>
+                                <ColumnReference Column="Expr1002"/>
+                                <ColumnReference Column="Expr1013"/>
+                              </DefinedValue>
+                            </DefinedValues>
+                            <RelOp NodeId="4" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="2.58081e-07" AvgRowSize="96" EstimatedTotalSubtreeCost="2.58081e-07" Parallel="0" EstimateRebinds="46.6356" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                              <OutputList>
+                                <ColumnReference Column="Expr1023"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                <ColumnReference Column="Expr1002"/>
+                              </OutputList>
+                              <ComputeScalar>
+                                <DefinedValues>
+                                  <DefinedValue>
+                                    <ColumnReference Column="Expr1023"/>
+                                    <ScalarOperator ScalarString="(0)">
+                                      <Const ConstValue="(0)"/>
+                                    </ScalarOperator>
+                                  </DefinedValue>
+                                </DefinedValues>
+                                <RelOp NodeId="5" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="15.3943" EstimateIO="0" EstimateCPU="1.53943e-06" AvgRowSize="96" EstimatedTotalSubtreeCost="0.0327168" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                  <OutputList>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                    <ColumnReference Column="Expr1002"/>
+                                  </OutputList>
+                                  <ComputeScalar>
+                                    <DefinedValues>
+                                      <DefinedValue>
+                                        <ColumnReference Column="Expr1002"/>
+                                        <ScalarOperator ScalarString="(0)">
+                                          <Const ConstValue="(0)"/>
+                                        </ScalarOperator>
+                                      </DefinedValue>
+                                    </DefinedValues>
+                                    <RelOp NodeId="6" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="15.3943" EstimateIO="0" EstimateCPU="6.43481e-05" AvgRowSize="92" EstimatedTotalSubtreeCost="0.0327153" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                      <OutputList>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                      </OutputList>
+                                      <RunTimeInformation>
+                                        <RunTimeCountersPerThread Thread="0" ActualRows="14" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"/>
+                                      </RunTimeInformation>
+                                      <NestedLoops Optimized="0">
+                                        <OuterReferences>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                        </OuterReferences>
+                                        <RelOp NodeId="7" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="15.3943" EstimatedRowsRead="16" EstimateIO="0.003125" EstimateCPU="0.0001746" AvgRowSize="38" EstimatedTotalSubtreeCost="0.0032996" TableCardinality="2679" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                          <OutputList>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                          </OutputList>
+                                          <RunTimeInformation>
+                                            <RunTimeCountersPerThread Thread="0" ActualRows="14" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualScans="1" ActualLogicalReads="3" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRowsRead="16" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"/>
+                                          </RunTimeInformation>
+                                          <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                            <DefinedValues>
+                                              <DefinedValue>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                              </DefinedValue>
+                                              <DefinedValue>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                              </DefinedValue>
+                                              <DefinedValue>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                              </DefinedValue>
+                                              <DefinedValue>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                              </DefinedValue>
+                                            </DefinedValues>
+                                            <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Index="[AK_BillOfMaterials_ProductAssemblyID_ComponentID_StartDate]" Alias="[b]" TableReferenceId="1" IndexKind="Clustered" Storage="RowStore"/>
+                                            <SeekPredicates>
+                                              <SeekPredicateNew>
+                                                <SeekKeys>
+                                                  <Prefix ScanType="EQ">
+                                                    <RangeColumns>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                                    </RangeColumns>
+                                                    <RangeExpressions>
+                                                      <ScalarOperator ScalarString="[@StartProductID]">
+                                                        <Identifier>
+                                                          <ColumnReference Column="@StartProductID"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                    </RangeExpressions>
+                                                  </Prefix>
+                                                </SeekKeys>
+                                              </SeekPredicateNew>
+                                            </SeekPredicates>
+                                            <Predicate>
+                                              <ScalarOperator ScalarString="[@CheckDate]&gt;=[AdventureWorks2022].[Production].[BillOfMaterials].[StartDate] as [b].[StartDate] AND [@CheckDate]&lt;=isnull([AdventureWorks2022].[Production].[BillOfMaterials].[EndDate] as [b].[EndDate],[@CheckDate])">
+                                                <Logical Operation="AND">
+                                                  <ScalarOperator>
+                                                    <Compare CompareOp="GE">
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Column="@CheckDate"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="StartDate"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                    </Compare>
+                                                  </ScalarOperator>
+                                                  <ScalarOperator>
+                                                    <Compare CompareOp="LE">
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Column="@CheckDate"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                      <ScalarOperator>
+                                                        <Intrinsic FunctionName="isnull">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="EndDate"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="@CheckDate"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                        </Intrinsic>
+                                                      </ScalarOperator>
+                                                    </Compare>
+                                                  </ScalarOperator>
+                                                </Logical>
+                                              </ScalarOperator>
+                                            </Predicate>
+                                          </IndexScan>
+                                        </RelOp>
+                                        <RelOp NodeId="8" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="77" EstimatedTotalSubtreeCost="0.029334" TableCardinality="504" Parallel="0" EstimateRebinds="14.2467" EstimateRewinds="0.147564" EstimatedExecutionMode="Row">
+                                          <OutputList>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                          </OutputList>
+                                          <RunTimeInformation>
+                                            <RunTimeCountersPerThread Thread="0" ActualRows="14" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualScans="0" ActualLogicalReads="28" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRowsRead="14" ActualEndOfScans="0" ActualExecutions="14" ActualExecutionMode="Row"/>
+                                          </RunTimeInformation>
+                                          <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                            <DefinedValues>
+                                              <DefinedValue>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                              </DefinedValue>
+                                              <DefinedValue>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                              </DefinedValue>
+                                              <DefinedValue>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                              </DefinedValue>
+                                            </DefinedValues>
+                                            <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Index="[PK_Product_ProductID]" Alias="[p]" TableReferenceId="1" IndexKind="Clustered" Storage="RowStore"/>
+                                            <SeekPredicates>
+                                              <SeekPredicateNew>
+                                                <SeekKeys>
+                                                  <Prefix ScanType="EQ">
+                                                    <RangeColumns>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ProductID"/>
+                                                    </RangeColumns>
+                                                    <RangeExpressions>
+                                                      <ScalarOperator ScalarString="[AdventureWorks2022].[Production].[BillOfMaterials].[ComponentID] as [b].[ComponentID]">
+                                                        <Identifier>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                    </RangeExpressions>
+                                                  </Prefix>
+                                                </SeekKeys>
+                                              </SeekPredicateNew>
+                                            </SeekPredicates>
+                                          </IndexScan>
+                                        </RelOp>
+                                      </NestedLoops>
+                                    </RelOp>
+                                  </ComputeScalar>
+                                </RelOp>
+                              </ComputeScalar>
+                            </RelOp>
+                            <RelOp NodeId="9" PhysicalOp="Assert" LogicalOp="Assert" EstimateRows="3.02941" EstimateIO="0" EstimateCPU="2.16788e-06" AvgRowSize="96" EstimatedTotalSubtreeCost="0.184394" Parallel="0" EstimateRebinds="46.6356" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                              <OutputList>
+                                <ColumnReference Column="Expr1025"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                <ColumnReference Column="Expr1013"/>
+                              </OutputList>
+                              <RunTimeInformation>
+                                <RunTimeCountersPerThread Thread="0" ActualRows="75" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"/>
+                              </RunTimeInformation>
+                              <Assert StartupExpression="0">
+                                <RelOp NodeId="10" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="3.02941" EstimateIO="0" EstimateCPU="2.16788e-06" AvgRowSize="96" EstimatedTotalSubtreeCost="0.184394" Parallel="0" EstimateRebinds="46.6356" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                  <OutputList>
+                                    <ColumnReference Column="Expr1025"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                    <ColumnReference Column="Expr1013"/>
+                                  </OutputList>
+                                  <RunTimeInformation>
+                                    <RunTimeCountersPerThread Thread="0" ActualRows="75" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"/>
+                                  </RunTimeInformation>
+                                  <NestedLoops Optimized="0">
+                                    <OuterReferences>
+                                      <ColumnReference Column="Expr1025"/>
+                                      <ColumnReference Column="Recr1003"/>
+                                      <ColumnReference Column="Recr1004"/>
+                                      <ColumnReference Column="Recr1005"/>
+                                      <ColumnReference Column="Recr1006"/>
+                                      <ColumnReference Column="Recr1007"/>
+                                      <ColumnReference Column="Recr1008"/>
+                                      <ColumnReference Column="Recr1009"/>
+                                      <ColumnReference Column="Recr1010"/>
+                                    </OuterReferences>
+                                    <RelOp NodeId="11" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="2.58081e-07" AvgRowSize="96" EstimatedTotalSubtreeCost="2.58081e-07" Parallel="0" EstimateRebinds="46.6356" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                      <OutputList>
+                                        <ColumnReference Column="Expr1025"/>
+                                        <ColumnReference Column="Recr1003"/>
+                                        <ColumnReference Column="Recr1004"/>
+                                        <ColumnReference Column="Recr1005"/>
+                                        <ColumnReference Column="Recr1006"/>
+                                        <ColumnReference Column="Recr1007"/>
+                                        <ColumnReference Column="Recr1008"/>
+                                        <ColumnReference Column="Recr1009"/>
+                                        <ColumnReference Column="Recr1010"/>
+                                      </OutputList>
+                                      <ComputeScalar>
+                                        <DefinedValues>
+                                          <DefinedValue>
+                                            <ColumnReference Column="Expr1025"/>
+                                            <ScalarOperator ScalarString="[Expr1024]+(1)">
+                                              <Arithmetic Operation="ADD">
+                                                <ScalarOperator>
+                                                  <Identifier>
+                                                    <ColumnReference Column="Expr1024"/>
+                                                  </Identifier>
+                                                </ScalarOperator>
+                                                <ScalarOperator>
+                                                  <Const ConstValue="(1)"/>
+                                                </ScalarOperator>
+                                              </Arithmetic>
+                                            </ScalarOperator>
+                                          </DefinedValue>
+                                        </DefinedValues>
+                                        <RelOp NodeId="12" PhysicalOp="Table Spool" LogicalOp="Lazy Spool" EstimateRows="1" EstimateIO="0" EstimateCPU="2.58081e-07" AvgRowSize="96" EstimatedTotalSubtreeCost="2.58081e-07" Parallel="0" EstimateRebinds="46.6356" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                          <OutputList>
+                                            <ColumnReference Column="Expr1024"/>
+                                            <ColumnReference Column="Recr1003"/>
+                                            <ColumnReference Column="Recr1004"/>
+                                            <ColumnReference Column="Recr1005"/>
+                                            <ColumnReference Column="Recr1006"/>
+                                            <ColumnReference Column="Recr1007"/>
+                                            <ColumnReference Column="Recr1008"/>
+                                            <ColumnReference Column="Recr1009"/>
+                                            <ColumnReference Column="Recr1010"/>
+                                          </OutputList>
+                                          <RunTimeInformation>
+                                            <RunTimeCountersPerThread Thread="0" ActualRows="89" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRebinds="1" ActualRewinds="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"/>
+                                          </RunTimeInformation>
+                                          <Spool PrimaryNodeId="2" Stack="1"/>
+                                        </RelOp>
+                                      </ComputeScalar>
+                                    </RelOp>
+                                    <RelOp NodeId="13" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="10.4138" EstimateIO="0" EstimateCPU="1.04138e-06" AvgRowSize="96" EstimatedTotalSubtreeCost="0.184392" Parallel="0" EstimateRebinds="45.6356" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                      <OutputList>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                        <ColumnReference Column="Expr1013"/>
+                                      </OutputList>
+                                      <ComputeScalar>
+                                        <DefinedValues>
+                                          <DefinedValue>
+                                            <ColumnReference Column="Expr1013"/>
+                                            <ScalarOperator ScalarString="[Recr1010]+(1)">
+                                              <Arithmetic Operation="ADD">
+                                                <ScalarOperator>
+                                                  <Identifier>
+                                                    <ColumnReference Column="Recr1010"/>
+                                                  </Identifier>
+                                                </ScalarOperator>
+                                                <ScalarOperator>
+                                                  <Const ConstValue="(1)"/>
+                                                </ScalarOperator>
+                                              </Arithmetic>
+                                            </ScalarOperator>
+                                          </DefinedValue>
+                                        </DefinedValues>
+                                        <RelOp NodeId="14" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="10.4138" EstimateIO="0" EstimateCPU="4.35296e-05" AvgRowSize="92" EstimatedTotalSubtreeCost="0.184343" Parallel="0" EstimateRebinds="45.6356" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                          <OutputList>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                          </OutputList>
+                                          <RunTimeInformation>
+                                            <RunTimeCountersPerThread Thread="0" ActualRows="75" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualEndOfScans="89" ActualExecutions="89" ActualExecutionMode="Row"/>
+                                          </RunTimeInformation>
+                                          <NestedLoops Optimized="0">
+                                            <OuterReferences>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                            </OuterReferences>
+                                            <RelOp NodeId="15" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="10.4138" EstimatedRowsRead="10.8235" EstimateIO="0.003125" EstimateCPU="0.000168906" AvgRowSize="38" EstimatedTotalSubtreeCost="0.0643614" TableCardinality="2679" Parallel="0" EstimateRebinds="45.6356" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                              <OutputList>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                              </OutputList>
+                                              <RunTimeInformation>
+                                                <RunTimeCountersPerThread Thread="0" ActualRows="75" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualScans="89" ActualLogicalReads="179" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRowsRead="79" ActualEndOfScans="89" ActualExecutions="89" ActualExecutionMode="Row"/>
+                                              </RunTimeInformation>
+                                              <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                <DefinedValues>
+                                                  <DefinedValue>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                                  </DefinedValue>
+                                                  <DefinedValue>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                                  </DefinedValue>
+                                                  <DefinedValue>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="BOMLevel"/>
+                                                  </DefinedValue>
+                                                  <DefinedValue>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="PerAssemblyQty"/>
+                                                  </DefinedValue>
+                                                </DefinedValues>
+                                                <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Index="[AK_BillOfMaterials_ProductAssemblyID_ComponentID_StartDate]" Alias="[b]" TableReferenceId="2" IndexKind="Clustered" Storage="RowStore"/>
+                                                <SeekPredicates>
+                                                  <SeekPredicateNew>
+                                                    <SeekKeys>
+                                                      <Prefix ScanType="EQ">
+                                                        <RangeColumns>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ProductAssemblyID"/>
+                                                        </RangeColumns>
+                                                        <RangeExpressions>
+                                                          <ScalarOperator ScalarString="[Recr1004]">
+                                                            <Identifier>
+                                                            <ColumnReference Column="Recr1004"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                        </RangeExpressions>
+                                                      </Prefix>
+                                                    </SeekKeys>
+                                                  </SeekPredicateNew>
+                                                </SeekPredicates>
+                                                <Predicate>
+                                                  <ScalarOperator ScalarString="[@CheckDate]&gt;=[AdventureWorks2022].[Production].[BillOfMaterials].[StartDate] as [b].[StartDate] AND [@CheckDate]&lt;=isnull([AdventureWorks2022].[Production].[BillOfMaterials].[EndDate] as [b].[EndDate],[@CheckDate])">
+                                                    <Logical Operation="AND">
+                                                      <ScalarOperator>
+                                                        <Compare CompareOp="GE">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="@CheckDate"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="StartDate"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                        </Compare>
+                                                      </ScalarOperator>
+                                                      <ScalarOperator>
+                                                        <Compare CompareOp="LE">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="@CheckDate"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Intrinsic FunctionName="isnull">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="EndDate"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="@CheckDate"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            </Intrinsic>
+                                                          </ScalarOperator>
+                                                        </Compare>
+                                                      </ScalarOperator>
+                                                    </Logical>
+                                                  </ScalarOperator>
+                                                </Predicate>
+                                              </IndexScan>
+                                            </RelOp>
+                                            <RelOp NodeId="16" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="77" EstimatedTotalSubtreeCost="0.117407" TableCardinality="504" Parallel="0" EstimateRebinds="480.261" EstimateRewinds="4.39204" EstimatedExecutionMode="Row">
+                                              <OutputList>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                              </OutputList>
+                                              <RunTimeInformation>
+                                                <RunTimeCountersPerThread Thread="0" ActualRows="75" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualScans="0" ActualLogicalReads="150" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRowsRead="75" ActualEndOfScans="0" ActualExecutions="75" ActualExecutionMode="Row"/>
+                                              </RunTimeInformation>
+                                              <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                <DefinedValues>
+                                                  <DefinedValue>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="Name"/>
+                                                  </DefinedValue>
+                                                  <DefinedValue>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="StandardCost"/>
+                                                  </DefinedValue>
+                                                  <DefinedValue>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ListPrice"/>
+                                                  </DefinedValue>
+                                                </DefinedValues>
+                                                <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Index="[PK_Product_ProductID]" Alias="[p]" TableReferenceId="2" IndexKind="Clustered" Storage="RowStore"/>
+                                                <SeekPredicates>
+                                                  <SeekPredicateNew>
+                                                    <SeekKeys>
+                                                      <Prefix ScanType="EQ">
+                                                        <RangeColumns>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Alias="[p]" Column="ProductID"/>
+                                                        </RangeColumns>
+                                                        <RangeExpressions>
+                                                          <ScalarOperator ScalarString="[AdventureWorks2022].[Production].[BillOfMaterials].[ComponentID] as [b].[ComponentID]">
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[BillOfMaterials]" Alias="[b]" Column="ComponentID"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                        </RangeExpressions>
+                                                      </Prefix>
+                                                    </SeekKeys>
+                                                  </SeekPredicateNew>
+                                                </SeekPredicates>
+                                              </IndexScan>
+                                            </RelOp>
+                                          </NestedLoops>
+                                        </RelOp>
+                                      </ComputeScalar>
+                                    </RelOp>
+                                  </NestedLoops>
+                                </RelOp>
+                                <Predicate>
+                                  <ScalarOperator ScalarString="CASE WHEN [Expr1025]&gt;(25) THEN (0) ELSE NULL END">
+                                    <IF>
+                                      <Condition>
+                                        <ScalarOperator>
+                                          <Compare CompareOp="GT">
+                                            <ScalarOperator>
+                                              <Identifier>
+                                                <ColumnReference Column="Expr1025"/>
+                                              </Identifier>
+                                            </ScalarOperator>
+                                            <ScalarOperator>
+                                              <Const ConstValue="(25)"/>
+                                            </ScalarOperator>
+                                          </Compare>
+                                        </ScalarOperator>
+                                      </Condition>
+                                      <Then>
+                                        <ScalarOperator>
+                                          <Const ConstValue="(0)"/>
+                                        </ScalarOperator>
+                                      </Then>
+                                      <Else>
+                                        <ScalarOperator>
+                                          <Const ConstValue="NULL"/>
+                                        </ScalarOperator>
+                                      </Else>
+                                    </IF>
+                                  </ScalarOperator>
+                                </Predicate>
+                              </Assert>
+                            </RelOp>
+                          </Concat>
+                        </RelOp>
+                      </Spool>
+                    </RelOp>
+                  </Sort>
+                </RelOp>
+              </StreamAggregate>
+            </RelOp>
+            <ParameterList>
+              <ColumnReference Column="@CheckDate" ParameterDataType="datetime" ParameterCompiledValue="'2013-01-01 00:00:00.000'" ParameterRuntimeValue="'2013-01-01 00:00:00.000'"/>
+              <ColumnReference Column="@StartProductID" ParameterDataType="int" ParameterCompiledValue="(749)" ParameterRuntimeValue="(749)"/>
+            </ParameterList>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

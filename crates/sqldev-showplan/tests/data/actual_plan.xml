@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan"
+             Version="1.6" Build="15.0.4123.1">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="SELECT TOP 10 * FROM Orders WHERE Status = 'Active'"
+                    StatementId="1"
+                    StatementType="SELECT"
+                    QueryHash="0xFEDCBA9876543210">
+          <QueryPlan CachedPlanSize="24"
+                     CompileTime="3"
+                     CompileCPU="2"
+                     CompileMemory="128">
+            <RelOp NodeId="0" PhysicalOp="Top" LogicalOp="Top"
+                   EstimateRows="10" EstimateCPU="0.00001" EstimateIO="0"
+                   AvgRowSize="200" EstimateRebinds="0" EstimateRewinds="0"
+                   EstimatedTotalSubtreeCost="0.05" Parallel="false">
+              <OutputList>
+                <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderID" />
+              </OutputList>
+              <Top RowCount="false" IsPercent="false" WithTies="false">
+                <TopExpression>
+                  <ScalarOperator ScalarString="(10)">
+                    <Const ConstValue="(10)" />
+                  </ScalarOperator>
+                </TopExpression>
+                <RelOp NodeId="1" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan"
+                       EstimateRows="500" EstimateCPU="0.01" EstimateIO="0.03"
+                       AvgRowSize="200" EstimateRebinds="0" EstimateRewinds="0"
+                       EstimatedTotalSubtreeCost="0.04" Parallel="false"
+                       TableCardinality="10000">
+                  <OutputList>
+                    <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="OrderID" />
+                  </OutputList>
+                  <RunTimeInformation>
+                    <RunTimeCountersPerThread Thread="0"
+                                              ActualRows="10"
+                                              ActualEndOfScans="1"
+                                              ActualExecutions="1"
+                                              ActualElapsedms="5"
+                                              ActualCPUms="3"
+                                              ActualScans="1"
+                                              ActualLogicalReads="42"
+                                              ActualPhysicalReads="5" />
+                  </RunTimeInformation>
+                  <IndexScan Ordered="false">
+                    <DefinedValues />
+                    <Object Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Index="[PK_Orders]" IndexKind="Clustered" />
+                    <Predicate>
+                      <ScalarOperator ScalarString="[TestDB].[dbo].[Orders].[Status]=N'Active'">
+                        <Compare CompareOp="EQ">
+                          <ScalarOperator>
+                            <Identifier>
+                              <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[Orders]" Column="Status" />
+                            </Identifier>
+                          </ScalarOperator>
+                          <ScalarOperator>
+                            <Const ConstValue="N'Active'" />
+                          </ScalarOperator>
+                        </Compare>
+                      </ScalarOperator>
+                    </Predicate>
+                  </IndexScan>
+                </RelOp>
+              </Top>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

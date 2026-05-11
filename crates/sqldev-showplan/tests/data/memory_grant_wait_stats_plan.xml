@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan"
+             Version="1.6" Build="15.0.4123.1">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="SELECT * FROM LargeTable WHERE Category = @Cat ORDER BY CreatedDate"
+                    StatementId="1"
+                    StatementType="SELECT"
+                    QueryHash="0xMEMGRANT01">
+          <QueryPlan CachedPlanSize="40"
+                     CompileTime="8"
+                     CompileCPU="6"
+                     CompileMemory="512"
+                     DegreeOfParallelism="2"
+                     NonParallelPlanReason="CouldNotGenerateValidParallelPlan">
+            <MemoryGrantInfo SerialRequiredMemory="1024"
+                             SerialDesiredMemory="4096"
+                             RequiredMemory="2048"
+                             DesiredMemory="8192"
+                             RequestedMemory="8192"
+                             GrantedMemory="6144"
+                             MaxUsedMemory="5120"
+                             GrantWaitTime="150" />
+            <WaitStats>
+              <Wait WaitType="CXPACKET" WaitTimeMs="1234" WaitCount="56" />
+              <Wait WaitType="PAGEIOLATCH_SH" WaitTimeMs="567" WaitCount="23" />
+              <Wait WaitType="SOS_SCHEDULER_YIELD" WaitTimeMs="89" WaitCount="100" />
+            </WaitStats>
+            <RelOp NodeId="0" PhysicalOp="Sort" LogicalOp="Sort"
+                   EstimateRows="50000" EstimateCPU="2.5" EstimateIO="1.0"
+                   AvgRowSize="300" EstimateRebinds="0" EstimateRewinds="0"
+                   EstimatedTotalSubtreeCost="10.0" Parallel="true"
+                   EstimatedExecutionMode="Row">
+              <OutputList>
+                <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[LargeTable]" Column="ID" />
+              </OutputList>
+              <Sort Distinct="false">
+                <OrderBy>
+                  <OrderByColumn Ascending="true">
+                    <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[LargeTable]" Column="CreatedDate" />
+                  </OrderByColumn>
+                </OrderBy>
+                <RelOp NodeId="1" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan"
+                       EstimateRows="50000" EstimateCPU="0.5" EstimateIO="3.0"
+                       AvgRowSize="300" EstimateRebinds="0" EstimateRewinds="0"
+                       EstimatedTotalSubtreeCost="3.5" Parallel="true"
+                       Partitioned="true" EstimatedRowsRead="100000"
+                       EstimatedExecutionMode="Row">
+                  <OutputList>
+                    <ColumnReference Database="[TestDB]" Schema="[dbo]" Table="[LargeTable]" Column="ID" />
+                  </OutputList>
+                  <IndexScan Ordered="false">
+                    <DefinedValues />
+                    <Object Database="[TestDB]" Schema="[dbo]" Table="[LargeTable]" Index="[PK_LargeTable]" IndexKind="Clustered" />
+                  </IndexScan>
+                </RelOp>
+              </Sort>
+            </RelOp>
+            <ParameterList>
+              <ColumnReference Column="@Cat" ParameterDataType="nvarchar(50)"
+                               ParameterCompiledValue="N'Electronics'"
+                               ParameterRuntimeValue="N'Books'" />
+            </ParameterList>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>
