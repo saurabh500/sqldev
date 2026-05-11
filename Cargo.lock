@@ -961,16 +961,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mssql-showplan"
-version = "0.1.0"
-dependencies = [
- "quick-xml",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
-]
-
-[[package]]
 name = "mssql-tds-preview"
 version = "0.1.0-preview.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1808,6 +1798,16 @@ dependencies = [
  "anyhow",
  "mssql-tiberius-bridge",
  "sqldev-core",
+]
+
+[[package]]
+name = "sqldev-showplan"
+version = "0.1.0"
+dependencies = [
+ "quick-xml",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
 ]
 
 [[package]]

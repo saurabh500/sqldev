@@ -1,4 +1,4 @@
-//! # mssql-showplan
+//! # sqldev-showplan
 //!
 //! Parse SQL Server `SHOWPLAN_XML` and `STATISTICS XML` output into a typed
 //! plan tree.
@@ -15,7 +15,7 @@
 //! # Examples
 //!
 //! ```rust
-//! use mssql_showplan::parse;
+//! use sqldev_showplan::parse;
 //!
 //! let xml = r#"<?xml version="1.0"?>
 //! <ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan">
@@ -327,7 +327,7 @@ pub struct ShowPlan {
 /// # Examples
 ///
 /// ```rust
-/// # use mssql_showplan::parse;
+/// # use sqldev_showplan::parse;
 /// let xml = include_str!("data/estimated_plan.xml");
 /// let plan = parse(xml).unwrap();
 /// assert!(!plan.root.physical_op.is_empty());

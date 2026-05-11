@@ -1,4 +1,4 @@
-# mssql-showplan
+# sqldev-showplan
 
 Parse SQL Server `SHOWPLAN_XML` and `STATISTICS XML` output into a typed Rust plan tree.
 
@@ -13,7 +13,7 @@ Parse SQL Server `SHOWPLAN_XML` and `STATISTICS XML` output into a typed Rust pl
 ## Quick start
 
 ```rust
-use mssql_showplan::parse;
+use sqldev_showplan::parse;
 
 let xml = r#"<?xml version="1.0"?>
 <ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan">

@@ -1,4 +1,4 @@
-//! Error types for the `mssql-showplan` crate.
+//! Error types for the `sqldev-showplan` crate.
 
 /// Errors that can occur while parsing a SQL Server execution plan.
 #[derive(Debug, thiserror::Error)]
