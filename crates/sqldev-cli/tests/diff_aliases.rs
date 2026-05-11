@@ -48,6 +48,7 @@ fn customer_table() -> Table {
             nullable: false,
             identity: true,
             is_uddt: false,
+            udt_schema: None,
             base_type: None,
             default: None,
             computed: None,

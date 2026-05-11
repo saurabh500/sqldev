@@ -1729,6 +1729,7 @@ dependencies = [
  "sqldev-diff",
  "sqldev-explain",
  "sqldev-introspect",
+ "sqldev-seed",
  "tempfile",
  "thiserror 1.0.69",
  "tokio",
@@ -1798,6 +1799,20 @@ dependencies = [
  "anyhow",
  "mssql-tiberius-bridge",
  "sqldev-core",
+]
+
+[[package]]
+name = "sqldev-seed"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "rand 0.8.6",
+ "rand_chacha",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "sqldev-core",
+ "thiserror 1.0.69",
 ]
 
 [[package]]

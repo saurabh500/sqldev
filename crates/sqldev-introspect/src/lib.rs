@@ -123,11 +123,17 @@ pub async fn build_schema_graph(client: &mut Client, database: &str) -> Result<S
             .get::<&str, _>("default_def")
             .map(typefmt::strip_default_wrap);
         let computed = r.get::<&str, _>("computed_def").map(str::to_string);
-        let (type_name, is_uddt, base_type) = match uddts.get(&user_type_id) {
-            Some(u) => (u.name.clone(), true, Some(u.base_type.clone())),
+        let (type_name, is_uddt, udt_schema, base_type) = match uddts.get(&user_type_id) {
+            Some(u) => (
+                u.name.clone(),
+                true,
+                schemas.get(&u.schema_id).map(|s| s.name.clone()),
+                Some(u.base_type.clone()),
+            ),
             None => (
                 typefmt::format_type(base, max_length, precision, scale),
                 false,
+                None,
                 None,
             ),
         };
@@ -137,6 +143,7 @@ pub async fn build_schema_graph(client: &mut Client, database: &str) -> Result<S
             nullable,
             identity,
             is_uddt,
+            udt_schema,
             base_type,
             default,
             computed,

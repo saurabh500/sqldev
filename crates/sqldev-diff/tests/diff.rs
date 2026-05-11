@@ -33,6 +33,7 @@ fn col(name: &str, type_name: &str, nullable: bool) -> Column {
         nullable,
         identity: false,
         is_uddt: false,
+        udt_schema: None,
         base_type: None,
         default: None,
         computed: None,
@@ -49,6 +50,7 @@ fn table_with_pk(name: &str) -> Table {
                 nullable: false,
                 identity: true,
                 is_uddt: false,
+                udt_schema: None,
                 base_type: None,
                 default: None,
                 computed: None,
@@ -439,4 +441,68 @@ fn drop_default_warns() {
         "warnings: {:?}",
         r.warnings
     );
+}
+
+#[test]
+fn add_table_with_uddt_renders_owning_schema() {
+    // A column referencing a UDDT defined under a non-`dbo` schema must
+    // emit `[<udt_schema>].[<type_name>]`, not `[dbo].[<type_name>]`.
+    let old = empty_graph("AW");
+    let mut new = empty_graph("AW");
+    let mut t = table_with_pk("AuditLog");
+    t.columns.push(Column {
+        name: "Actor".into(),
+        type_name: "ShortName".into(),
+        nullable: false,
+        identity: false,
+        is_uddt: true,
+        udt_schema: Some("audit".into()),
+        base_type: Some("nvarchar(64)".into()),
+        default: None,
+        computed: None,
+    });
+    new.schemas[0].tables = vec![t];
+    let r = diff(&old, &new);
+    let create = r
+        .statements
+        .iter()
+        .find(|s| s.starts_with("CREATE TABLE [dbo].[AuditLog]"))
+        .unwrap_or_else(|| panic!("missing CREATE TABLE; got {:?}", r.statements));
+    assert!(
+        create.contains("[audit].[ShortName]"),
+        "expected [audit].[ShortName] in:\n{create}"
+    );
+    assert!(
+        !create.contains("[dbo].[ShortName]"),
+        "must not fall back to dbo:\n{create}"
+    );
+}
+
+#[test]
+fn missing_udt_schema_falls_back_to_dbo() {
+    // Pre-#37 snapshots may have `udt_schema = None`. Preserve the
+    // historical behaviour of assuming `dbo` so old diff inputs keep
+    // producing the same DDL.
+    let old = empty_graph("AW");
+    let mut new = empty_graph("AW");
+    let mut t = table_with_pk("AuditLog");
+    t.columns.push(Column {
+        name: "Actor".into(),
+        type_name: "ShortName".into(),
+        nullable: false,
+        identity: false,
+        is_uddt: true,
+        udt_schema: None,
+        base_type: Some("nvarchar(64)".into()),
+        default: None,
+        computed: None,
+    });
+    new.schemas[0].tables = vec![t];
+    let r = diff(&old, &new);
+    let create = r
+        .statements
+        .iter()
+        .find(|s| s.starts_with("CREATE TABLE [dbo].[AuditLog]"))
+        .unwrap();
+    assert!(create.contains("[dbo].[ShortName]"), "got:\n{create}");
 }

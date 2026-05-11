@@ -54,6 +54,11 @@ pub struct Column {
     /// database. The diff layer needs this to know whether `type_name` is a
     /// system type or `[schema].[name]`.
     pub is_uddt: bool,
+    /// For UDDT columns, the schema the type lives in. Absent for
+    /// system-typed columns. Defaults to `dbo` on deserialization of
+    /// older snapshots that did not carry this field.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub udt_schema: Option<String>,
     /// For UDDT columns, the underlying system type formatted the same way
     /// as `type_name` would be for that base type. Absent for system-typed
     /// columns.
