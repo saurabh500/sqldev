@@ -498,8 +498,8 @@ fn diff_columns(
 
 fn col_type(c: &Column) -> String {
     if c.is_uddt {
-        // TODO(diff#follow-up): plumb owning schema through Column for UDDTs.
-        format!("[dbo].[{}]", c.type_name)
+        let schema = c.udt_schema.as_deref().unwrap_or("dbo");
+        format!("[{schema}].[{}]", c.type_name)
     } else {
         c.type_name.clone()
     }
