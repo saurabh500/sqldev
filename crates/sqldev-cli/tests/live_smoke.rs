@@ -613,3 +613,122 @@ fn live_snapshot_save_round_trips_through_diff() {
         &cmd.output().expect("spawn snapshot save force"),
     );
 }
+
+#[test]
+#[ignore = "live test; requires SQL Server (run with --ignored)"]
+fn live_seed_inserts_deterministic_rows() {
+    await_ready();
+    reset_test_db();
+    seed_schema();
+
+    let tmp = tempfile::tempdir().expect("tempdir");
+    let seeds = tmp.path().join("seeds");
+    std::fs::create_dir_all(&seeds).unwrap();
+
+    // Seed `sales.Customer` with overrides + faker; identity column is
+    // skipped automatically.
+    std::fs::write(
+        seeds.join("0001_customers.yml"),
+        "table: sales.Customer\n\
+         rows: 25\n\
+         columns:\n  \
+           Email:\n    \
+             faker: email\n",
+    )
+    .unwrap();
+
+    // Run with a fixed --seed N for reproducibility.
+    let mut cmd = sqldev();
+    cmd.args(["seed", "--dir"])
+        .arg(&seeds)
+        .args(["--seed", "1234"]);
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn seed");
+    require_success("seed", &out);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        stdout.contains("Inserted 25 row(s) into sales.Customer"),
+        "expected insert summary, got:\n{stdout}"
+    );
+
+    // Verify the row count.
+    let q = run_query(TEST_DB, "SELECT COUNT(*) FROM sales.Customer");
+    require_success("count check", &q);
+    let count_out = String::from_utf8_lossy(&q.stdout);
+    assert!(
+        count_out.lines().any(|l| l.trim() == "25"),
+        "expected count=25 in:\n{count_out}"
+    );
+
+    // Verify every Email looks like one our faker would emit.
+    let q = run_query(
+        TEST_DB,
+        "SELECT COUNT(*) FROM sales.Customer WHERE Email LIKE '%@example.com'",
+    );
+    require_success("email shape check", &q);
+    let stdout = String::from_utf8_lossy(&q.stdout);
+    assert!(
+        stdout.lines().any(|l| l.trim() == "25"),
+        "expected all 25 emails to use faker `email` template:\n{stdout}"
+    );
+
+    // Re-running with the same --seed against a fresh DB must produce the
+    // same email set (determinism contract).
+    let first_emails = run_query(TEST_DB, "SELECT Email FROM sales.Customer ORDER BY Email");
+    require_success("first email pull", &first_emails);
+    let first = String::from_utf8_lossy(&first_emails.stdout).to_string();
+
+    reset_test_db();
+    seed_schema();
+    let mut cmd = sqldev();
+    cmd.args(["seed", "--dir"])
+        .arg(&seeds)
+        .args(["--seed", "1234"]);
+    common_conn_flags(&mut cmd, TEST_DB);
+    require_success("seed (rerun)", &cmd.output().expect("spawn seed rerun"));
+
+    let second_emails = run_query(TEST_DB, "SELECT Email FROM sales.Customer ORDER BY Email");
+    require_success("second email pull", &second_emails);
+    let second = String::from_utf8_lossy(&second_emails.stdout).to_string();
+    assert_eq!(
+        first, second,
+        "deterministic seed should produce same emails"
+    );
+}
+
+#[test]
+#[ignore = "live test; requires SQL Server (run with --ignored)"]
+fn live_seed_dry_run_does_not_insert() {
+    await_ready();
+    reset_test_db();
+    seed_schema();
+
+    let tmp = tempfile::tempdir().expect("tempdir");
+    let seed_file = tmp.path().join("customers.yml");
+    std::fs::write(
+        &seed_file,
+        "table: sales.Customer\nrows: 5\ncolumns:\n  Email:\n    faker: email\n",
+    )
+    .unwrap();
+
+    let mut cmd = sqldev();
+    cmd.args(["seed", "--file"])
+        .arg(&seed_file)
+        .args(["--seed", "7", "--dry-run"]);
+    common_conn_flags(&mut cmd, TEST_DB);
+    let out = cmd.output().expect("spawn seed --dry-run");
+    require_success("seed --dry-run", &out);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        stdout.contains("INSERT INTO [sales].[Customer]"),
+        "expected printed INSERT, got:\n{stdout}"
+    );
+
+    let q = run_query(TEST_DB, "SELECT COUNT(*) FROM sales.Customer");
+    require_success("post dry-run count", &q);
+    let stdout = String::from_utf8_lossy(&q.stdout);
+    assert!(
+        stdout.lines().any(|l| l.trim() == "0"),
+        "dry-run must not insert; got:\n{stdout}"
+    );
+}
