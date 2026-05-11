@@ -99,11 +99,10 @@ pub fn baseline_ddl(graph: &SchemaGraph) -> String {
 
 fn col_type(c: &Column) -> String {
     if c.is_uddt {
-        // UDDTs are emitted as `[schema].[name]`. The schema graph today
-        // doesn't carry the UDDT's owning schema on the column, so we
-        // assume `dbo`. This matches the spike-diff behaviour and the
-        // common case.
-        format!("[dbo].[{}]", c.type_name)
+        // UDDTs render as `[schema].[name]`. Pre-#37 snapshots may not
+        // carry the owning schema, so fall back to `dbo`.
+        let schema = c.udt_schema.as_deref().unwrap_or("dbo");
+        format!("[{schema}].[{}]", c.type_name)
     } else {
         c.type_name.clone()
     }
@@ -255,6 +254,7 @@ mod tests {
             nullable,
             identity: false,
             is_uddt: false,
+            udt_schema: None,
             base_type: None,
             default: None,
             computed: None,
@@ -333,6 +333,7 @@ mod tests {
                     nullable: false,
                     identity: true,
                     is_uddt: false,
+                    udt_schema: None,
                     base_type: None,
                     default: None,
                     computed: None,

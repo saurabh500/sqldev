@@ -402,6 +402,7 @@ mod tests {
             nullable,
             identity: false,
             is_uddt: false,
+            udt_schema: None,
             base_type: None,
             default: None,
             computed: None,
