@@ -494,3 +494,77 @@ fn parse_statement_metadata() {
         Some("0x1234567890ABCDEF")
     );
 }
+
+// -----------------------------------------------------------------------
+// FromStr / TryFrom conversions
+// -----------------------------------------------------------------------
+
+#[test]
+fn from_str_single_statement() {
+    use crate::ShowPlan;
+    let xml = include_str!("../tests/data/estimated_plan.xml");
+    let plan: ShowPlan = xml.parse().expect("FromStr should succeed");
+    assert!(!plan.root.physical_op.is_empty());
+}
+
+#[test]
+fn try_from_str_single_statement() {
+    use crate::ShowPlan;
+    let xml = include_str!("../tests/data/estimated_plan.xml");
+    let plan = ShowPlan::try_from(xml).expect("TryFrom<&str> should succeed");
+    assert!(!plan.root.physical_op.is_empty());
+}
+
+#[test]
+fn try_from_owned_string() {
+    use crate::ShowPlan;
+    let xml: String = include_str!("../tests/data/estimated_plan.xml").to_owned();
+    let plan = ShowPlan::try_from(xml).expect("TryFrom<String> should succeed");
+    assert!(!plan.root.physical_op.is_empty());
+}
+
+#[test]
+fn from_str_batch_wraps_parse_all() {
+    use crate::ShowPlanBatch;
+    let xml = include_str!("../tests/data/estimated_plan.xml");
+    let batch: ShowPlanBatch = xml.parse().expect("FromStr should succeed");
+    assert!(!batch.is_empty());
+    assert_eq!(batch.len(), batch.as_slice().len());
+}
+
+#[test]
+fn try_from_batch_iteration() {
+    use crate::ShowPlanBatch;
+    let xml = include_str!("../tests/data/estimated_plan.xml");
+    let batch = ShowPlanBatch::try_from(xml).unwrap();
+    let count = (&batch).into_iter().count();
+    assert_eq!(count, batch.len());
+    let plans: Vec<_> = batch.into_inner();
+    assert!(!plans.is_empty());
+}
+
+#[test]
+fn from_str_multi_statement_errors_for_showplan() {
+    use crate::{Error, ShowPlan};
+    let xml = r#"<?xml version="1.0"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan">
+  <BatchSequence><Batch><Statements>
+    <StmtSimple StatementText="SELECT 1">
+      <QueryPlan><RelOp NodeId="1" PhysicalOp="Constant Scan" LogicalOp="Constant Scan"
+        EstimateRows="1" EstimateCPU="0" EstimateIO="0"
+        EstimatedTotalSubtreeCost="0" Parallel="false"/></QueryPlan>
+    </StmtSimple>
+    <StmtSimple StatementText="SELECT 2">
+      <QueryPlan><RelOp NodeId="1" PhysicalOp="Constant Scan" LogicalOp="Constant Scan"
+        EstimateRows="1" EstimateCPU="0" EstimateIO="0"
+        EstimatedTotalSubtreeCost="0" Parallel="false"/></QueryPlan>
+    </StmtSimple>
+  </Statements></Batch></BatchSequence>
+</ShowPlanXML>"#;
+    let err = xml.parse::<ShowPlan>().unwrap_err();
+    assert!(matches!(err, Error::MultipleStatements(2)));
+
+    // ShowPlanBatch handles it just fine.
+    let batch: crate::ShowPlanBatch = xml.parse().unwrap();
+    assert_eq!(batch.len(), 2);
+}

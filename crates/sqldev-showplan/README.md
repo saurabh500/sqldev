@@ -21,7 +21,7 @@ passing to `parse` / `parse_all`.
 ## Quick start
 
 ```rust
-use sqldev_showplan::parse;
+use sqldev_showplan::ShowPlan;
 
 let xml = r#"<?xml version="1.0"?>
 <ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan">
@@ -49,10 +49,20 @@ let xml = r#"<?xml version="1.0"?>
   </BatchSequence>
 </ShowPlanXML>"#;
 
-let plan = parse(xml).expect("valid plan");
+// Idiomatic: use `FromStr` / `TryFrom`
+let plan: ShowPlan = xml.parse().expect("valid plan");
 assert_eq!(plan.root.physical_op, "Clustered Index Scan");
-assert_eq!(plan.statement_text, Some("SELECT * FROM Users".into()));
+
+// For multi-statement batches:
+use sqldev_showplan::ShowPlanBatch;
+let batch: ShowPlanBatch = xml.parse().expect("valid batch");
+for stmt in &batch {
+    println!("{}", stmt.root.physical_op);
+}
 ```
+
+The free functions `parse(xml)` and `parse_all(xml)` are also exposed for
+discoverability and ergonomic use without turbofish.
 
 ## Cargo features
 

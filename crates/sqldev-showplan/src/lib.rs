@@ -415,6 +415,133 @@ pub fn parse(xml: &str) -> Result<ShowPlan> {
     }
 }
 
+/// A batch of [`ShowPlan`]s — one per statement in the original XML document.
+///
+/// Returned by `<&str as TryInto<ShowPlanBatch>>::try_into` and
+/// `str::parse::<ShowPlanBatch>()`. Use this when the input may contain more
+/// than one statement (i.e. anything other than a single `SELECT`/`INSERT`/
+/// `UPDATE`/`DELETE`).
+#[derive(Debug, Clone, Default)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct ShowPlanBatch(pub Vec<ShowPlan>);
+
+impl ShowPlanBatch {
+    /// Number of statement plans in the batch.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    /// `true` if the batch contains zero plans.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    /// Borrow the plans as a slice.
+    #[must_use]
+    pub fn as_slice(&self) -> &[ShowPlan] {
+        &self.0
+    }
+
+    /// Consume the batch, returning the underlying `Vec<ShowPlan>`.
+    #[must_use]
+    pub fn into_inner(self) -> Vec<ShowPlan> {
+        self.0
+    }
+}
+
+impl IntoIterator for ShowPlanBatch {
+    type Item = ShowPlan;
+    type IntoIter = std::vec::IntoIter<ShowPlan>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a ShowPlanBatch {
+    type Item = &'a ShowPlan;
+    type IntoIter = std::slice::Iter<'a, ShowPlan>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
+    }
+}
+
+impl std::str::FromStr for ShowPlan {
+    type Err = Error;
+
+    /// Parse a single-statement SHOWPLAN XML document.
+    ///
+    /// Returns [`Error::MultipleStatements`] if the document contains more
+    /// than one statement plan — use [`ShowPlanBatch`] for batches.
+    fn from_str(s: &str) -> Result<Self> {
+        parse(s)
+    }
+}
+
+impl TryFrom<&str> for ShowPlan {
+    type Error = Error;
+    fn try_from(s: &str) -> Result<Self> {
+        s.parse()
+    }
+}
+
+impl TryFrom<&String> for ShowPlan {
+    type Error = Error;
+    fn try_from(s: &String) -> Result<Self> {
+        s.as_str().parse()
+    }
+}
+
+impl TryFrom<String> for ShowPlan {
+    type Error = Error;
+    fn try_from(s: String) -> Result<Self> {
+        s.as_str().parse()
+    }
+}
+
+impl std::str::FromStr for ShowPlanBatch {
+    type Err = Error;
+
+    /// Parse a SHOWPLAN XML document containing one or more statement plans.
+    fn from_str(s: &str) -> Result<Self> {
+        parse_all(s).map(ShowPlanBatch)
+    }
+}
+
+impl TryFrom<&str> for ShowPlanBatch {
+    type Error = Error;
+    fn try_from(s: &str) -> Result<Self> {
+        s.parse()
+    }
+}
+
+impl TryFrom<&String> for ShowPlanBatch {
+    type Error = Error;
+    fn try_from(s: &String) -> Result<Self> {
+        s.as_str().parse()
+    }
+}
+
+impl TryFrom<String> for ShowPlanBatch {
+    type Error = Error;
+    fn try_from(s: String) -> Result<Self> {
+        s.as_str().parse()
+    }
+}
+
+impl From<Vec<ShowPlan>> for ShowPlanBatch {
+    fn from(v: Vec<ShowPlan>) -> Self {
+        Self(v)
+    }
+}
+
+impl From<ShowPlanBatch> for Vec<ShowPlan> {
+    fn from(b: ShowPlanBatch) -> Self {
+        b.0
+    }
+}
+
 /// Parse SQL Server `SHOWPLAN_XML` or `STATISTICS XML` and return one
 /// [`ShowPlan`] per statement (`<StmtSimple>`, `<StmtCond>`, `<StmtCursor>`,
 /// `<StmtUseDb>`) that contains at least one `<RelOp>`.
