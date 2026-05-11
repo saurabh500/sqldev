@@ -1,0 +1,1054 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.599" Build="17.0.4035.5">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="MERGE Production.ProductInventory AS tgt USING (SELECT ProductID, SUM(OrderQty) AS Qty FROM Sales.SalesOrderDetail GROUP BY ProductID) AS src ON tgt.ProductID = src.ProductID WHEN MATCHED THEN UPDATE SET Quantity = tgt.Quantity - src.Qty WHEN NOT MATCHED THEN INSERT (ProductID, LocationID, Quantity, ModifiedDate) VALUES (src.ProductID, 1, src.Qty, SYSDATETIME());" StatementId="1" StatementCompId="1" StatementType="MERGE" RetrievedFromCache="false" StatementSubTreeCost="1.83343" StatementEstRows="503" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0x54E2FAA014B374A1" QueryPlanHash="0x9A67E0224EE805E4" CardinalityEstimationModelVersion="160">
+          <StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"/>
+          <QueryPlan CachedPlanSize="104" CompileTime="9" CompileCPU="9" CompileMemory="1336">
+            <MemoryGrantInfo SerialRequiredMemory="1536" SerialDesiredMemory="1664" GrantedMemory="0" MaxUsedMemory="0"/>
+            <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="327795" EstimatedPagesCached="163897" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="18128912"/>
+            <OptimizerStatsUsage>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.20" ModificationCount="0" SamplingPercent="100" Statistics="[PK_Location_LocationID]" Table="[Location]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.31" ModificationCount="0" SamplingPercent="100" Statistics="[PK_Product_ProductID]" Table="[Product]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:34.60" ModificationCount="0" SamplingPercent="100" Statistics="[AK_SalesOrderDetail_rowguid]" Table="[SalesOrderDetail]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.49" ModificationCount="0" SamplingPercent="100" Statistics="[PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID]" Table="[SalesOrderDetail]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:38.80" ModificationCount="0" SamplingPercent="100" Statistics="[_WA_Sys_00000002_236943A5]" Table="[ProductInventory]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.34" ModificationCount="0" SamplingPercent="100" Statistics="[PK_ProductInventory_ProductID_LocationID]" Table="[ProductInventory]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:34.68" ModificationCount="0" SamplingPercent="100" Statistics="[IX_SalesOrderDetail_ProductID]" Table="[SalesOrderDetail]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+            </OptimizerStatsUsage>
+            <RelOp NodeId="1" PhysicalOp="Assert" LogicalOp="Assert" EstimateRows="503" EstimateIO="0" EstimateCPU="0.00064384" AvgRowSize="9" EstimatedTotalSubtreeCost="1.83343" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+              <OutputList/>
+              <Assert StartupExpression="0">
+                <RelOp NodeId="2" PhysicalOp="Nested Loops" LogicalOp="Left Semi Join" EstimateRows="503" EstimateIO="0" EstimateCPU="0.00210254" AvgRowSize="9" EstimatedTotalSubtreeCost="1.83278" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                  <OutputList>
+                    <ColumnReference Column="Expr1028"/>
+                    <ColumnReference Column="Pass1029"/>
+                    <ColumnReference Column="Expr1030"/>
+                    <ColumnReference Column="Pass1031"/>
+                  </OutputList>
+                  <NestedLoops Optimized="0">
+                    <DefinedValues>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1030"/>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Pass1031"/>
+                      </DefinedValue>
+                    </DefinedValues>
+                    <PassThru>
+                      <ScalarOperator ScalarString="[Action1006]&lt;&gt;(4)">
+                        <Compare CompareOp="NE">
+                          <ScalarOperator>
+                            <Identifier>
+                              <ColumnReference Column="Action1006"/>
+                            </Identifier>
+                          </ScalarOperator>
+                          <ScalarOperator>
+                            <Const ConstValue="(4)"/>
+                          </ScalarOperator>
+                        </Compare>
+                      </ScalarOperator>
+                    </PassThru>
+                    <OuterReferences>
+                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                    </OuterReferences>
+                    <ProbeColumn>
+                      <ColumnReference Column="Expr1030"/>
+                    </ProbeColumn>
+                    <RelOp NodeId="3" PhysicalOp="Merge Join" LogicalOp="Left Semi Join" EstimateRows="503" EstimateIO="0.000313534" EstimateCPU="0.00737462" AvgRowSize="16" EstimatedTotalSubtreeCost="1.71038" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                      <OutputList>
+                        <ColumnReference Column="Action1006"/>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                        <ColumnReference Column="Expr1028"/>
+                        <ColumnReference Column="Pass1029"/>
+                      </OutputList>
+                      <Merge ManyToMany="1">
+                        <InnerSideJoinColumns>
+                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Location]" Column="LocationID"/>
+                        </InnerSideJoinColumns>
+                        <OuterSideJoinColumns>
+                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                        </OuterSideJoinColumns>
+                        <Residual>
+                          <ScalarOperator ScalarString="[AdventureWorks2022].[Production].[ProductInventory].[LocationID] as [tgt].[LocationID]=[AdventureWorks2022].[Production].[Location].[LocationID]">
+                            <Compare CompareOp="EQ">
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                </Identifier>
+                              </ScalarOperator>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Location]" Column="LocationID"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Compare>
+                          </ScalarOperator>
+                        </Residual>
+                        <PassThru>
+                          <ScalarOperator ScalarString="[Action1006]&lt;&gt;(4)">
+                            <Compare CompareOp="NE">
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Action1006"/>
+                                </Identifier>
+                              </ScalarOperator>
+                              <ScalarOperator>
+                                <Const ConstValue="(4)"/>
+                              </ScalarOperator>
+                            </Compare>
+                          </ScalarOperator>
+                        </PassThru>
+                        <RelOp NodeId="4" PhysicalOp="Sort" LogicalOp="Sort" EstimateRows="503" EstimateIO="0.0112613" EstimateCPU="0.00714206" AvgRowSize="17" EstimatedTotalSubtreeCost="1.6994" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                          <OutputList>
+                            <ColumnReference Column="Action1006"/>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                          </OutputList>
+                          <MemoryFractions Input="0.625" Output="1"/>
+                          <Sort Distinct="0">
+                            <OrderBy>
+                              <OrderByColumn Ascending="1">
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                              </OrderByColumn>
+                            </OrderBy>
+                            <RelOp NodeId="5" PhysicalOp="Assert" LogicalOp="Assert" EstimateRows="503" EstimateIO="0" EstimateCPU="0.00159954" AvgRowSize="17" EstimatedTotalSubtreeCost="1.68099" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                              <OutputList>
+                                <ColumnReference Column="Action1006"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                              </OutputList>
+                              <Assert StartupExpression="0">
+                                <RelOp NodeId="6" PhysicalOp="Clustered Index Merge" LogicalOp="Merge" EstimateRows="503" EstimateIO="0.01" EstimateCPU="4.48e-05" AvgRowSize="32" EstimatedTotalSubtreeCost="1.67939" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                  <OutputList>
+                                    <ColumnReference Column="Action1006"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                  </OutputList>
+                                  <Update DMLRequestSort="0">
+                                    <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Index="[PK_ProductInventory_ProductID_LocationID]" Alias="[tgt]" IndexKind="Clustered" Storage="RowStore"/>
+                                    <SetPredicate SetPredicateType="Insert">
+                                      <ScalarOperator ScalarString="[AdventureWorks2022].[Production].[ProductInventory].[Quantity] as [tgt].[Quantity] = RaiseIfNullUpdate([Expr1007]),[AdventureWorks2022].[Production].[ProductInventory].[ProductID] as [tgt].[ProductID] = [Expr1008],[AdventureWorks2022].[Production].[ProductInventory].[LocationID] as [tgt].[LocationID] = RaiseIfNullUpdate([Expr1009]),[AdventureWorks2022].[Production].[ProductInventory].[ModifiedDate] as [tgt].[ModifiedDate] = RaiseIfNullUpdate([Expr1010]),[AdventureWorks2022].[Production].[ProductInventory].[Shelf] as [tgt].[Shelf] = RaiseIfNullUpdate([Expr1011]),[AdventureWorks2022].[Production].[ProductInventory].[Bin] as [tgt].[Bin] = RaiseIfNullUpdate([Expr1012]),[AdventureWorks2022].[Production].[ProductInventory].[rowguid] as [tgt].[rowguid] = RaiseIfNullUpdate([Expr1013])">
+                                        <ScalarExpressionList>
+                                          <ScalarOperator>
+                                            <MultipleAssign>
+                                              <Assign>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Quantity"/>
+                                                <ScalarOperator>
+                                                  <Intrinsic FunctionName="RaiseIfNullUpdate">
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Column="Expr1007"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                  </Intrinsic>
+                                                </ScalarOperator>
+                                              </Assign>
+                                              <Assign>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                                <ScalarOperator>
+                                                  <Identifier>
+                                                    <ColumnReference Column="Expr1008"/>
+                                                  </Identifier>
+                                                </ScalarOperator>
+                                              </Assign>
+                                              <Assign>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                                <ScalarOperator>
+                                                  <Intrinsic FunctionName="RaiseIfNullUpdate">
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Column="Expr1009"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                  </Intrinsic>
+                                                </ScalarOperator>
+                                              </Assign>
+                                              <Assign>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ModifiedDate"/>
+                                                <ScalarOperator>
+                                                  <Intrinsic FunctionName="RaiseIfNullUpdate">
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Column="Expr1010"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                  </Intrinsic>
+                                                </ScalarOperator>
+                                              </Assign>
+                                              <Assign>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                                <ScalarOperator>
+                                                  <Intrinsic FunctionName="RaiseIfNullUpdate">
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Column="Expr1011"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                  </Intrinsic>
+                                                </ScalarOperator>
+                                              </Assign>
+                                              <Assign>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                                <ScalarOperator>
+                                                  <Intrinsic FunctionName="RaiseIfNullUpdate">
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Column="Expr1012"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                  </Intrinsic>
+                                                </ScalarOperator>
+                                              </Assign>
+                                              <Assign>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="rowguid"/>
+                                                <ScalarOperator>
+                                                  <Intrinsic FunctionName="RaiseIfNullUpdate">
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Column="Expr1013"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                  </Intrinsic>
+                                                </ScalarOperator>
+                                              </Assign>
+                                            </MultipleAssign>
+                                          </ScalarOperator>
+                                        </ScalarExpressionList>
+                                      </ScalarOperator>
+                                    </SetPredicate>
+                                    <SetPredicate SetPredicateType="Update">
+                                      <ScalarOperator ScalarString="[AdventureWorks2022].[Production].[ProductInventory].[Quantity] as [tgt].[Quantity] = RaiseIfNullUpdate([Expr1007])">
+                                        <ScalarExpressionList>
+                                          <ScalarOperator>
+                                            <MultipleAssign>
+                                              <Assign>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Quantity"/>
+                                                <ScalarOperator>
+                                                  <Intrinsic FunctionName="RaiseIfNullUpdate">
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Column="Expr1007"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                  </Intrinsic>
+                                                </ScalarOperator>
+                                              </Assign>
+                                            </MultipleAssign>
+                                          </ScalarOperator>
+                                        </ScalarExpressionList>
+                                      </ScalarOperator>
+                                    </SetPredicate>
+                                    <ActionColumn>
+                                      <ColumnReference Column="Action1006"/>
+                                    </ActionColumn>
+                                    <RelOp NodeId="7" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="503" EstimateIO="0" EstimateCPU="0" AvgRowSize="65" EstimatedTotalSubtreeCost="1.66935" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                      <OutputList>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                        <ColumnReference Column="Action1006"/>
+                                        <ColumnReference Column="Expr1007"/>
+                                        <ColumnReference Column="Expr1008"/>
+                                        <ColumnReference Column="Expr1009"/>
+                                        <ColumnReference Column="Expr1010"/>
+                                        <ColumnReference Column="Expr1011"/>
+                                        <ColumnReference Column="Expr1012"/>
+                                        <ColumnReference Column="Expr1013"/>
+                                      </OutputList>
+                                      <ComputeScalar>
+                                        <DefinedValues>
+                                          <DefinedValue>
+                                            <ColumnReference Column="Action1006"/>
+                                            <ScalarOperator ScalarString="[Action1006]">
+                                              <Identifier>
+                                                <ColumnReference Column="Action1006"/>
+                                              </Identifier>
+                                            </ScalarOperator>
+                                          </DefinedValue>
+                                        </DefinedValues>
+                                        <RelOp NodeId="8" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="503" EstimateIO="0" EstimateCPU="5.03e-05" AvgRowSize="65" EstimatedTotalSubtreeCost="1.66935" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                          <OutputList>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                            <ColumnReference Column="Action1006"/>
+                                            <ColumnReference Column="Expr1007"/>
+                                            <ColumnReference Column="Expr1008"/>
+                                            <ColumnReference Column="Expr1009"/>
+                                            <ColumnReference Column="Expr1010"/>
+                                            <ColumnReference Column="Expr1011"/>
+                                            <ColumnReference Column="Expr1012"/>
+                                            <ColumnReference Column="Expr1013"/>
+                                          </OutputList>
+                                          <ComputeScalar>
+                                            <DefinedValues>
+                                              <DefinedValue>
+                                                <ColumnReference Column="Expr1007"/>
+                                                <ScalarOperator ScalarString="CASE WHEN [Action1006]=(4) THEN CONVERT_IMPLICIT(smallint,[Expr1002],0) ELSE CONVERT_IMPLICIT(smallint,CONVERT_IMPLICIT(int,[AdventureWorks2022].[Production].[ProductInventory].[Quantity] as [tgt].[Quantity],0)-[Expr1002],0) END">
+                                                  <IF>
+                                                    <Condition>
+                                                      <ScalarOperator>
+                                                        <Compare CompareOp="EQ">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Action1006"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Const ConstValue="(4)"/>
+                                                          </ScalarOperator>
+                                                        </Compare>
+                                                      </ScalarOperator>
+                                                    </Condition>
+                                                    <Then>
+                                                      <ScalarOperator>
+                                                        <Convert DataType="smallint" Style="0" Implicit="1">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Expr1002"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                        </Convert>
+                                                      </ScalarOperator>
+                                                    </Then>
+                                                    <Else>
+                                                      <ScalarOperator>
+                                                        <Convert DataType="smallint" Style="0" Implicit="1">
+                                                          <ScalarOperator>
+                                                            <Arithmetic Operation="SUB">
+                                                            <ScalarOperator>
+                                                            <Convert DataType="int" Style="0" Implicit="1">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Quantity"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            </Convert>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Expr1002"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            </Arithmetic>
+                                                          </ScalarOperator>
+                                                        </Convert>
+                                                      </ScalarOperator>
+                                                    </Else>
+                                                  </IF>
+                                                </ScalarOperator>
+                                              </DefinedValue>
+                                              <DefinedValue>
+                                                <ColumnReference Column="Expr1008"/>
+                                                <ScalarOperator ScalarString="CASE WHEN [Action1006]=(4) THEN [AdventureWorks2022].[Sales].[SalesOrderDetail].[ProductID] ELSE [AdventureWorks2022].[Production].[ProductInventory].[ProductID] as [tgt].[ProductID] END">
+                                                  <IF>
+                                                    <Condition>
+                                                      <ScalarOperator>
+                                                        <Compare CompareOp="EQ">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Action1006"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Const ConstValue="(4)"/>
+                                                          </ScalarOperator>
+                                                        </Compare>
+                                                      </ScalarOperator>
+                                                    </Condition>
+                                                    <Then>
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                    </Then>
+                                                    <Else>
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                    </Else>
+                                                  </IF>
+                                                </ScalarOperator>
+                                              </DefinedValue>
+                                              <DefinedValue>
+                                                <ColumnReference Column="Expr1009"/>
+                                                <ScalarOperator ScalarString="CASE WHEN [Action1006]=(4) THEN (1) ELSE [AdventureWorks2022].[Production].[ProductInventory].[LocationID] as [tgt].[LocationID] END">
+                                                  <IF>
+                                                    <Condition>
+                                                      <ScalarOperator>
+                                                        <Compare CompareOp="EQ">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Action1006"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Const ConstValue="(4)"/>
+                                                          </ScalarOperator>
+                                                        </Compare>
+                                                      </ScalarOperator>
+                                                    </Condition>
+                                                    <Then>
+                                                      <ScalarOperator>
+                                                        <Const ConstValue="(1)"/>
+                                                      </ScalarOperator>
+                                                    </Then>
+                                                    <Else>
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                    </Else>
+                                                  </IF>
+                                                </ScalarOperator>
+                                              </DefinedValue>
+                                              <DefinedValue>
+                                                <ColumnReference Column="Expr1010"/>
+                                                <ScalarOperator ScalarString="CASE WHEN [Action1006]=(4) THEN CONVERT_IMPLICIT(datetime,sysdatetime(),0) ELSE [AdventureWorks2022].[Production].[ProductInventory].[ModifiedDate] as [tgt].[ModifiedDate] END">
+                                                  <IF>
+                                                    <Condition>
+                                                      <ScalarOperator>
+                                                        <Compare CompareOp="EQ">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Action1006"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Const ConstValue="(4)"/>
+                                                          </ScalarOperator>
+                                                        </Compare>
+                                                      </ScalarOperator>
+                                                    </Condition>
+                                                    <Then>
+                                                      <ScalarOperator>
+                                                        <Convert DataType="datetime" Style="0" Implicit="1">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="ConstExpr1026">
+                                                            <ScalarOperator>
+                                                            <Intrinsic FunctionName="sysdatetime"/>
+                                                            </ScalarOperator>
+                                                            </ColumnReference>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                        </Convert>
+                                                      </ScalarOperator>
+                                                    </Then>
+                                                    <Else>
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ModifiedDate"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                    </Else>
+                                                  </IF>
+                                                </ScalarOperator>
+                                              </DefinedValue>
+                                              <DefinedValue>
+                                                <ColumnReference Column="Expr1011"/>
+                                                <ScalarOperator ScalarString="CASE WHEN [Action1006]=(4) THEN NULL ELSE [AdventureWorks2022].[Production].[ProductInventory].[Shelf] as [tgt].[Shelf] END">
+                                                  <IF>
+                                                    <Condition>
+                                                      <ScalarOperator>
+                                                        <Compare CompareOp="EQ">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Action1006"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Const ConstValue="(4)"/>
+                                                          </ScalarOperator>
+                                                        </Compare>
+                                                      </ScalarOperator>
+                                                    </Condition>
+                                                    <Then>
+                                                      <ScalarOperator>
+                                                        <Const ConstValue="NULL"/>
+                                                      </ScalarOperator>
+                                                    </Then>
+                                                    <Else>
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                    </Else>
+                                                  </IF>
+                                                </ScalarOperator>
+                                              </DefinedValue>
+                                              <DefinedValue>
+                                                <ColumnReference Column="Expr1012"/>
+                                                <ScalarOperator ScalarString="CASE WHEN [Action1006]=(4) THEN NULL ELSE [AdventureWorks2022].[Production].[ProductInventory].[Bin] as [tgt].[Bin] END">
+                                                  <IF>
+                                                    <Condition>
+                                                      <ScalarOperator>
+                                                        <Compare CompareOp="EQ">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Action1006"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Const ConstValue="(4)"/>
+                                                          </ScalarOperator>
+                                                        </Compare>
+                                                      </ScalarOperator>
+                                                    </Condition>
+                                                    <Then>
+                                                      <ScalarOperator>
+                                                        <Const ConstValue="NULL"/>
+                                                      </ScalarOperator>
+                                                    </Then>
+                                                    <Else>
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                    </Else>
+                                                  </IF>
+                                                </ScalarOperator>
+                                              </DefinedValue>
+                                            </DefinedValues>
+                                            <RelOp NodeId="9" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="503" EstimateIO="0" EstimateCPU="5.03e-05" AvgRowSize="67" EstimatedTotalSubtreeCost="1.6693" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                              <OutputList>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                <ColumnReference Column="Expr1002"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Quantity"/>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ModifiedDate"/>
+                                                <ColumnReference Column="Action1006"/>
+                                                <ColumnReference Column="Expr1013"/>
+                                              </OutputList>
+                                              <ComputeScalar>
+                                                <DefinedValues>
+                                                  <DefinedValue>
+                                                    <ColumnReference Column="Expr1013"/>
+                                                    <ScalarOperator ScalarString="CASE WHEN [Action1006]=(4) THEN newid() ELSE [AdventureWorks2022].[Production].[ProductInventory].[rowguid] as [tgt].[rowguid] END">
+                                                      <IF>
+                                                        <Condition>
+                                                          <ScalarOperator>
+                                                            <Compare CompareOp="EQ">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Action1006"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <Const ConstValue="(4)"/>
+                                                            </ScalarOperator>
+                                                            </Compare>
+                                                          </ScalarOperator>
+                                                        </Condition>
+                                                        <Then>
+                                                          <ScalarOperator>
+                                                            <Intrinsic FunctionName="newid"/>
+                                                          </ScalarOperator>
+                                                        </Then>
+                                                        <Else>
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="rowguid"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                        </Else>
+                                                      </IF>
+                                                    </ScalarOperator>
+                                                  </DefinedValue>
+                                                </DefinedValues>
+                                                <RelOp NodeId="10" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="503" EstimateIO="0" EstimateCPU="5.03e-05" AvgRowSize="67" EstimatedTotalSubtreeCost="1.66925" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                  <OutputList>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                    <ColumnReference Column="Expr1002"/>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Quantity"/>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="rowguid"/>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ModifiedDate"/>
+                                                    <ColumnReference Column="Action1006"/>
+                                                  </OutputList>
+                                                  <ComputeScalar ComputeSequence="1">
+                                                    <DefinedValues>
+                                                      <DefinedValue>
+                                                        <ColumnReference Column="Action1006"/>
+                                                        <ScalarOperator ScalarString="ForceOrder(CASE WHEN [TrgPrb1004] IS NOT NULL THEN (1) ELSE (4) END)">
+                                                          <Intrinsic FunctionName="ForceOrder">
+                                                            <ScalarOperator>
+                                                            <IF>
+                                                            <Condition>
+                                                            <ScalarOperator>
+                                                            <Compare CompareOp="IS NOT">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="TrgPrb1004"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <Const ConstValue="NULL"/>
+                                                            </ScalarOperator>
+                                                            </Compare>
+                                                            </ScalarOperator>
+                                                            </Condition>
+                                                            <Then>
+                                                            <ScalarOperator>
+                                                            <Const ConstValue="(1)"/>
+                                                            </ScalarOperator>
+                                                            </Then>
+                                                            <Else>
+                                                            <ScalarOperator>
+                                                            <Const ConstValue="(4)"/>
+                                                            </ScalarOperator>
+                                                            </Else>
+                                                            </IF>
+                                                            </ScalarOperator>
+                                                          </Intrinsic>
+                                                        </ScalarOperator>
+                                                      </DefinedValue>
+                                                    </DefinedValues>
+                                                    <RelOp NodeId="11" PhysicalOp="Merge Join" LogicalOp="Left Outer Join" EstimateRows="503" EstimateIO="0" EstimateCPU="0.0084538" AvgRowSize="67" EstimatedTotalSubtreeCost="1.6692" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                      <OutputList>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                        <ColumnReference Column="Expr1002"/>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Quantity"/>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="rowguid"/>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ModifiedDate"/>
+                                                        <ColumnReference Column="TrgPrb1004"/>
+                                                      </OutputList>
+                                                      <Merge ManyToMany="0">
+                                                        <InnerSideJoinColumns>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                                        </InnerSideJoinColumns>
+                                                        <OuterSideJoinColumns>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                        </OuterSideJoinColumns>
+                                                        <Residual>
+                                                          <ScalarOperator ScalarString="[AdventureWorks2022].[Production].[ProductInventory].[ProductID] as [tgt].[ProductID]=[AdventureWorks2022].[Sales].[SalesOrderDetail].[ProductID]">
+                                                            <Compare CompareOp="EQ">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            </Compare>
+                                                          </ScalarOperator>
+                                                        </Residual>
+                                                        <RelOp NodeId="12" PhysicalOp="Sort" LogicalOp="Sort" EstimateRows="266" EstimateIO="0.0112613" EstimateCPU="0.00344263" AvgRowSize="15" EstimatedTotalSubtreeCost="1.65173" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                          <OutputList>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                            <ColumnReference Column="Expr1002"/>
+                                                          </OutputList>
+                                                          <MemoryFractions Input="0.5" Output="0.375"/>
+                                                          <Sort Distinct="0">
+                                                            <OrderBy>
+                                                            <OrderByColumn Ascending="1">
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                            </OrderByColumn>
+                                                            </OrderBy>
+                                                            <RelOp NodeId="13" PhysicalOp="Hash Match" LogicalOp="Aggregate" EstimateRows="266" EstimateIO="0" EstimateCPU="0.587704" AvgRowSize="15" EstimatedTotalSubtreeCost="1.63703" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                            <OutputList>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                            <ColumnReference Column="Expr1002"/>
+                                                            </OutputList>
+                                                            <MemoryFractions Input="1" Output="0.5"/>
+                                                            <Hash>
+                                                            <DefinedValues>
+                                                            <DefinedValue>
+                                                            <ColumnReference Column="Expr1002"/>
+                                                            <ScalarOperator ScalarString="SUM([AdventureWorks2022].[Sales].[SalesOrderDetail].[OrderQty])">
+                                                            <Aggregate Distinct="0" AggType="SUM">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="OrderQty"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            </Aggregate>
+                                                            </ScalarOperator>
+                                                            </DefinedValue>
+                                                            </DefinedValues>
+                                                            <HashKeysBuild>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                            </HashKeysBuild>
+                                                            <RelOp NodeId="14" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="121317" EstimatedRowsRead="121317" EstimateIO="0.915718" EstimateCPU="0.133606" AvgRowSize="13" EstimatedTotalSubtreeCost="1.04932" TableCardinality="121317" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                            <OutputList>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="OrderQty"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                            </OutputList>
+                                                            <IndexScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                            <DefinedValues>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="OrderQty"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Column="ProductID"/>
+                                                            </DefinedValue>
+                                                            </DefinedValues>
+                                                            <Object Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderDetail]" Index="[PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID]" IndexKind="Clustered" Storage="RowStore"/>
+                                                            </IndexScan>
+                                                            </RelOp>
+                                                            </Hash>
+                                                            </RelOp>
+                                                          </Sort>
+                                                        </RelOp>
+                                                        <RelOp NodeId="15" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1069" EstimateIO="0" EstimateCPU="0.0001069" AvgRowSize="58" EstimatedTotalSubtreeCost="0.00900924" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                          <OutputList>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Quantity"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="rowguid"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ModifiedDate"/>
+                                                            <ColumnReference Column="TrgPrb1004"/>
+                                                          </OutputList>
+                                                          <ComputeScalar>
+                                                            <DefinedValues>
+                                                            <DefinedValue>
+                                                            <ColumnReference Column="TrgPrb1004"/>
+                                                            <ScalarOperator ScalarString="(1)">
+                                                            <Const ConstValue="(1)"/>
+                                                            </ScalarOperator>
+                                                            </DefinedValue>
+                                                            </DefinedValues>
+                                                            <RelOp NodeId="16" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="1069" EstimatedRowsRead="1069" EstimateIO="0.00756944" EstimateCPU="0.0013329" AvgRowSize="54" EstimatedTotalSubtreeCost="0.00890234" TableCardinality="1069" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                            <OutputList>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Quantity"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="rowguid"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ModifiedDate"/>
+                                                            </OutputList>
+                                                            <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                            <DefinedValues>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="LocationID"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Quantity"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="rowguid"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ModifiedDate"/>
+                                                            </DefinedValue>
+                                                            </DefinedValues>
+                                                            <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Index="[PK_ProductInventory_ProductID_LocationID]" Alias="[tgt]" IndexKind="Clustered" Storage="RowStore"/>
+                                                            </IndexScan>
+                                                            </RelOp>
+                                                          </ComputeScalar>
+                                                        </RelOp>
+                                                      </Merge>
+                                                    </RelOp>
+                                                  </ComputeScalar>
+                                                </RelOp>
+                                              </ComputeScalar>
+                                            </RelOp>
+                                          </ComputeScalar>
+                                        </RelOp>
+                                      </ComputeScalar>
+                                    </RelOp>
+                                  </Update>
+                                </RelOp>
+                                <Predicate>
+                                  <ScalarOperator ScalarString="CASE WHEN CASE WHEN [Action1006]&lt;&gt;(4) THEN NULL ELSE NOT [AdventureWorks2022].[Production].[ProductInventory].[Shelf] as [tgt].[Shelf] like N'[A-Za-z]' AND [AdventureWorks2022].[Production].[ProductInventory].[Shelf] as [tgt].[Shelf]&lt;&gt;N'N/A' END THEN (0) ELSE CASE WHEN CASE WHEN [Action1006]&lt;&gt;(4) THEN NULL ELSE [AdventureWorks2022].[Production].[ProductInventory].[Bin] as [tgt].[Bin]&lt;(0) OR [AdventureWorks2022].[Production].[ProductInventory].[Bin] as [tgt].[Bin]&gt;(100) END THEN (1) ELSE NULL END END">
+                                    <IF>
+                                      <Condition>
+                                        <ScalarOperator>
+                                          <IF>
+                                            <Condition>
+                                              <ScalarOperator>
+                                                <Compare CompareOp="NE">
+                                                  <ScalarOperator>
+                                                    <Identifier>
+                                                      <ColumnReference Column="Action1006"/>
+                                                    </Identifier>
+                                                  </ScalarOperator>
+                                                  <ScalarOperator>
+                                                    <Const ConstValue="(4)"/>
+                                                  </ScalarOperator>
+                                                </Compare>
+                                              </ScalarOperator>
+                                            </Condition>
+                                            <Then>
+                                              <ScalarOperator>
+                                                <Const ConstValue="NULL"/>
+                                              </ScalarOperator>
+                                            </Then>
+                                            <Else>
+                                              <ScalarOperator>
+                                                <Logical Operation="AND">
+                                                  <ScalarOperator>
+                                                    <Logical Operation="NOT">
+                                                      <ScalarOperator>
+                                                        <Intrinsic FunctionName="like">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Const ConstValue="N'[A-Za-z]'"/>
+                                                          </ScalarOperator>
+                                                        </Intrinsic>
+                                                      </ScalarOperator>
+                                                    </Logical>
+                                                  </ScalarOperator>
+                                                  <ScalarOperator>
+                                                    <Compare CompareOp="NE">
+                                                      <ScalarOperator>
+                                                        <Identifier>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Shelf"/>
+                                                        </Identifier>
+                                                      </ScalarOperator>
+                                                      <ScalarOperator>
+                                                        <Const ConstValue="N'N/A'"/>
+                                                      </ScalarOperator>
+                                                    </Compare>
+                                                  </ScalarOperator>
+                                                </Logical>
+                                              </ScalarOperator>
+                                            </Else>
+                                          </IF>
+                                        </ScalarOperator>
+                                      </Condition>
+                                      <Then>
+                                        <ScalarOperator>
+                                          <Const ConstValue="(0)"/>
+                                        </ScalarOperator>
+                                      </Then>
+                                      <Else>
+                                        <ScalarOperator>
+                                          <IF>
+                                            <Condition>
+                                              <ScalarOperator>
+                                                <IF>
+                                                  <Condition>
+                                                    <ScalarOperator>
+                                                      <Compare CompareOp="NE">
+                                                        <ScalarOperator>
+                                                          <Identifier>
+                                                            <ColumnReference Column="Action1006"/>
+                                                          </Identifier>
+                                                        </ScalarOperator>
+                                                        <ScalarOperator>
+                                                          <Const ConstValue="(4)"/>
+                                                        </ScalarOperator>
+                                                      </Compare>
+                                                    </ScalarOperator>
+                                                  </Condition>
+                                                  <Then>
+                                                    <ScalarOperator>
+                                                      <Const ConstValue="NULL"/>
+                                                    </ScalarOperator>
+                                                  </Then>
+                                                  <Else>
+                                                    <ScalarOperator>
+                                                      <Logical Operation="OR">
+                                                        <ScalarOperator>
+                                                          <Compare CompareOp="LT">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <Const ConstValue="(0)"/>
+                                                            </ScalarOperator>
+                                                          </Compare>
+                                                        </ScalarOperator>
+                                                        <ScalarOperator>
+                                                          <Compare CompareOp="GT">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="Bin"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <Const ConstValue="(100)"/>
+                                                            </ScalarOperator>
+                                                          </Compare>
+                                                        </ScalarOperator>
+                                                      </Logical>
+                                                    </ScalarOperator>
+                                                  </Else>
+                                                </IF>
+                                              </ScalarOperator>
+                                            </Condition>
+                                            <Then>
+                                              <ScalarOperator>
+                                                <Const ConstValue="(1)"/>
+                                              </ScalarOperator>
+                                            </Then>
+                                            <Else>
+                                              <ScalarOperator>
+                                                <Const ConstValue="NULL"/>
+                                              </ScalarOperator>
+                                            </Else>
+                                          </IF>
+                                        </ScalarOperator>
+                                      </Else>
+                                    </IF>
+                                  </ScalarOperator>
+                                </Predicate>
+                              </Assert>
+                            </RelOp>
+                          </Sort>
+                        </RelOp>
+                        <RelOp NodeId="17" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="14" EstimatedRowsRead="14" EstimateIO="0.003125" EstimateCPU="0.0001724" AvgRowSize="9" EstimatedTotalSubtreeCost="0.0032974" TableCardinality="14" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                          <OutputList>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Location]" Column="LocationID"/>
+                          </OutputList>
+                          <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="1" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                            <DefinedValues>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Location]" Column="LocationID"/>
+                              </DefinedValue>
+                            </DefinedValues>
+                            <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[Location]" Index="[PK_Location_LocationID]" IndexKind="Clustered" Storage="RowStore"/>
+                          </IndexScan>
+                        </RelOp>
+                      </Merge>
+                    </RelOp>
+                    <RelOp NodeId="18" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="9" EstimatedTotalSubtreeCost="0.120149" TableCardinality="504" Parallel="0" EstimateRebinds="501.111" EstimateRewinds="0.889141" EstimatedExecutionMode="Row">
+                      <OutputList/>
+                      <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="1" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                        <DefinedValues/>
+                        <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Index="[PK_Product_ProductID]" IndexKind="Clustered" Storage="RowStore"/>
+                        <SeekPredicates>
+                          <SeekPredicateNew>
+                            <SeekKeys>
+                              <Prefix ScanType="EQ">
+                                <RangeColumns>
+                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="ProductID"/>
+                                </RangeColumns>
+                                <RangeExpressions>
+                                  <ScalarOperator ScalarString="[AdventureWorks2022].[Production].[ProductInventory].[ProductID] as [tgt].[ProductID]">
+                                    <Identifier>
+                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductInventory]" Alias="[tgt]" Column="ProductID"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                </RangeExpressions>
+                              </Prefix>
+                            </SeekKeys>
+                          </SeekPredicateNew>
+                        </SeekPredicates>
+                      </IndexScan>
+                    </RelOp>
+                  </NestedLoops>
+                </RelOp>
+                <Predicate>
+                  <ScalarOperator ScalarString="CASE WHEN NOT [Pass1029] AND [Expr1028] IS NULL THEN (0) ELSE CASE WHEN NOT [Pass1031] AND [Expr1030] IS NULL THEN (1) ELSE NULL END END">
+                    <IF>
+                      <Condition>
+                        <ScalarOperator>
+                          <Logical Operation="AND">
+                            <ScalarOperator>
+                              <Logical Operation="NOT">
+                                <ScalarOperator>
+                                  <Identifier>
+                                    <ColumnReference Column="Pass1029"/>
+                                  </Identifier>
+                                </ScalarOperator>
+                              </Logical>
+                            </ScalarOperator>
+                            <ScalarOperator>
+                              <Logical Operation="IS NULL">
+                                <ScalarOperator>
+                                  <Identifier>
+                                    <ColumnReference Column="Expr1028"/>
+                                  </Identifier>
+                                </ScalarOperator>
+                              </Logical>
+                            </ScalarOperator>
+                          </Logical>
+                        </ScalarOperator>
+                      </Condition>
+                      <Then>
+                        <ScalarOperator>
+                          <Const ConstValue="(0)"/>
+                        </ScalarOperator>
+                      </Then>
+                      <Else>
+                        <ScalarOperator>
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Logical Operation="AND">
+                                  <ScalarOperator>
+                                    <Logical Operation="NOT">
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Column="Pass1031"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Logical>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Logical Operation="IS NULL">
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Column="Expr1030"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Logical>
+                                  </ScalarOperator>
+                                </Logical>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="(1)"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </Else>
+                    </IF>
+                  </ScalarOperator>
+                </Predicate>
+              </Assert>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

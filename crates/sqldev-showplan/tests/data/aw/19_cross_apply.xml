@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.599" Build="17.0.4035.5">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="SELECT TOP 50 c.CustomerID, latest.SalesOrderID, latest.OrderDate, latest.TotalDue FROM Sales.Customer c CROSS APPLY (SELECT TOP 1 SalesOrderID, OrderDate, TotalDue FROM Sales.SalesOrderHeader soh WHERE soh.CustomerID = c.CustomerID ORDER BY OrderDate DESC) latest" StatementId="1" StatementCompId="1" StatementType="SELECT" RetrievedFromCache="false" StatementSubTreeCost="0.955872" StatementEstRows="50" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0x8A1BBA61A2530146" QueryPlanHash="0x03C20D7C5AA9C711" CardinalityEstimationModelVersion="160">
+          <StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"/>
+          <QueryPlan NonParallelPlanReason="TSQLUserDefinedFunctionsNotParallelizable" CachedPlanSize="40" CompileTime="2" CompileCPU="2" CompileMemory="536">
+            <MemoryGrantInfo SerialRequiredMemory="16" SerialDesiredMemory="24" GrantedMemory="0" MaxUsedMemory="0"/>
+            <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="327795" EstimatedPagesCached="163897" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="18129088"/>
+            <OptimizerStatsUsage>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:34.79" ModificationCount="0" SamplingPercent="100" Statistics="[IX_SalesOrderHeader_SalesPersonID]" Table="[SalesOrderHeader]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:34.75" ModificationCount="0" SamplingPercent="100" Statistics="[AK_SalesOrderHeader_SalesOrderNumber]" Table="[SalesOrderHeader]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:34.71" ModificationCount="0" SamplingPercent="100" Statistics="[AK_SalesOrderHeader_rowguid]" Table="[SalesOrderHeader]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:34.77" ModificationCount="0" SamplingPercent="100" Statistics="[IX_SalesOrderHeader_CustomerID]" Table="[SalesOrderHeader]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+            </OptimizerStatsUsage>
+            <RelOp NodeId="0" PhysicalOp="Top" LogicalOp="Top" EstimateRows="50" EstimateIO="0" EstimateCPU="5e-06" AvgRowSize="31" EstimatedTotalSubtreeCost="0.955872" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+              <OutputList>
+                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[Customer]" Alias="[c]" Column="CustomerID"/>
+                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SalesOrderID"/>
+                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="OrderDate"/>
+                <ColumnReference Table="[soh]" Column="TotalDue" ComputedColumn="1"/>
+              </OutputList>
+              <Top RowCount="0" IsPercent="0" WithTies="0">
+                <TopExpression>
+                  <ScalarOperator ScalarString="(50)">
+                    <Const ConstValue="(50)"/>
+                  </ScalarOperator>
+                </TopExpression>
+                <RelOp NodeId="1" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="50" EstimateRowsWithoutRowGoal="19820" EstimateIO="0" EstimateCPU="0.0828476" AvgRowSize="31" EstimatedTotalSubtreeCost="0.955867" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                  <OutputList>
+                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[Customer]" Alias="[c]" Column="CustomerID"/>
+                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SalesOrderID"/>
+                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="OrderDate"/>
+                    <ColumnReference Table="[soh]" Column="TotalDue" ComputedColumn="1"/>
+                  </OutputList>
+                  <NestedLoops Optimized="0">
+                    <OuterReferences>
+                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[Customer]" Alias="[c]" Column="CustomerID"/>
+                    </OuterReferences>
+                    <RelOp NodeId="2" PhysicalOp="Index Scan" LogicalOp="Index Scan" EstimateRows="50" EstimateRowsWithoutRowGoal="19820" EstimatedRowsRead="50" EstimateIO="0.0283102" EstimateCPU="0.021959" AvgRowSize="11" EstimatedTotalSubtreeCost="0.00339927" TableCardinality="19820" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                      <OutputList>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[Customer]" Alias="[c]" Column="CustomerID"/>
+                      </OutputList>
+                      <IndexScan Ordered="0" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                        <DefinedValues>
+                          <DefinedValue>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[Customer]" Alias="[c]" Column="CustomerID"/>
+                          </DefinedValue>
+                        </DefinedValues>
+                        <Object Database="[AdventureWorks2022]" Schema="[Sales]" Table="[Customer]" Index="[IX_Customer_TerritoryID]" Alias="[c]" IndexKind="NonClustered" Storage="RowStore"/>
+                      </IndexScan>
+                    </RelOp>
+                    <RelOp NodeId="3" PhysicalOp="Sort" LogicalOp="TopN Sort" EstimateRows="1" EstimateRowsWithoutRowGoal="1.64575" EstimateIO="0.0112613" EstimateCPU="0.000101872" AvgRowSize="27" EstimatedTotalSubtreeCost="0.952253" Parallel="0" EstimateRebinds="49.9975" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                      <OutputList>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SalesOrderID"/>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="OrderDate"/>
+                        <ColumnReference Table="[soh]" Column="TotalDue" ComputedColumn="1"/>
+                      </OutputList>
+                      <MemoryFractions Input="1" Output="1"/>
+                      <TopSort Distinct="0" Rows="1">
+                        <OrderBy>
+                          <OrderByColumn Ascending="0">
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="OrderDate"/>
+                          </OrderByColumn>
+                        </OrderBy>
+                        <RelOp NodeId="4" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1.64575" EstimateRowsWithoutRowGoal="1.64575" EstimateIO="0" EstimateCPU="1.64575e-07" AvgRowSize="27" EstimatedTotalSubtreeCost="0.372764" Parallel="0" EstimateRebinds="49.9975" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                          <OutputList>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SalesOrderID"/>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="OrderDate"/>
+                            <ColumnReference Table="[soh]" Column="TotalDue" ComputedColumn="1"/>
+                          </OutputList>
+                          <ComputeScalar>
+                            <DefinedValues>
+                              <DefinedValue>
+                                <ColumnReference Table="[soh]" Column="TotalDue" ComputedColumn="1"/>
+                                <ScalarOperator ScalarString="[AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] as [soh].[TotalDue]">
+                                  <Identifier>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="TotalDue" ComputedColumn="1"/>
+                                  </Identifier>
+                                </ScalarOperator>
+                              </DefinedValue>
+                            </DefinedValues>
+                            <RelOp NodeId="5" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="1.64575" EstimateIO="0" EstimateCPU="6.87921e-06" AvgRowSize="27" EstimatedTotalSubtreeCost="0.372755" Parallel="0" EstimateRebinds="49.9975" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                              <OutputList>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SalesOrderID"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="OrderDate"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="TotalDue" ComputedColumn="1"/>
+                              </OutputList>
+                              <NestedLoops Optimized="0">
+                                <OuterReferences>
+                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SalesOrderID"/>
+                                </OuterReferences>
+                                <RelOp NodeId="6" PhysicalOp="Index Seek" LogicalOp="Index Seek" EstimateRows="1.64575" EstimatedRowsRead="1.64575" EstimateIO="0.003125" EstimateCPU="0.00015881" AvgRowSize="11" EstimatedTotalSubtreeCost="0.11247" TableCardinality="31465" Parallel="0" EstimateRebinds="49.9975" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                  <OutputList>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SalesOrderID"/>
+                                  </OutputList>
+                                  <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                    <DefinedValues>
+                                      <DefinedValue>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SalesOrderID"/>
+                                      </DefinedValue>
+                                    </DefinedValues>
+                                    <Object Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Index="[IX_SalesOrderHeader_CustomerID]" Alias="[soh]" IndexKind="NonClustered" Storage="RowStore"/>
+                                    <SeekPredicates>
+                                      <SeekPredicateNew>
+                                        <SeekKeys>
+                                          <Prefix ScanType="EQ">
+                                            <RangeColumns>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="CustomerID"/>
+                                            </RangeColumns>
+                                            <RangeExpressions>
+                                              <ScalarOperator ScalarString="[AdventureWorks2022].[Sales].[Customer].[CustomerID] as [c].[CustomerID]">
+                                                <Identifier>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[Customer]" Alias="[c]" Column="CustomerID"/>
+                                                </Identifier>
+                                              </ScalarOperator>
+                                            </RangeExpressions>
+                                          </Prefix>
+                                        </SeekKeys>
+                                      </SeekPredicateNew>
+                                    </SeekPredicates>
+                                  </IndexScan>
+                                </RelOp>
+                                <RelOp NodeId="8" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="1e-07" AvgRowSize="23" EstimatedTotalSubtreeCost="0.259934" Parallel="0" EstimateRebinds="82.9288" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                  <OutputList>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="TotalDue" ComputedColumn="1"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="OrderDate"/>
+                                  </OutputList>
+                                  <ComputeScalar>
+                                    <DefinedValues>
+                                      <DefinedValue>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="TotalDue" ComputedColumn="1"/>
+                                        <ScalarOperator ScalarString="isnull([AdventureWorks2022].[Sales].[SalesOrderHeader].[SubTotal] as [soh].[SubTotal]+[AdventureWorks2022].[Sales].[SalesOrderHeader].[TaxAmt] as [soh].[TaxAmt]+[AdventureWorks2022].[Sales].[SalesOrderHeader].[Freight] as [soh].[Freight],($0.0000))">
+                                          <Intrinsic FunctionName="isnull">
+                                            <ScalarOperator>
+                                              <Arithmetic Operation="ADD">
+                                                <ScalarOperator>
+                                                  <Arithmetic Operation="ADD">
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SubTotal"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="TaxAmt"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                  </Arithmetic>
+                                                </ScalarOperator>
+                                                <ScalarOperator>
+                                                  <Identifier>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="Freight"/>
+                                                  </Identifier>
+                                                </ScalarOperator>
+                                              </Arithmetic>
+                                            </ScalarOperator>
+                                            <ScalarOperator>
+                                              <Const ConstValue="($0.0000)"/>
+                                            </ScalarOperator>
+                                          </Intrinsic>
+                                        </ScalarOperator>
+                                      </DefinedValue>
+                                    </DefinedValues>
+                                    <RelOp NodeId="9" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="39" EstimatedTotalSubtreeCost="0.259926" TableCardinality="31465" Parallel="0" EstimateRebinds="82.9288" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                      <OutputList>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="OrderDate"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SubTotal"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="TaxAmt"/>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="Freight"/>
+                                      </OutputList>
+                                      <IndexScan Lookup="1" Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                        <DefinedValues>
+                                          <DefinedValue>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="OrderDate"/>
+                                          </DefinedValue>
+                                          <DefinedValue>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SubTotal"/>
+                                          </DefinedValue>
+                                          <DefinedValue>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="TaxAmt"/>
+                                          </DefinedValue>
+                                          <DefinedValue>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="Freight"/>
+                                          </DefinedValue>
+                                        </DefinedValues>
+                                        <Object Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Index="[PK_SalesOrderHeader_SalesOrderID]" Alias="[soh]" TableReferenceId="-1" IndexKind="Clustered" Storage="RowStore"/>
+                                        <SeekPredicates>
+                                          <SeekPredicateNew>
+                                            <SeekKeys>
+                                              <Prefix ScanType="EQ">
+                                                <RangeColumns>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SalesOrderID"/>
+                                                </RangeColumns>
+                                                <RangeExpressions>
+                                                  <ScalarOperator ScalarString="[AdventureWorks2022].[Sales].[SalesOrderHeader].[SalesOrderID] as [soh].[SalesOrderID]">
+                                                    <Identifier>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Alias="[soh]" Column="SalesOrderID"/>
+                                                    </Identifier>
+                                                  </ScalarOperator>
+                                                </RangeExpressions>
+                                              </Prefix>
+                                            </SeekKeys>
+                                          </SeekPredicateNew>
+                                        </SeekPredicates>
+                                      </IndexScan>
+                                    </RelOp>
+                                  </ComputeScalar>
+                                </RelOp>
+                              </NestedLoops>
+                            </RelOp>
+                          </ComputeScalar>
+                        </RelOp>
+                      </TopSort>
+                    </RelOp>
+                  </NestedLoops>
+                </RelOp>
+              </Top>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

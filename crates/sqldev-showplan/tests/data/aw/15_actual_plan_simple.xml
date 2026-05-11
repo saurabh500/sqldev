@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.599" Build="17.0.4035.5">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="SELECT TOP 10 ProductID, Name, ListPrice FROM Production.Product ORDER BY ListPrice DESC" StatementId="1" StatementCompId="1" StatementType="SELECT" RetrievedFromCache="true" StatementSubTreeCost="0.0311449" StatementEstRows="10" SecurityPolicyApplied="false" StatementOptmLevel="TRIVIAL" QueryHash="0x30E0ACB241857BAA" QueryPlanHash="0x71C8FC19F2B4F8CF" CardinalityEstimationModelVersion="160">
+          <StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"/>
+          <QueryPlan DegreeOfParallelism="1" MemoryGrant="1024" CachedPlanSize="24" CompileTime="0" CompileCPU="0" CompileMemory="152">
+            <MemoryGrantInfo SerialRequiredMemory="16" SerialDesiredMemory="24" RequiredMemory="16" DesiredMemory="24" RequestedMemory="1024" GrantWaitTime="0" MaxQueryMemory="4444432" GrantedMemory="1024" MaxUsedMemory="16" LastRequestedMemory="1024" IsMemoryGrantFeedbackAdjusted="No: Accurate Grant"/>
+            <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="327795" EstimatedPagesCached="163897" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="18129576"/>
+            <QueryTimeStats ElapsedTime="0" CpuTime="0"/>
+            <RelOp NodeId="0" PhysicalOp="Sort" LogicalOp="TopN Sort" EstimateRows="10" EstimateRowsWithoutRowGoal="504" EstimateIO="0.0112613" EstimateCPU="0.00715837" AvgRowSize="73" EstimatedTotalSubtreeCost="0.0311449" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+              <OutputList>
+                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="ProductID"/>
+                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="Name"/>
+                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="ListPrice"/>
+              </OutputList>
+              <MemoryFractions Input="1" Output="1"/>
+              <RunTimeInformation>
+                <RunTimeCountersPerThread Thread="0" ActualRows="10" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRebinds="1" ActualRewinds="0" ActualEndOfScans="1" ActualExecutions="1" InputMemoryGrant="1024" OutputMemoryGrant="1024" UsedMemoryGrant="16" ActualExecutionMode="Row"/>
+              </RunTimeInformation>
+              <TopSort Distinct="0" Rows="10">
+                <OrderBy>
+                  <OrderByColumn Ascending="0">
+                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="ListPrice"/>
+                  </OrderByColumn>
+                </OrderBy>
+                <RelOp NodeId="1" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="504" EstimateRowsWithoutRowGoal="504" EstimatedRowsRead="504" EstimateIO="0.0120139" EstimateCPU="0.0007114" AvgRowSize="73" EstimatedTotalSubtreeCost="0.0127253" TableCardinality="504" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                  <OutputList>
+                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="ProductID"/>
+                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="Name"/>
+                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="ListPrice"/>
+                  </OutputList>
+                  <RunTimeInformation>
+                    <RunTimeCountersPerThread Thread="0" ActualRows="504" Batches="0" ActualElapsedms="0" ActualCPUms="0" ActualScans="1" ActualLogicalReads="15" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRowsRead="504" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"/>
+                  </RunTimeInformation>
+                  <IndexScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                    <DefinedValues>
+                      <DefinedValue>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="ProductID"/>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="Name"/>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Column="ListPrice"/>
+                      </DefinedValue>
+                    </DefinedValues>
+                    <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[Product]" Index="[PK_Product_ProductID]" IndexKind="Clustered" Storage="RowStore"/>
+                  </IndexScan>
+                </RelOp>
+              </TopSort>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

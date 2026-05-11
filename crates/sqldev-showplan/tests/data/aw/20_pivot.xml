@@ -1,0 +1,1519 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.599" Build="17.0.4035.5">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="SELECT * FROM (SELECT YEAR(OrderDate) AS yr, MONTH(OrderDate) AS mo, TotalDue FROM Sales.SalesOrderHeader) src PIVOT (SUM(TotalDue) FOR mo IN ([1],[2],[3],[4],[5],[6],[7],[8],[9],[10],[11],[12])) p ORDER BY yr" StatementId="1" StatementCompId="1" StatementType="SELECT" RetrievedFromCache="false" StatementSubTreeCost="0.787988" StatementEstRows="4" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0xC87FE9132C17500B" QueryPlanHash="0x0FB635D6E8FFC37C" StatementOptmEarlyAbortReason="GoodEnoughPlanFound" CardinalityEstimationModelVersion="160">
+          <StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"/>
+          <QueryPlan CachedPlanSize="224" CompileTime="5" CompileCPU="5" CompileMemory="1112">
+            <MemoryGrantInfo SerialRequiredMemory="1536" SerialDesiredMemory="1584" GrantedMemory="0" MaxUsedMemory="0"/>
+            <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="327795" EstimatedPagesCached="163897" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="18128376"/>
+            <OptimizerStatsUsage>
+              <StatisticsInfo LastUpdate="2026-05-11T00:51:57.27" ModificationCount="0" SamplingPercent="100" Statistics="[_WA_Sys_00000003_5F7E2DAC]" Table="[SalesOrderHeader]" Schema="[Sales]" Database="[AdventureWorks2022]"/>
+            </OptimizerStatsUsage>
+            <RelOp NodeId="0" PhysicalOp="Sort" LogicalOp="Sort" EstimateRows="4" EstimateIO="0.0112613" EstimateCPU="0.000112588" AvgRowSize="108" EstimatedTotalSubtreeCost="0.787988" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+              <OutputList>
+                <ColumnReference Column="Expr1002"/>
+                <ColumnReference Column="Expr1004"/>
+                <ColumnReference Column="Expr1005"/>
+                <ColumnReference Column="Expr1006"/>
+                <ColumnReference Column="Expr1007"/>
+                <ColumnReference Column="Expr1008"/>
+                <ColumnReference Column="Expr1009"/>
+                <ColumnReference Column="Expr1010"/>
+                <ColumnReference Column="Expr1011"/>
+                <ColumnReference Column="Expr1012"/>
+                <ColumnReference Column="Expr1013"/>
+                <ColumnReference Column="Expr1014"/>
+                <ColumnReference Column="Expr1015"/>
+              </OutputList>
+              <MemoryFractions Input="0.666667" Output="1"/>
+              <Sort Distinct="0">
+                <OrderBy>
+                  <OrderByColumn Ascending="1">
+                    <ColumnReference Column="Expr1002"/>
+                  </OrderByColumn>
+                </OrderBy>
+                <RelOp NodeId="1" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="4" EstimateIO="0" EstimateCPU="0" AvgRowSize="108" EstimatedTotalSubtreeCost="0.776615" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                  <OutputList>
+                    <ColumnReference Column="Expr1002"/>
+                    <ColumnReference Column="Expr1004"/>
+                    <ColumnReference Column="Expr1005"/>
+                    <ColumnReference Column="Expr1006"/>
+                    <ColumnReference Column="Expr1007"/>
+                    <ColumnReference Column="Expr1008"/>
+                    <ColumnReference Column="Expr1009"/>
+                    <ColumnReference Column="Expr1010"/>
+                    <ColumnReference Column="Expr1011"/>
+                    <ColumnReference Column="Expr1012"/>
+                    <ColumnReference Column="Expr1013"/>
+                    <ColumnReference Column="Expr1014"/>
+                    <ColumnReference Column="Expr1015"/>
+                  </OutputList>
+                  <ComputeScalar>
+                    <DefinedValues>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1004"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1064]=(0) THEN NULL ELSE [Expr1065] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1064"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1065"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1005"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1066]=(0) THEN NULL ELSE [Expr1067] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1066"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1067"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1006"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1068]=(0) THEN NULL ELSE [Expr1069] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1068"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1069"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1007"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1070]=(0) THEN NULL ELSE [Expr1071] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1070"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1071"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1008"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1072]=(0) THEN NULL ELSE [Expr1073] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1072"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1073"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1009"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1074]=(0) THEN NULL ELSE [Expr1075] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1074"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1075"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1010"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1076]=(0) THEN NULL ELSE [Expr1077] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1076"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1077"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1011"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1078]=(0) THEN NULL ELSE [Expr1079] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1078"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1079"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1012"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1080]=(0) THEN NULL ELSE [Expr1081] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1080"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1081"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1013"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1082]=(0) THEN NULL ELSE [Expr1083] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1082"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1083"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1014"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1084]=(0) THEN NULL ELSE [Expr1085] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1084"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1085"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                      <DefinedValue>
+                        <ColumnReference Column="Expr1015"/>
+                        <ScalarOperator ScalarString="CASE WHEN [Expr1086]=(0) THEN NULL ELSE [Expr1087] END">
+                          <IF>
+                            <Condition>
+                              <ScalarOperator>
+                                <Compare CompareOp="EQ">
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Expr1086"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Compare>
+                              </ScalarOperator>
+                            </Condition>
+                            <Then>
+                              <ScalarOperator>
+                                <Const ConstValue="NULL"/>
+                              </ScalarOperator>
+                            </Then>
+                            <Else>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1087"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Else>
+                          </IF>
+                        </ScalarOperator>
+                      </DefinedValue>
+                    </DefinedValues>
+                    <RelOp NodeId="2" PhysicalOp="Hash Match" LogicalOp="Aggregate" EstimateRows="4" EstimateIO="0" EstimateCPU="0.227984" AvgRowSize="108" EstimatedTotalSubtreeCost="0.776615" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                      <OutputList>
+                        <ColumnReference Column="Expr1002"/>
+                        <ColumnReference Column="Expr1064"/>
+                        <ColumnReference Column="Expr1065"/>
+                        <ColumnReference Column="Expr1066"/>
+                        <ColumnReference Column="Expr1067"/>
+                        <ColumnReference Column="Expr1068"/>
+                        <ColumnReference Column="Expr1069"/>
+                        <ColumnReference Column="Expr1070"/>
+                        <ColumnReference Column="Expr1071"/>
+                        <ColumnReference Column="Expr1072"/>
+                        <ColumnReference Column="Expr1073"/>
+                        <ColumnReference Column="Expr1074"/>
+                        <ColumnReference Column="Expr1075"/>
+                        <ColumnReference Column="Expr1076"/>
+                        <ColumnReference Column="Expr1077"/>
+                        <ColumnReference Column="Expr1078"/>
+                        <ColumnReference Column="Expr1079"/>
+                        <ColumnReference Column="Expr1080"/>
+                        <ColumnReference Column="Expr1081"/>
+                        <ColumnReference Column="Expr1082"/>
+                        <ColumnReference Column="Expr1083"/>
+                        <ColumnReference Column="Expr1084"/>
+                        <ColumnReference Column="Expr1085"/>
+                        <ColumnReference Column="Expr1086"/>
+                        <ColumnReference Column="Expr1087"/>
+                      </OutputList>
+                      <MemoryFractions Input="1" Output="0.333333"/>
+                      <Hash>
+                        <DefinedValues>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1064"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(1) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(1)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1065"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(1) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(1)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1066"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(2) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(2)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1067"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(2) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(2)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1068"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(3) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(3)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1069"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(3) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(3)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1070"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(4) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(4)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1071"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(4) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(4)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1072"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(5) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(5)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1073"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(5) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(5)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1074"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(6) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(6)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1075"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(6) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(6)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1076"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(7) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(7)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1077"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(7) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(7)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1078"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(8) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(8)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1079"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(8) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(8)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1080"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(9) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(9)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1081"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(9) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(9)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1082"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(10) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(10)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1083"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(10) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(10)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1084"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(11) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(11)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1085"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(11) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(11)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1086"/>
+                            <ScalarOperator ScalarString="COUNT_BIG(CASE WHEN [Expr1003]=(12) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="COUNT_BIG">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(12)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1087"/>
+                            <ScalarOperator ScalarString="SUM(CASE WHEN [Expr1003]=(12) THEN [AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue] ELSE NULL END)">
+                              <Aggregate Distinct="0" AggType="SUM">
+                                <ScalarOperator>
+                                  <IF>
+                                    <Condition>
+                                      <ScalarOperator>
+                                        <Compare CompareOp="EQ">
+                                          <ScalarOperator>
+                                            <Identifier>
+                                              <ColumnReference Column="Expr1003"/>
+                                            </Identifier>
+                                          </ScalarOperator>
+                                          <ScalarOperator>
+                                            <Const ConstValue="(12)"/>
+                                          </ScalarOperator>
+                                        </Compare>
+                                      </ScalarOperator>
+                                    </Condition>
+                                    <Then>
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Then>
+                                    <Else>
+                                      <ScalarOperator>
+                                        <Const ConstValue="NULL"/>
+                                      </ScalarOperator>
+                                    </Else>
+                                  </IF>
+                                </ScalarOperator>
+                              </Aggregate>
+                            </ScalarOperator>
+                          </DefinedValue>
+                        </DefinedValues>
+                        <HashKeysBuild>
+                          <ColumnReference Column="Expr1002"/>
+                        </HashKeysBuild>
+                        <BuildResidual>
+                          <ScalarOperator ScalarString="[Expr1002] = [Expr1002]">
+                            <Compare CompareOp="IS">
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1002"/>
+                                </Identifier>
+                              </ScalarOperator>
+                              <ScalarOperator>
+                                <Identifier>
+                                  <ColumnReference Column="Expr1002"/>
+                                </Identifier>
+                              </ScalarOperator>
+                            </Compare>
+                          </ScalarOperator>
+                        </BuildResidual>
+                        <RelOp NodeId="3" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="31465" EstimateIO="0" EstimateCPU="0.0031465" AvgRowSize="23" EstimatedTotalSubtreeCost="0.548631" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                          <OutputList>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                            <ColumnReference Column="Expr1002"/>
+                            <ColumnReference Column="Expr1003"/>
+                          </OutputList>
+                          <ComputeScalar>
+                            <DefinedValues>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                <ScalarOperator ScalarString="[AdventureWorks2022].[Sales].[SalesOrderHeader].[TotalDue]">
+                                  <Identifier>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                  </Identifier>
+                                </ScalarOperator>
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Column="Expr1002"/>
+                                <ScalarOperator ScalarString="datepart(year,[AdventureWorks2022].[Sales].[SalesOrderHeader].[OrderDate])">
+                                  <Intrinsic FunctionName="datepart">
+                                    <ScalarOperator>
+                                      <Const ConstValue="(0)"/>
+                                    </ScalarOperator>
+                                    <ScalarOperator>
+                                      <Identifier>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="OrderDate"/>
+                                      </Identifier>
+                                    </ScalarOperator>
+                                  </Intrinsic>
+                                </ScalarOperator>
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Column="Expr1003"/>
+                                <ScalarOperator ScalarString="datepart(month,[AdventureWorks2022].[Sales].[SalesOrderHeader].[OrderDate])">
+                                  <Intrinsic FunctionName="datepart">
+                                    <ScalarOperator>
+                                      <Const ConstValue="(2)"/>
+                                    </ScalarOperator>
+                                    <ScalarOperator>
+                                      <Identifier>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="OrderDate"/>
+                                      </Identifier>
+                                    </ScalarOperator>
+                                  </Intrinsic>
+                                </ScalarOperator>
+                              </DefinedValue>
+                            </DefinedValues>
+                            <RelOp NodeId="4" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="31465" EstimateIO="0" EstimateCPU="0.0031465" AvgRowSize="23" EstimatedTotalSubtreeCost="0.545484" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                              <OutputList>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="OrderDate"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                              </OutputList>
+                              <ComputeScalar>
+                                <DefinedValues>
+                                  <DefinedValue>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TotalDue" ComputedColumn="1"/>
+                                    <ScalarOperator ScalarString="isnull([AdventureWorks2022].[Sales].[SalesOrderHeader].[SubTotal]+[AdventureWorks2022].[Sales].[SalesOrderHeader].[TaxAmt]+[AdventureWorks2022].[Sales].[SalesOrderHeader].[Freight],($0.0000))">
+                                      <Intrinsic FunctionName="isnull">
+                                        <ScalarOperator>
+                                          <Arithmetic Operation="ADD">
+                                            <ScalarOperator>
+                                              <Arithmetic Operation="ADD">
+                                                <ScalarOperator>
+                                                  <Identifier>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="SubTotal"/>
+                                                  </Identifier>
+                                                </ScalarOperator>
+                                                <ScalarOperator>
+                                                  <Identifier>
+                                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TaxAmt"/>
+                                                  </Identifier>
+                                                </ScalarOperator>
+                                              </Arithmetic>
+                                            </ScalarOperator>
+                                            <ScalarOperator>
+                                              <Identifier>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="Freight"/>
+                                              </Identifier>
+                                            </ScalarOperator>
+                                          </Arithmetic>
+                                        </ScalarOperator>
+                                        <ScalarOperator>
+                                          <Const ConstValue="($0.0000)"/>
+                                        </ScalarOperator>
+                                      </Intrinsic>
+                                    </ScalarOperator>
+                                  </DefinedValue>
+                                </DefinedValues>
+                                <RelOp NodeId="5" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="31465" EstimatedRowsRead="31465" EstimateIO="0.507569" EstimateCPU="0.0347685" AvgRowSize="39" EstimatedTotalSubtreeCost="0.542338" TableCardinality="31465" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                  <OutputList>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="OrderDate"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="SubTotal"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TaxAmt"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="Freight"/>
+                                  </OutputList>
+                                  <IndexScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                    <DefinedValues>
+                                      <DefinedValue>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="OrderDate"/>
+                                      </DefinedValue>
+                                      <DefinedValue>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="SubTotal"/>
+                                      </DefinedValue>
+                                      <DefinedValue>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="TaxAmt"/>
+                                      </DefinedValue>
+                                      <DefinedValue>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Column="Freight"/>
+                                      </DefinedValue>
+                                    </DefinedValues>
+                                    <Object Database="[AdventureWorks2022]" Schema="[Sales]" Table="[SalesOrderHeader]" Index="[PK_SalesOrderHeader_SalesOrderID]" IndexKind="Clustered" Storage="RowStore"/>
+                                  </IndexScan>
+                                </RelOp>
+                              </ComputeScalar>
+                            </RelOp>
+                          </ComputeScalar>
+                        </RelOp>
+                      </Hash>
+                    </RelOp>
+                  </ComputeScalar>
+                </RelOp>
+              </Sort>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

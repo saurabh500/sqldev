@@ -7,8 +7,16 @@ Parse SQL Server `SHOWPLAN_XML` and `STATISTICS XML` output into a typed Rust pl
 - **Estimated plans** (`SET SHOWPLAN_XML ON`) — parses `<RelOp>` nodes with cost estimates
 - **Actual plans** (`SET STATISTICS XML ON`) — includes `ActualRows`, `ActualExecutions`, and runtime stats
 - **Plan metadata** — statement text, query hash, cached plan size, compile time/CPU/memory
+- **Multi-statement batches** — use [`parse_all`] to retrieve one [`ShowPlan`] per statement
+- **Predicate / Object capture** — residual predicates and base table/index references attached to each operator
 - **Feature-gated serde** — enable the `serde` feature for `Serialize`/`Deserialize` derives
 - **Zero-copy XML parsing** via `quick-xml`
+
+## Encoding
+
+SQL Server returns SHOWPLAN XML as **UTF‑16** over the TDS protocol. If you read
+the raw bytes (e.g. through `tiberius`), decode them to a UTF‑8 `String` before
+passing to `parse` / `parse_all`.
 
 ## Quick start
 

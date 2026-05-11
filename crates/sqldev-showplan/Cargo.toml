@@ -11,13 +11,15 @@ readme = "README.md"
 
 [features]
 default = []
-serde = ["dep:serde", "dep:serde_json"]
+serde = ["dep:serde"]
 
 [dependencies]
 quick-xml = "0.37"
 thiserror = "1"
 serde = { version = "1", features = ["derive"], optional = true }
-serde_json = { version = "1", optional = true }
 
 [dev-dependencies]
 serde_json = "1"
+
+[package.metadata.docs.rs]
+all-features = true

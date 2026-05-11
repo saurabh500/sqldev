@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.599" Build="17.0.4035.5">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="DELETE FROM Production.ProductReview WHERE ReviewDate &lt; '2010-01-01'" StatementId="1" StatementCompId="1" StatementType="DELETE" RetrievedFromCache="false" StatementSubTreeCost="0.0573223" StatementEstRows="1" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0x6CB899141D911C89" QueryPlanHash="0xF1DD8EEE2E340027" StatementOptmEarlyAbortReason="GoodEnoughPlanFound" CardinalityEstimationModelVersion="160" ParameterizedText="(@1 varchar(8000))DELETE [Production].[ProductReview]  WHERE [ReviewDate]&lt;@1">
+          <StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"/>
+          <QueryPlan CachedPlanSize="56" CompileTime="2" CompileCPU="2" CompileMemory="600">
+            <MemoryGrantInfo SerialRequiredMemory="0" SerialDesiredMemory="0" GrantedMemory="0" MaxUsedMemory="0"/>
+            <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="327795" EstimatedPagesCached="163897" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="18128352"/>
+            <OptimizerStatsUsage>
+              <StatisticsInfo LastUpdate="2026-05-11T00:51:58.46" ModificationCount="0" SamplingPercent="100" Statistics="[_WA_Sys_00000004_3864608B]" Table="[ProductReview]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+              <StatisticsInfo LastUpdate="2023-05-08T12:07:33.38" ModificationCount="0" SamplingPercent="100" Statistics="[PK_ProductReview_ProductReviewID]" Table="[ProductReview]" Schema="[Production]" Database="[AdventureWorks2022]"/>
+            </OptimizerStatsUsage>
+            <RelOp NodeId="1" PhysicalOp="Assert" LogicalOp="Assert" EstimateRows="1" EstimateIO="0" EstimateCPU="5.8e-07" AvgRowSize="9" EstimatedTotalSubtreeCost="0.0573223" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+              <OutputList/>
+              <Assert StartupExpression="0">
+                <RelOp NodeId="2" PhysicalOp="Clustered Index Merge" LogicalOp="Merge" EstimateRows="1" EstimateIO="0.03" EstimateCPU="3e-06" AvgRowSize="9" EstimatedTotalSubtreeCost="0.0573217" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                  <OutputList/>
+                  <Update DMLRequestSort="0">
+                    <Object Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Index="[i1]" IndexKind="Clustered" Storage="RowStore"/>
+                    <Object Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Index="[i2]" IndexKind="NonClustered" Storage="RowStore"/>
+                    <Object Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Index="[i3]" IndexKind="NonClustered" Storage="RowStore"/>
+                    <SetPredicate SetPredicateType="Insert">
+                      <ScalarOperator ScalarString="[AdventureWorks2022].[sys].[fulltext_index_docidstatus_946102411].[docid] = [Expr1022],[AdventureWorks2022].[sys].[fulltext_index_docidstatus_946102411].[status] = [Expr1018],[AdventureWorks2022].[sys].[fulltext_index_docidstatus_946102411].[ts] = [Expr1017],[AdventureWorks2022].[sys].[fulltext_index_docidstatus_946102411].[retrycount] = [Expr1021]">
+                        <ScalarExpressionList>
+                          <ScalarOperator>
+                            <MultipleAssign>
+                              <Assign>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="docid"/>
+                                <ScalarOperator>
+                                  <Identifier>
+                                    <ColumnReference Column="Expr1022"/>
+                                  </Identifier>
+                                </ScalarOperator>
+                              </Assign>
+                              <Assign>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="status"/>
+                                <ScalarOperator>
+                                  <Identifier>
+                                    <ColumnReference Column="Expr1018"/>
+                                  </Identifier>
+                                </ScalarOperator>
+                              </Assign>
+                              <Assign>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="ts"/>
+                                <ScalarOperator>
+                                  <Identifier>
+                                    <ColumnReference Column="Expr1017"/>
+                                  </Identifier>
+                                </ScalarOperator>
+                              </Assign>
+                              <Assign>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="retrycount"/>
+                                <ScalarOperator>
+                                  <Identifier>
+                                    <ColumnReference Column="Expr1021"/>
+                                  </Identifier>
+                                </ScalarOperator>
+                              </Assign>
+                            </MultipleAssign>
+                          </ScalarOperator>
+                        </ScalarExpressionList>
+                      </ScalarOperator>
+                    </SetPredicate>
+                    <SetPredicate SetPredicateType="Update">
+                      <ScalarOperator ScalarString="[AdventureWorks2022].[sys].[fulltext_index_docidstatus_946102411].[status] = [Expr1018],[AdventureWorks2022].[sys].[fulltext_index_docidstatus_946102411].[ts] = [Expr1017]">
+                        <ScalarExpressionList>
+                          <ScalarOperator>
+                            <MultipleAssign>
+                              <Assign>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="status"/>
+                                <ScalarOperator>
+                                  <Identifier>
+                                    <ColumnReference Column="Expr1018"/>
+                                  </Identifier>
+                                </ScalarOperator>
+                              </Assign>
+                              <Assign>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="ts"/>
+                                <ScalarOperator>
+                                  <Identifier>
+                                    <ColumnReference Column="Expr1017"/>
+                                  </Identifier>
+                                </ScalarOperator>
+                              </Assign>
+                            </MultipleAssign>
+                          </ScalarOperator>
+                        </ScalarExpressionList>
+                      </ScalarOperator>
+                    </SetPredicate>
+                    <ActionColumn>
+                      <ColumnReference Column="Expr1020"/>
+                    </ActionColumn>
+                    <RelOp NodeId="3" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="1e-07" AvgRowSize="37" EstimatedTotalSubtreeCost="0.0273187" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                      <OutputList>
+                        <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="docid"/>
+                        <ColumnReference Column="Expr1017"/>
+                        <ColumnReference Column="Expr1018"/>
+                        <ColumnReference Column="Expr1020"/>
+                        <ColumnReference Column="Expr1021"/>
+                        <ColumnReference Column="Expr1022"/>
+                      </OutputList>
+                      <ComputeScalar>
+                        <DefinedValues>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1020"/>
+                            <ScalarOperator ScalarString="CASE WHEN [Expr1019] IS NOT NULL THEN (1) ELSE (4) END">
+                              <IF>
+                                <Condition>
+                                  <ScalarOperator>
+                                    <Logical Operation="IS NOT NULL">
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Column="Expr1019"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Logical>
+                                  </ScalarOperator>
+                                </Condition>
+                                <Then>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(1)"/>
+                                  </ScalarOperator>
+                                </Then>
+                                <Else>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(4)"/>
+                                  </ScalarOperator>
+                                </Else>
+                              </IF>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1021"/>
+                            <ScalarOperator ScalarString="CASE WHEN CASE WHEN [Expr1019] IS NOT NULL THEN (1) ELSE (4) END=(4) THEN (0) ELSE [AdventureWorks2022].[sys].[fulltext_index_docidstatus_946102411].[retrycount] END">
+                              <IF>
+                                <Condition>
+                                  <ScalarOperator>
+                                    <Compare CompareOp="EQ">
+                                      <ScalarOperator>
+                                        <IF>
+                                          <Condition>
+                                            <ScalarOperator>
+                                              <Logical Operation="IS NOT NULL">
+                                                <ScalarOperator>
+                                                  <Identifier>
+                                                    <ColumnReference Column="Expr1019"/>
+                                                  </Identifier>
+                                                </ScalarOperator>
+                                              </Logical>
+                                            </ScalarOperator>
+                                          </Condition>
+                                          <Then>
+                                            <ScalarOperator>
+                                              <Const ConstValue="(1)"/>
+                                            </ScalarOperator>
+                                          </Then>
+                                          <Else>
+                                            <ScalarOperator>
+                                              <Const ConstValue="(4)"/>
+                                            </ScalarOperator>
+                                          </Else>
+                                        </IF>
+                                      </ScalarOperator>
+                                      <ScalarOperator>
+                                        <Const ConstValue="(4)"/>
+                                      </ScalarOperator>
+                                    </Compare>
+                                  </ScalarOperator>
+                                </Condition>
+                                <Then>
+                                  <ScalarOperator>
+                                    <Const ConstValue="(0)"/>
+                                  </ScalarOperator>
+                                </Then>
+                                <Else>
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="retrycount"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                </Else>
+                              </IF>
+                            </ScalarOperator>
+                          </DefinedValue>
+                          <DefinedValue>
+                            <ColumnReference Column="Expr1022"/>
+                            <ScalarOperator ScalarString="CASE WHEN CASE WHEN [Expr1019] IS NOT NULL THEN (1) ELSE (4) END=(4) THEN CONVERT_IMPLICIT(bigint,[AdventureWorks2022].[Production].[ProductReview].[ProductReviewID],0) ELSE [AdventureWorks2022].[sys].[fulltext_index_docidstatus_946102411].[docid] END">
+                              <IF>
+                                <Condition>
+                                  <ScalarOperator>
+                                    <Compare CompareOp="EQ">
+                                      <ScalarOperator>
+                                        <IF>
+                                          <Condition>
+                                            <ScalarOperator>
+                                              <Logical Operation="IS NOT NULL">
+                                                <ScalarOperator>
+                                                  <Identifier>
+                                                    <ColumnReference Column="Expr1019"/>
+                                                  </Identifier>
+                                                </ScalarOperator>
+                                              </Logical>
+                                            </ScalarOperator>
+                                          </Condition>
+                                          <Then>
+                                            <ScalarOperator>
+                                              <Const ConstValue="(1)"/>
+                                            </ScalarOperator>
+                                          </Then>
+                                          <Else>
+                                            <ScalarOperator>
+                                              <Const ConstValue="(4)"/>
+                                            </ScalarOperator>
+                                          </Else>
+                                        </IF>
+                                      </ScalarOperator>
+                                      <ScalarOperator>
+                                        <Const ConstValue="(4)"/>
+                                      </ScalarOperator>
+                                    </Compare>
+                                  </ScalarOperator>
+                                </Condition>
+                                <Then>
+                                  <ScalarOperator>
+                                    <Convert DataType="bigint" Style="0" Implicit="1">
+                                      <ScalarOperator>
+                                        <Identifier>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Column="ProductReviewID"/>
+                                        </Identifier>
+                                      </ScalarOperator>
+                                    </Convert>
+                                  </ScalarOperator>
+                                </Then>
+                                <Else>
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="docid"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                </Else>
+                              </IF>
+                            </ScalarOperator>
+                          </DefinedValue>
+                        </DefinedValues>
+                        <RelOp NodeId="4" PhysicalOp="Nested Loops" LogicalOp="Left Outer Join" EstimateRows="1" EstimateIO="0" EstimateCPU="4.18e-06" AvgRowSize="33" EstimatedTotalSubtreeCost="0.0273186" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                          <OutputList>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Column="ProductReviewID"/>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="docid"/>
+                            <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="retrycount"/>
+                            <ColumnReference Column="Expr1017"/>
+                            <ColumnReference Column="Expr1018"/>
+                            <ColumnReference Column="Expr1019"/>
+                          </OutputList>
+                          <NestedLoops Optimized="0">
+                            <OuterReferences>
+                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Column="ProductReviewID"/>
+                            </OuterReferences>
+                            <RelOp NodeId="5" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="1e-07" AvgRowSize="20" EstimatedTotalSubtreeCost="0.0240313" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                              <OutputList>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Column="ProductReviewID"/>
+                                <ColumnReference Column="Expr1017"/>
+                                <ColumnReference Column="Expr1018"/>
+                              </OutputList>
+                              <ComputeScalar>
+                                <DefinedValues>
+                                  <DefinedValue>
+                                    <ColumnReference Column="Expr1018"/>
+                                    <ScalarOperator ScalarString="(3)">
+                                      <Const ConstValue="(3)"/>
+                                    </ScalarOperator>
+                                  </DefinedValue>
+                                </DefinedValues>
+                                <RelOp NodeId="6" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="1e-07" AvgRowSize="19" EstimatedTotalSubtreeCost="0.0240312" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                  <OutputList>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Column="ProductReviewID"/>
+                                    <ColumnReference Column="Expr1017"/>
+                                  </OutputList>
+                                  <ComputeScalar>
+                                    <DefinedValues>
+                                      <DefinedValue>
+                                        <ColumnReference Column="Expr1017"/>
+                                        <ScalarOperator ScalarString="gettimestamp((8))">
+                                          <Intrinsic FunctionName="gettimestamp">
+                                            <ScalarOperator>
+                                              <Const ConstValue="(8)"/>
+                                            </ScalarOperator>
+                                          </Intrinsic>
+                                        </ScalarOperator>
+                                      </DefinedValue>
+                                    </DefinedValues>
+                                    <RelOp NodeId="7" PhysicalOp="Clustered Index Delete" LogicalOp="Delete" EstimateRows="1" EstimateIO="0.02" EstimateCPU="2e-06" AvgRowSize="11" EstimatedTotalSubtreeCost="0.0240311" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                      <OutputList>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Column="ProductReviewID"/>
+                                      </OutputList>
+                                      <Update DMLRequestSort="0">
+                                        <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Index="[PK_ProductReview_ProductReviewID]" IndexKind="Clustered" Storage="RowStore"/>
+                                        <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Index="[IX_ProductReview_ProductID_Name]" IndexKind="NonClustered" Storage="RowStore"/>
+                                        <RelOp NodeId="8" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="1" EstimatedRowsRead="4" EstimateIO="0.00386574" EstimateCPU="0.0001614" AvgRowSize="19" EstimatedTotalSubtreeCost="0.00402714" TableCardinality="4" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                          <OutputList>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Column="ProductReviewID"/>
+                                          </OutputList>
+                                          <IndexScan Ordered="1" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                            <DefinedValues>
+                                              <DefinedValue>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Column="ProductReviewID"/>
+                                              </DefinedValue>
+                                            </DefinedValues>
+                                            <Object Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Index="[PK_ProductReview_ProductReviewID]" IndexKind="Clustered" Storage="RowStore"/>
+                                            <Predicate>
+                                              <ScalarOperator ScalarString="[AdventureWorks2022].[Production].[ProductReview].[ReviewDate]&lt;'2010-01-01 00:00:00.000'">
+                                                <Compare CompareOp="LT">
+                                                  <ScalarOperator>
+                                                    <Identifier>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Column="ReviewDate"/>
+                                                    </Identifier>
+                                                  </ScalarOperator>
+                                                  <ScalarOperator>
+                                                    <Const ConstValue="'2010-01-01 00:00:00.000'"/>
+                                                  </ScalarOperator>
+                                                </Compare>
+                                              </ScalarOperator>
+                                            </Predicate>
+                                          </IndexScan>
+                                        </RelOp>
+                                      </Update>
+                                    </RelOp>
+                                  </ComputeScalar>
+                                </RelOp>
+                              </ComputeScalar>
+                            </RelOp>
+                            <RelOp NodeId="9" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="1e-07" AvgRowSize="20" EstimatedTotalSubtreeCost="0.0032832" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                              <OutputList>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="docid"/>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="retrycount"/>
+                                <ColumnReference Column="Expr1019"/>
+                              </OutputList>
+                              <ComputeScalar>
+                                <DefinedValues>
+                                  <DefinedValue>
+                                    <ColumnReference Column="Expr1019"/>
+                                    <ScalarOperator ScalarString="(1)">
+                                      <Const ConstValue="(1)"/>
+                                    </ScalarOperator>
+                                  </DefinedValue>
+                                </DefinedValues>
+                                <RelOp NodeId="10" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="16" EstimatedTotalSubtreeCost="0.0032831" TableCardinality="0" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                  <OutputList>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="docid"/>
+                                    <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="retrycount"/>
+                                  </OutputList>
+                                  <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="1" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                    <DefinedValues>
+                                      <DefinedValue>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="docid"/>
+                                      </DefinedValue>
+                                      <DefinedValue>
+                                        <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="retrycount"/>
+                                      </DefinedValue>
+                                    </DefinedValues>
+                                    <Object Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Index="[i1]" IndexKind="Clustered" Storage="RowStore"/>
+                                    <SeekPredicates>
+                                      <SeekPredicateNew>
+                                        <SeekKeys>
+                                          <Prefix ScanType="EQ">
+                                            <RangeColumns>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[sys]" Table="[fulltext_index_docidstatus_946102411]" Column="docid"/>
+                                            </RangeColumns>
+                                            <RangeExpressions>
+                                              <ScalarOperator ScalarString="[AdventureWorks2022].[Production].[ProductReview].[ProductReviewID]">
+                                                <Identifier>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Production]" Table="[ProductReview]" Column="ProductReviewID"/>
+                                                </Identifier>
+                                              </ScalarOperator>
+                                            </RangeExpressions>
+                                          </Prefix>
+                                        </SeekKeys>
+                                      </SeekPredicateNew>
+                                    </SeekPredicates>
+                                  </IndexScan>
+                                </RelOp>
+                              </ComputeScalar>
+                            </RelOp>
+                          </NestedLoops>
+                        </RelOp>
+                      </ComputeScalar>
+                    </RelOp>
+                  </Update>
+                </RelOp>
+                <Predicate>
+                  <ScalarOperator ScalarString="CASE WHEN fulltextnotify((34359738373),(946102411)) IS NOT NULL THEN (0) ELSE NULL END">
+                    <IF>
+                      <Condition>
+                        <ScalarOperator>
+                          <Logical Operation="IS NOT NULL">
+                            <ScalarOperator>
+                              <Intrinsic FunctionName="fulltextnotify">
+                                <ScalarOperator>
+                                  <Const ConstValue="(34359738373)"/>
+                                </ScalarOperator>
+                                <ScalarOperator>
+                                  <Const ConstValue="(946102411)"/>
+                                </ScalarOperator>
+                              </Intrinsic>
+                            </ScalarOperator>
+                          </Logical>
+                        </ScalarOperator>
+                      </Condition>
+                      <Then>
+                        <ScalarOperator>
+                          <Const ConstValue="(0)"/>
+                        </ScalarOperator>
+                      </Then>
+                      <Else>
+                        <ScalarOperator>
+                          <Const ConstValue="NULL"/>
+                        </ScalarOperator>
+                      </Else>
+                    </IF>
+                  </ScalarOperator>
+                </Predicate>
+              </Assert>
+            </RelOp>
+            <ParameterList>
+              <ColumnReference Column="@1" ParameterDataType="varchar(8000)" ParameterCompiledValue="'2010-01-01'"/>
+            </ParameterList>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

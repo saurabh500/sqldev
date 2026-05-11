@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.599" Build="17.0.4035.5">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementText="EXEC dbo.uspGetEmployeeManagers @BusinessEntityID = 16" StatementId="1" StatementCompId="1" StatementType="EXECUTE PROC" RetrievedFromCache="false">
+          <StoredProc ProcName="dbo.uspGetEmployeeManagers">
+            <Statements>
+              <StmtSimple StatementText="&#13;&#10;CREATE PROCEDURE [dbo].[uspGetEmployeeManagers]&#13;&#10;    @BusinessEntityID [int]&#13;&#10;AS&#13;&#10;BEGIN&#13;&#10;    SET NOCOUNT ON;&#13;&#10;&#13;&#10;    -- Use recursive query to list out all Employees required for a particular Manager&#13;&#10;    " StatementId="2" StatementCompId="3" StatementType="SET ON/OFF" RetrievedFromCache="false"/>
+              <StmtSimple StatementText="WITH [EMP_cte]([BusinessEntityID], [OrganizationNode], [FirstName], [LastName], [JobTitle], [RecursionLevel]) -- CTE name and columns&#13;&#10;    AS (&#13;&#10;        SELECT e.[BusinessEntityID], e.[OrganizationNode], p.[FirstName], p.[LastName], e.[JobTitle], 0 -- Get the initial Employee&#13;&#10;        FROM [HumanResources].[Employee] e &#13;&#10;&#9;&#9;&#9;INNER JOIN [Person].[Person] as p&#13;&#10;&#9;&#9;&#9;ON p.[BusinessEntityID] = e.[BusinessEntityID]&#13;&#10;        WHERE e.[BusinessEntityID] = @BusinessEntityID&#13;&#10;        UNION ALL&#13;&#10;        SELECT e.[BusinessEntityID], e.[OrganizationNode], p.[FirstName], p.[LastName], e.[JobTitle], [RecursionLevel] + 1 -- Join recursive member to anchor&#13;&#10;        FROM [HumanResources].[Employee] e &#13;&#10;            INNER JOIN [EMP_cte]&#13;&#10;            ON e.[OrganizationNode] = [EMP_cte].[OrganizationNode].GetAncestor(1)&#13;&#10;            INNER JOIN [Person].[Person] p &#13;&#10;            ON p.[BusinessEntityID] = e.[BusinessEntityID]&#13;&#10;    )&#13;&#10;    -- Join back to Employee to return the manager name &#13;&#10;    SELECT [EMP_cte].[RecursionLevel], [EMP_cte].[BusinessEntityID], [EMP_cte].[FirstName], [EMP_cte].[LastName], &#13;&#10;        [EMP_cte].[OrganizationNode].ToString() AS [OrganizationNode], p.[FirstName] AS 'ManagerFirstName', p.[LastName] AS 'ManagerLastName'  -- Outer select from the CTE&#13;&#10;    FROM [EMP_cte] &#13;&#10;        INNER JOIN [HumanResources].[Employee] e &#13;&#10;        ON [EMP_cte].[OrganizationNode].GetAncestor(1) = e.[OrganizationNode]&#13;&#10;        INNER JOIN [Person].[Person] p &#13;&#10;        ON p.[BusinessEntityID] = e.[BusinessEntityID]&#13;&#10;    ORDER BY [RecursionLevel], [EMP_cte].[OrganizationNode].ToString()&#13;&#10;    OPTION (MAXRECURSION 25)" StatementId="3" StatementCompId="4" StatementType="SELECT" RetrievedFromCache="false" StatementSubTreeCost="0.0542213" StatementEstRows="3.77576" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0x473E6850A4A89567" QueryPlanHash="0x00C7AD5BE44D1116" StatementOptmEarlyAbortReason="GoodEnoughPlanFound" CardinalityEstimationModelVersion="160">
+                <StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"/>
+                <QueryPlan CachedPlanSize="96" CompileTime="6" CompileCPU="6" CompileMemory="1248">
+                  <MemoryGrantInfo SerialRequiredMemory="512" SerialDesiredMemory="560" GrantedMemory="0" MaxUsedMemory="0"/>
+                  <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="327795" EstimatedPagesCached="163897" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="18128368"/>
+                  <OptimizerStatsUsage>
+                    <StatisticsInfo LastUpdate="2023-05-08T12:07:34.31" ModificationCount="0" SamplingPercent="100" Statistics="[AK_Employee_rowguid]" Table="[Employee]" Schema="[HumanResources]" Database="[AdventureWorks2022]"/>
+                    <StatisticsInfo LastUpdate="2023-05-08T12:07:33.27" ModificationCount="0" SamplingPercent="100" Statistics="[PK_Person_BusinessEntityID]" Table="[Person]" Schema="[Person]" Database="[AdventureWorks2022]"/>
+                    <StatisticsInfo LastUpdate="2023-05-08T12:07:34.31" ModificationCount="0" SamplingPercent="100" Statistics="[AK_Employee_LoginID]" Table="[Employee]" Schema="[HumanResources]" Database="[AdventureWorks2022]"/>
+                    <StatisticsInfo LastUpdate="2023-05-08T12:07:34.30" ModificationCount="0" SamplingPercent="100" Statistics="[IX_Employee_OrganizationLevel_OrganizationNode]" Table="[Employee]" Schema="[HumanResources]" Database="[AdventureWorks2022]"/>
+                    <StatisticsInfo LastUpdate="2023-05-08T12:07:34.31" ModificationCount="0" SamplingPercent="100" Statistics="[AK_Employee_NationalIDNumber]" Table="[Employee]" Schema="[HumanResources]" Database="[AdventureWorks2022]"/>
+                    <StatisticsInfo LastUpdate="2023-05-08T12:07:34.30" ModificationCount="0" SamplingPercent="100" Statistics="[IX_Employee_OrganizationNode]" Table="[Employee]" Schema="[HumanResources]" Database="[AdventureWorks2022]"/>
+                    <StatisticsInfo LastUpdate="2023-05-08T12:07:33.17" ModificationCount="0" SamplingPercent="100" Statistics="[PK_Employee_BusinessEntityID]" Table="[Employee]" Schema="[HumanResources]" Database="[AdventureWorks2022]"/>
+                  </OptimizerStatsUsage>
+                  <RelOp NodeId="0" PhysicalOp="Sort" LogicalOp="Sort" EstimateRows="3.77576" EstimateIO="0.0112613" EstimateCPU="0.000115517" AvgRowSize="4227" EstimatedTotalSubtreeCost="0.0542213" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                    <OutputList>
+                      <ColumnReference Column="Recr1012"/>
+                      <ColumnReference Column="Recr1014"/>
+                      <ColumnReference Column="Recr1015"/>
+                      <ColumnReference Column="Recr1017"/>
+                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                      <ColumnReference Column="Expr1020"/>
+                    </OutputList>
+                    <MemoryFractions Input="1" Output="1"/>
+                    <Sort Distinct="0">
+                      <OrderBy>
+                        <OrderByColumn Ascending="1">
+                          <ColumnReference Column="Recr1017"/>
+                        </OrderByColumn>
+                        <OrderByColumn Ascending="1">
+                          <ColumnReference Column="Expr1020"/>
+                        </OrderByColumn>
+                      </OrderBy>
+                      <RelOp NodeId="1" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="3.77576" EstimateIO="0" EstimateCPU="3.77576e-07" AvgRowSize="4227" EstimatedTotalSubtreeCost="0.0428445" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                        <OutputList>
+                          <ColumnReference Column="Recr1012"/>
+                          <ColumnReference Column="Recr1014"/>
+                          <ColumnReference Column="Recr1015"/>
+                          <ColumnReference Column="Recr1017"/>
+                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                          <ColumnReference Column="Expr1020"/>
+                        </OutputList>
+                        <ComputeScalar>
+                          <DefinedValues>
+                            <DefinedValue>
+                              <ColumnReference Column="Expr1020"/>
+                              <ScalarOperator ScalarString="[Recr1013].ToString()">
+                                <UDTMethod>
+                                  <CLRFunction Assembly="Microsoft.SqlServer.Types" Class="Microsoft.SqlServer.Types.SqlHierarchyId" Method="ToString"/>
+                                  <ScalarOperator>
+                                    <Identifier>
+                                      <ColumnReference Column="Recr1013"/>
+                                    </Identifier>
+                                  </ScalarOperator>
+                                </UDTMethod>
+                              </ScalarOperator>
+                            </DefinedValue>
+                          </DefinedValues>
+                          <RelOp NodeId="2" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="3.77576" EstimateIO="0" EstimateCPU="1.672e-05" AvgRowSize="673" EstimatedTotalSubtreeCost="0.0428442" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                            <OutputList>
+                              <ColumnReference Column="Recr1012"/>
+                              <ColumnReference Column="Recr1013"/>
+                              <ColumnReference Column="Recr1014"/>
+                              <ColumnReference Column="Recr1015"/>
+                              <ColumnReference Column="Recr1017"/>
+                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                            </OutputList>
+                            <NestedLoops Optimized="0">
+                              <OuterReferences>
+                                <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                              </OuterReferences>
+                              <RelOp NodeId="3" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="4" EstimateIO="0" EstimateCPU="1.672e-05" AvgRowSize="573" EstimatedTotalSubtreeCost="0.0329985" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                <OutputList>
+                                  <ColumnReference Column="Recr1012"/>
+                                  <ColumnReference Column="Recr1013"/>
+                                  <ColumnReference Column="Recr1014"/>
+                                  <ColumnReference Column="Recr1015"/>
+                                  <ColumnReference Column="Recr1017"/>
+                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                </OutputList>
+                                <NestedLoops Optimized="0">
+                                  <OuterReferences>
+                                    <ColumnReference Column="Recr1013"/>
+                                  </OuterReferences>
+                                  <RelOp NodeId="4" PhysicalOp="Index Spool" LogicalOp="Lazy Spool" EstimateRows="4" EstimateIO="0" EstimateCPU="1e-08" AvgRowSize="569" EstimatedTotalSubtreeCost="0.0292244" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                    <OutputList>
+                                      <ColumnReference Column="Expr1024"/>
+                                      <ColumnReference Column="Recr1012"/>
+                                      <ColumnReference Column="Recr1013"/>
+                                      <ColumnReference Column="Recr1014"/>
+                                      <ColumnReference Column="Recr1015"/>
+                                      <ColumnReference Column="Recr1016"/>
+                                      <ColumnReference Column="Recr1017"/>
+                                    </OutputList>
+                                    <Spool Stack="1">
+                                      <RelOp NodeId="5" PhysicalOp="Concatenation" LogicalOp="Concatenation" EstimateRows="4" EstimateIO="0" EstimateCPU="2e-09" AvgRowSize="569" EstimatedTotalSubtreeCost="0.0264435" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                        <OutputList>
+                                          <ColumnReference Column="Expr1024"/>
+                                          <ColumnReference Column="Recr1012"/>
+                                          <ColumnReference Column="Recr1013"/>
+                                          <ColumnReference Column="Recr1014"/>
+                                          <ColumnReference Column="Recr1015"/>
+                                          <ColumnReference Column="Recr1016"/>
+                                          <ColumnReference Column="Recr1017"/>
+                                        </OutputList>
+                                        <Concat>
+                                          <DefinedValues>
+                                            <DefinedValue>
+                                              <ColumnReference Column="Expr1024"/>
+                                              <ColumnReference Column="Expr1021"/>
+                                              <ColumnReference Column="Expr1023"/>
+                                            </DefinedValue>
+                                            <DefinedValue>
+                                              <ColumnReference Column="Recr1012"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                            </DefinedValue>
+                                            <DefinedValue>
+                                              <ColumnReference Column="Recr1013"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                            </DefinedValue>
+                                            <DefinedValue>
+                                              <ColumnReference Column="Recr1014"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                            </DefinedValue>
+                                            <DefinedValue>
+                                              <ColumnReference Column="Recr1015"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                            </DefinedValue>
+                                            <DefinedValue>
+                                              <ColumnReference Column="Recr1016"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                            </DefinedValue>
+                                            <DefinedValue>
+                                              <ColumnReference Column="Recr1017"/>
+                                              <ColumnReference Column="Expr1002"/>
+                                              <ColumnReference Column="Expr1011"/>
+                                            </DefinedValue>
+                                          </DefinedValues>
+                                          <RelOp NodeId="6" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="2e-08" AvgRowSize="569" EstimatedTotalSubtreeCost="2e-08" Parallel="0" EstimateRebinds="4" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                            <OutputList>
+                                              <ColumnReference Column="Expr1021"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                              <ColumnReference Column="Expr1002"/>
+                                            </OutputList>
+                                            <ComputeScalar>
+                                              <DefinedValues>
+                                                <DefinedValue>
+                                                  <ColumnReference Column="Expr1021"/>
+                                                  <ScalarOperator ScalarString="(0)">
+                                                    <Const ConstValue="(0)"/>
+                                                  </ScalarOperator>
+                                                </DefinedValue>
+                                              </DefinedValues>
+                                              <RelOp NodeId="7" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="1e-07" AvgRowSize="621" EstimatedTotalSubtreeCost="0.00657048" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                <OutputList>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                                  <ColumnReference Column="Expr1002"/>
+                                                </OutputList>
+                                                <ComputeScalar>
+                                                  <DefinedValues>
+                                                    <DefinedValue>
+                                                      <ColumnReference Column="Expr1002"/>
+                                                      <ScalarOperator ScalarString="(0)">
+                                                        <Const ConstValue="(0)"/>
+                                                      </ScalarOperator>
+                                                    </DefinedValue>
+                                                  </DefinedValues>
+                                                  <RelOp NodeId="8" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="1" EstimateIO="0" EstimateCPU="4.18e-06" AvgRowSize="617" EstimatedTotalSubtreeCost="0.00657038" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                    <OutputList>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                                    </OutputList>
+                                                    <NestedLoops Optimized="0">
+                                                      <RelOp NodeId="9" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="113" EstimatedTotalSubtreeCost="0.0032831" TableCardinality="19972" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                        <OutputList>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                                        </OutputList>
+                                                        <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                          <DefinedValues>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                                            </DefinedValue>
+                                                          </DefinedValues>
+                                                          <Object Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Index="[PK_Person_BusinessEntityID]" Alias="[p]" TableReferenceId="1" IndexKind="Clustered" Storage="RowStore"/>
+                                                          <SeekPredicates>
+                                                            <SeekPredicateNew>
+                                                            <SeekKeys>
+                                                            <Prefix ScanType="EQ">
+                                                            <RangeColumns>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="BusinessEntityID"/>
+                                                            </RangeColumns>
+                                                            <RangeExpressions>
+                                                            <ScalarOperator ScalarString="[@BusinessEntityID]">
+                                                            <Identifier>
+                                                            <ColumnReference Column="@BusinessEntityID"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            </RangeExpressions>
+                                                            </Prefix>
+                                                            </SeekKeys>
+                                                            </SeekPredicateNew>
+                                                          </SeekPredicates>
+                                                        </IndexScan>
+                                                      </RelOp>
+                                                      <RelOp NodeId="10" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="513" EstimatedTotalSubtreeCost="0.0032831" TableCardinality="290" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                        <OutputList>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                                        </OutputList>
+                                                        <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                          <DefinedValues>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                                            </DefinedValue>
+                                                          </DefinedValues>
+                                                          <Object Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Index="[PK_Employee_BusinessEntityID]" Alias="[e]" TableReferenceId="1" IndexKind="Clustered" Storage="RowStore"/>
+                                                          <SeekPredicates>
+                                                            <SeekPredicateNew>
+                                                            <SeekKeys>
+                                                            <Prefix ScanType="EQ">
+                                                            <RangeColumns>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                            </RangeColumns>
+                                                            <RangeExpressions>
+                                                            <ScalarOperator ScalarString="[@BusinessEntityID]">
+                                                            <Identifier>
+                                                            <ColumnReference Column="@BusinessEntityID"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            </RangeExpressions>
+                                                            </Prefix>
+                                                            </SeekKeys>
+                                                            </SeekPredicateNew>
+                                                          </SeekPredicates>
+                                                        </IndexScan>
+                                                      </RelOp>
+                                                    </NestedLoops>
+                                                  </RelOp>
+                                                </ComputeScalar>
+                                              </RelOp>
+                                            </ComputeScalar>
+                                          </RelOp>
+                                          <RelOp NodeId="11" PhysicalOp="Assert" LogicalOp="Assert" EstimateRows="4" EstimateIO="0" EstimateCPU="1.68e-07" AvgRowSize="569" EstimatedTotalSubtreeCost="0.019873" Parallel="0" EstimateRebinds="4" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                            <OutputList>
+                                              <ColumnReference Column="Expr1023"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                              <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                              <ColumnReference Column="Expr1011"/>
+                                            </OutputList>
+                                            <Assert StartupExpression="0">
+                                              <RelOp NodeId="12" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="4" EstimateIO="0" EstimateCPU="1.68e-07" AvgRowSize="569" EstimatedTotalSubtreeCost="0.019873" Parallel="0" EstimateRebinds="4" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                <OutputList>
+                                                  <ColumnReference Column="Expr1023"/>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                                  <ColumnReference Column="Expr1011"/>
+                                                </OutputList>
+                                                <NestedLoops Optimized="0">
+                                                  <OuterReferences>
+                                                    <ColumnReference Column="Expr1023"/>
+                                                    <ColumnReference Column="Recr1004"/>
+                                                    <ColumnReference Column="Recr1005"/>
+                                                    <ColumnReference Column="Recr1006"/>
+                                                    <ColumnReference Column="Recr1007"/>
+                                                    <ColumnReference Column="Recr1008"/>
+                                                    <ColumnReference Column="Recr1009"/>
+                                                  </OuterReferences>
+                                                  <RelOp NodeId="13" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="2e-08" AvgRowSize="569" EstimatedTotalSubtreeCost="2e-08" Parallel="0" EstimateRebinds="4" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                    <OutputList>
+                                                      <ColumnReference Column="Expr1023"/>
+                                                      <ColumnReference Column="Recr1004"/>
+                                                      <ColumnReference Column="Recr1005"/>
+                                                      <ColumnReference Column="Recr1006"/>
+                                                      <ColumnReference Column="Recr1007"/>
+                                                      <ColumnReference Column="Recr1008"/>
+                                                      <ColumnReference Column="Recr1009"/>
+                                                    </OutputList>
+                                                    <ComputeScalar>
+                                                      <DefinedValues>
+                                                        <DefinedValue>
+                                                          <ColumnReference Column="Expr1023"/>
+                                                          <ScalarOperator ScalarString="[Expr1022]+(1)">
+                                                            <Arithmetic Operation="ADD">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Expr1022"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <Const ConstValue="(1)"/>
+                                                            </ScalarOperator>
+                                                            </Arithmetic>
+                                                          </ScalarOperator>
+                                                        </DefinedValue>
+                                                      </DefinedValues>
+                                                      <RelOp NodeId="14" PhysicalOp="Table Spool" LogicalOp="Lazy Spool" EstimateRows="1" EstimateIO="0" EstimateCPU="2e-08" AvgRowSize="569" EstimatedTotalSubtreeCost="2e-08" Parallel="0" EstimateRebinds="4" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                        <OutputList>
+                                                          <ColumnReference Column="Expr1022"/>
+                                                          <ColumnReference Column="Recr1004"/>
+                                                          <ColumnReference Column="Recr1005"/>
+                                                          <ColumnReference Column="Recr1006"/>
+                                                          <ColumnReference Column="Recr1007"/>
+                                                          <ColumnReference Column="Recr1008"/>
+                                                          <ColumnReference Column="Recr1009"/>
+                                                        </OutputList>
+                                                        <Spool PrimaryNodeId="4" Stack="1"/>
+                                                      </RelOp>
+                                                    </ComputeScalar>
+                                                  </RelOp>
+                                                  <RelOp NodeId="15" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="1" EstimateIO="0" EstimateCPU="1e-07" AvgRowSize="177" EstimatedTotalSubtreeCost="0.0198728" Parallel="0" EstimateRebinds="3" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                    <OutputList>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                                      <ColumnReference Column="Expr1011"/>
+                                                    </OutputList>
+                                                    <ComputeScalar>
+                                                      <DefinedValues>
+                                                        <DefinedValue>
+                                                          <ColumnReference Column="Expr1011"/>
+                                                          <ScalarOperator ScalarString="[Recr1009]+(1)">
+                                                            <Arithmetic Operation="ADD">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Recr1009"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <Const ConstValue="(1)"/>
+                                                            </ScalarOperator>
+                                                            </Arithmetic>
+                                                          </ScalarOperator>
+                                                        </DefinedValue>
+                                                      </DefinedValues>
+                                                      <RelOp NodeId="16" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="1" EstimateIO="0" EstimateCPU="4.18e-06" AvgRowSize="173" EstimatedTotalSubtreeCost="0.0198724" Parallel="0" EstimateRebinds="3" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                        <OutputList>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                                        </OutputList>
+                                                        <NestedLoops Optimized="0">
+                                                          <OuterReferences>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                          </OuterReferences>
+                                                          <RelOp NodeId="17" PhysicalOp="Filter" LogicalOp="Filter" EstimateRows="1" EstimateIO="0" EstimateCPU="0.0001972" AvgRowSize="69" EstimatedTotalSubtreeCost="0.0100267" Parallel="0" EstimateRebinds="3" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                            <OutputList>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                                            </OutputList>
+                                                            <Filter StartupExpression="0">
+                                                            <RelOp NodeId="18" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="290" EstimatedRowsRead="290" EstimateIO="0.00764794" EstimateCPU="0.0003975" AvgRowSize="69" EstimatedTotalSubtreeCost="0.00923794" TableCardinality="290" Parallel="0" EstimateRebinds="0" EstimateRewinds="3" EstimatedExecutionMode="Row">
+                                                            <OutputList>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                                            </OutputList>
+                                                            <IndexScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                            <DefinedValues>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="JobTitle"/>
+                                                            </DefinedValue>
+                                                            </DefinedValues>
+                                                            <Object Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Index="[PK_Employee_BusinessEntityID]" Alias="[e]" TableReferenceId="2" IndexKind="Clustered" Storage="RowStore"/>
+                                                            </IndexScan>
+                                                            </RelOp>
+                                                            <Predicate>
+                                                            <ScalarOperator ScalarString="[AdventureWorks2022].[HumanResources].[Employee].[OrganizationNode] as [e].[OrganizationNode]=[Recr1005].GetAncestor((1))">
+                                                            <Compare CompareOp="EQ">
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <UDTMethod>
+                                                            <CLRFunction Assembly="Microsoft.SqlServer.Types" Class="Microsoft.SqlServer.Types.SqlHierarchyId" Method="GetAncestor"/>
+                                                            <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Recr1005"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            <ScalarOperator>
+                                                            <Const ConstValue="(1)"/>
+                                                            </ScalarOperator>
+                                                            </UDTMethod>
+                                                            </ScalarOperator>
+                                                            </Compare>
+                                                            </ScalarOperator>
+                                                            </Predicate>
+                                                            </Filter>
+                                                          </RelOp>
+                                                          <RelOp NodeId="19" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="113" EstimatedTotalSubtreeCost="0.00982893" TableCardinality="19972" Parallel="0" EstimateRebinds="3" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                                            <OutputList>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                                            </OutputList>
+                                                            <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                            <DefinedValues>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                                            </DefinedValue>
+                                                            <DefinedValue>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                                            </DefinedValue>
+                                                            </DefinedValues>
+                                                            <Object Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Index="[PK_Person_BusinessEntityID]" Alias="[p]" TableReferenceId="2" IndexKind="Clustered" Storage="RowStore"/>
+                                                            <SeekPredicates>
+                                                            <SeekPredicateNew>
+                                                            <SeekKeys>
+                                                            <Prefix ScanType="EQ">
+                                                            <RangeColumns>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="BusinessEntityID"/>
+                                                            </RangeColumns>
+                                                            <RangeExpressions>
+                                                            <ScalarOperator ScalarString="[AdventureWorks2022].[HumanResources].[Employee].[BusinessEntityID] as [e].[BusinessEntityID]">
+                                                            <Identifier>
+                                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                                            </Identifier>
+                                                            </ScalarOperator>
+                                                            </RangeExpressions>
+                                                            </Prefix>
+                                                            </SeekKeys>
+                                                            </SeekPredicateNew>
+                                                            </SeekPredicates>
+                                                            </IndexScan>
+                                                          </RelOp>
+                                                        </NestedLoops>
+                                                      </RelOp>
+                                                    </ComputeScalar>
+                                                  </RelOp>
+                                                </NestedLoops>
+                                              </RelOp>
+                                              <Predicate>
+                                                <ScalarOperator ScalarString="CASE WHEN [Expr1023]&gt;(25) THEN (0) ELSE NULL END">
+                                                  <IF>
+                                                    <Condition>
+                                                      <ScalarOperator>
+                                                        <Compare CompareOp="GT">
+                                                          <ScalarOperator>
+                                                            <Identifier>
+                                                            <ColumnReference Column="Expr1023"/>
+                                                            </Identifier>
+                                                          </ScalarOperator>
+                                                          <ScalarOperator>
+                                                            <Const ConstValue="(25)"/>
+                                                          </ScalarOperator>
+                                                        </Compare>
+                                                      </ScalarOperator>
+                                                    </Condition>
+                                                    <Then>
+                                                      <ScalarOperator>
+                                                        <Const ConstValue="(0)"/>
+                                                      </ScalarOperator>
+                                                    </Then>
+                                                    <Else>
+                                                      <ScalarOperator>
+                                                        <Const ConstValue="NULL"/>
+                                                      </ScalarOperator>
+                                                    </Else>
+                                                  </IF>
+                                                </ScalarOperator>
+                                              </Predicate>
+                                            </Assert>
+                                          </RelOp>
+                                        </Concat>
+                                      </RelOp>
+                                    </Spool>
+                                  </RelOp>
+                                  <RelOp NodeId="20" PhysicalOp="Index Seek" LogicalOp="Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="11" EstimatedTotalSubtreeCost="0.0037574" TableCardinality="290" Parallel="0" EstimateRebinds="2" EstimateRewinds="1" EstimatedExecutionMode="Row">
+                                    <OutputList>
+                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                    </OutputList>
+                                    <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                      <DefinedValues>
+                                        <DefinedValue>
+                                          <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                        </DefinedValue>
+                                      </DefinedValues>
+                                      <Object Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Index="[IX_Employee_OrganizationNode]" Alias="[e]" TableReferenceId="3" IndexKind="NonClustered" Storage="RowStore"/>
+                                      <SeekPredicates>
+                                        <SeekPredicateNew>
+                                          <SeekKeys>
+                                            <Prefix ScanType="EQ">
+                                              <RangeColumns>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="OrganizationNode"/>
+                                              </RangeColumns>
+                                              <RangeExpressions>
+                                                <ScalarOperator ScalarString="[Recr1013].GetAncestor((1))">
+                                                  <UDTMethod>
+                                                    <CLRFunction Assembly="Microsoft.SqlServer.Types" Class="Microsoft.SqlServer.Types.SqlHierarchyId" Method="GetAncestor"/>
+                                                    <ScalarOperator>
+                                                      <Identifier>
+                                                        <ColumnReference Column="Recr1013"/>
+                                                      </Identifier>
+                                                    </ScalarOperator>
+                                                    <ScalarOperator>
+                                                      <Const ConstValue="(1)"/>
+                                                    </ScalarOperator>
+                                                  </UDTMethod>
+                                                </ScalarOperator>
+                                              </RangeExpressions>
+                                            </Prefix>
+                                          </SeekKeys>
+                                        </SeekPredicateNew>
+                                      </SeekPredicates>
+                                    </IndexScan>
+                                  </RelOp>
+                                </NestedLoops>
+                              </RelOp>
+                              <RelOp NodeId="21" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="113" EstimatedTotalSubtreeCost="0.00982893" TableCardinality="19972" Parallel="0" EstimateRebinds="3" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                <OutputList>
+                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                  <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                </OutputList>
+                                <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                  <DefinedValues>
+                                    <DefinedValue>
+                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="FirstName"/>
+                                    </DefinedValue>
+                                    <DefinedValue>
+                                      <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="LastName"/>
+                                    </DefinedValue>
+                                  </DefinedValues>
+                                  <Object Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Index="[PK_Person_BusinessEntityID]" Alias="[p]" TableReferenceId="3" IndexKind="Clustered" Storage="RowStore"/>
+                                  <SeekPredicates>
+                                    <SeekPredicateNew>
+                                      <SeekKeys>
+                                        <Prefix ScanType="EQ">
+                                          <RangeColumns>
+                                            <ColumnReference Database="[AdventureWorks2022]" Schema="[Person]" Table="[Person]" Alias="[p]" Column="BusinessEntityID"/>
+                                          </RangeColumns>
+                                          <RangeExpressions>
+                                            <ScalarOperator ScalarString="[AdventureWorks2022].[HumanResources].[Employee].[BusinessEntityID] as [e].[BusinessEntityID]">
+                                              <Identifier>
+                                                <ColumnReference Database="[AdventureWorks2022]" Schema="[HumanResources]" Table="[Employee]" Alias="[e]" Column="BusinessEntityID"/>
+                                              </Identifier>
+                                            </ScalarOperator>
+                                          </RangeExpressions>
+                                        </Prefix>
+                                      </SeekKeys>
+                                    </SeekPredicateNew>
+                                  </SeekPredicates>
+                                </IndexScan>
+                              </RelOp>
+                            </NestedLoops>
+                          </RelOp>
+                        </ComputeScalar>
+                      </RelOp>
+                    </Sort>
+                  </RelOp>
+                  <ParameterList>
+                    <ColumnReference Column="@BusinessEntityID" ParameterDataType="int" ParameterCompiledValue="(16)"/>
+                  </ParameterList>
+                </QueryPlan>
+              </StmtSimple>
+            </Statements>
+          </StoredProc>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

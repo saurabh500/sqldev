@@ -11,7 +11,7 @@ fn count_nodes(node: &PlanNode) -> usize {
 
 #[test]
 fn parse_estimated_plan() {
-    let xml = include_str!("data/estimated_plan.xml");
+    let xml = include_str!("../tests/data/estimated_plan.xml");
     let plan = parse(xml).expect("should parse estimated plan");
 
     // Metadata
@@ -108,7 +108,7 @@ fn parse_estimated_plan() {
 
 #[test]
 fn parse_actual_plan() {
-    let xml = include_str!("data/actual_plan.xml");
+    let xml = include_str!("../tests/data/actual_plan.xml");
     let plan = parse(xml).expect("should parse actual plan");
 
     assert_eq!(
@@ -243,7 +243,7 @@ fn extra_attributes_captured() {
 
     let plan = parse(xml).unwrap();
     assert!(plan.root.extra.contains_key("TableCardinality"));
-    assert_eq!(plan.root.extra["TableCardinality"], serde_json::json!(42.0));
+    assert_eq!(plan.root.extra["TableCardinality"], "42");
 }
 
 // -----------------------------------------------------------------------
@@ -253,7 +253,7 @@ fn extra_attributes_captured() {
 #[cfg(feature = "serde")]
 #[test]
 fn serde_round_trip() {
-    let xml = include_str!("data/estimated_plan.xml");
+    let xml = include_str!("../tests/data/estimated_plan.xml");
     let plan = parse(xml).unwrap();
     let json = serde_json::to_string_pretty(&plan).expect("serialize");
     let deser: crate::ShowPlan = serde_json::from_str(&json).expect("deserialize");
@@ -272,7 +272,7 @@ fn serde_round_trip() {
 
 #[test]
 fn parse_output_list() {
-    let xml = include_str!("data/estimated_plan.xml");
+    let xml = include_str!("../tests/data/estimated_plan.xml");
     let plan = parse(xml).unwrap();
 
     // Root (Sort) should have 3 output columns
@@ -305,7 +305,7 @@ fn parse_output_list() {
 
 #[test]
 fn parse_missing_indexes() {
-    let xml = include_str!("data/missing_indexes_plan.xml");
+    let xml = include_str!("../tests/data/missing_indexes_plan.xml");
     let plan = parse(xml).unwrap();
 
     assert_eq!(plan.missing_indexes.len(), 1);
@@ -328,7 +328,7 @@ fn parse_missing_indexes() {
 
 #[test]
 fn parse_warnings() {
-    let xml = include_str!("data/warnings_plan.xml");
+    let xml = include_str!("../tests/data/warnings_plan.xml");
     let plan = parse(xml).unwrap();
 
     assert_eq!(plan.degree_of_parallelism, Some(4));
@@ -390,7 +390,7 @@ fn parse_warnings() {
 
 #[test]
 fn parse_memory_grant_and_wait_stats() {
-    let xml = include_str!("data/memory_grant_wait_stats_plan.xml");
+    let xml = include_str!("../tests/data/memory_grant_wait_stats_plan.xml");
     let plan = parse(xml).unwrap();
 
     // Memory grant
@@ -454,7 +454,7 @@ fn parse_memory_grant_and_wait_stats() {
 
 #[test]
 fn parse_query_plan_level_warnings() {
-    let xml = include_str!("data/warnings_plan.xml");
+    let xml = include_str!("../tests/data/warnings_plan.xml");
     let plan = parse(xml).unwrap();
 
     // The <QueryPlan><Warnings NoJoinPredicate="true" /> is a query-plan level warning.
@@ -476,7 +476,7 @@ fn parse_query_plan_level_warnings() {
 
 #[test]
 fn parse_statement_metadata() {
-    let xml = include_str!("data/estimated_plan.xml");
+    let xml = include_str!("../tests/data/estimated_plan.xml");
     let plan = parse(xml).unwrap();
 
     assert_eq!(plan.statement_type.as_deref(), Some("SELECT"));
