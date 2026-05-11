@@ -1,6 +1,6 @@
 [package]
 name = "sqldev-showplan"
-version = "0.1.0"
+version = "0.1.0-preview.1"
 edition = "2021"
 description = "Parse SQL Server SHOWPLAN_XML and STATISTICS XML into a typed plan tree"
 license = "MIT OR Apache-2.0"
