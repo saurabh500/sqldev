@@ -19,6 +19,7 @@ sqldev-introspect = { workspace = true }
 sqldev-ddl = { workspace = true }
 sqldev-diff = { workspace = true }
 sqldev-explain = { workspace = true }
+sqldev-seed = { workspace = true }
 
 anyhow = { workspace = true }
 clap = { workspace = true }

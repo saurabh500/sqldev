@@ -8,6 +8,7 @@ members = [
     "crates/sqldev-ddl",
     "crates/sqldev-diff",
     "crates/sqldev-explain",
+    "crates/sqldev-seed",
     "crates/sqldev-cli",
 ]
 exclude = [
@@ -51,6 +52,7 @@ sqldev-introspect = { path = "crates/sqldev-introspect", version = "0.1.0" }
 sqldev-ddl = { path = "crates/sqldev-ddl", version = "0.1.0" }
 sqldev-diff = { path = "crates/sqldev-diff", version = "0.1.0" }
 sqldev-explain = { path = "crates/sqldev-explain", version = "0.1.0" }
+sqldev-seed = { path = "crates/sqldev-seed", version = "0.1.0" }
 
 [workspace.lints.clippy]
 # Strict-by-default; relax case-by-case in code.
