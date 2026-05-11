@@ -27,7 +27,7 @@ fn every_aw_plan_parses() {
         .unwrap_or_else(|e| panic!("read {}: {e}", dir.display()))
         .filter_map(|entry| entry.ok())
         .map(|e| e.path())
-        .filter(|p| p.extension().map_or(false, |x| x == "xml"))
+        .filter(|p| p.extension().is_some_and(|x| x == "xml"))
         .collect();
     files.sort();
 
@@ -50,11 +50,7 @@ fn every_aw_plan_parses() {
                 }
                 for plan in &plans {
                     let nodes = count_nodes(&plan.root);
-                    assert!(
-                        nodes > 0,
-                        "{}: plan has no nodes",
-                        path.display()
-                    );
+                    assert!(nodes > 0, "{}: plan has no nodes", path.display());
                     total_nodes += nodes;
                 }
             }

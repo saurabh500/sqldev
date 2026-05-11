@@ -20,24 +20,15 @@ fn parse_estimated_plan() {
         .as_deref()
         .unwrap()
         .contains("SELECT o.OrderID"));
-    assert_eq!(
-        plan.query_hash.as_deref(),
-        Some("0xA1B2C3D4E5F60718")
-    );
-    assert_eq!(
-        plan.query_plan_hash.as_deref(),
-        Some("0x1234567890ABCDEF")
-    );
+    assert_eq!(plan.query_hash.as_deref(), Some("0xA1B2C3D4E5F60718"));
+    assert_eq!(plan.query_plan_hash.as_deref(), Some("0x1234567890ABCDEF"));
     assert_eq!(plan.statement_type.as_deref(), Some("SELECT"));
     assert_eq!(plan.optimization_level.as_deref(), Some("FULL"));
     assert_eq!(
         plan.early_abort_reason.as_deref(),
         Some("GoodEnoughPlanFound")
     );
-    assert_eq!(
-        plan.cardinality_estimation_model.as_deref(),
-        Some("150")
-    );
+    assert_eq!(plan.cardinality_estimation_model.as_deref(), Some("150"));
     assert_eq!(plan.cached_plan_size, Some(48));
     assert_eq!(plan.compile_time, Some(12));
     assert_eq!(plan.compile_cpu, Some(8));
@@ -78,7 +69,10 @@ fn parse_estimated_plan() {
     assert_eq!(count_nodes(&plan.root), 4);
 
     // Memory grant
-    let mg = plan.memory_grant.as_ref().expect("should have memory grant");
+    let mg = plan
+        .memory_grant
+        .as_ref()
+        .expect("should have memory grant");
     assert_eq!(mg.serial_required_memory, 512);
     assert_eq!(mg.serial_desired_memory, 1024);
     assert_eq!(mg.granted_memory, Some(1024));
@@ -111,10 +105,7 @@ fn parse_actual_plan() {
     let xml = include_str!("../tests/data/actual_plan.xml");
     let plan = parse(xml).expect("should parse actual plan");
 
-    assert_eq!(
-        plan.query_hash.as_deref(),
-        Some("0xFEDCBA9876543210")
-    );
+    assert_eq!(plan.query_hash.as_deref(), Some("0xFEDCBA9876543210"));
 
     // Root is Top
     assert_eq!(plan.root.physical_op, "Top");
@@ -124,7 +115,10 @@ fn parse_actual_plan() {
     let scan = &plan.root.children[0];
     assert_eq!(scan.physical_op, "Clustered Index Scan");
 
-    let stats = scan.runtime_stats.as_ref().expect("should have runtime stats");
+    let stats = scan
+        .runtime_stats
+        .as_ref()
+        .expect("should have runtime stats");
     assert_eq!(stats.actual_rows, 10);
     assert_eq!(stats.actual_executions, 1);
     assert_eq!(stats.actual_elapsed_ms, Some(5));
@@ -217,7 +211,10 @@ fn empty_plan_returns_error() {
 
     let err = parse(xml).unwrap_err();
     let msg = format!("{err}");
-    assert!(msg.contains("empty"), "Error should mention empty plan: {msg}");
+    assert!(
+        msg.contains("empty"),
+        "Error should mention empty plan: {msg}"
+    );
 }
 
 // -----------------------------------------------------------------------
@@ -261,7 +258,10 @@ fn serde_round_trip() {
     assert_eq!(deser.query_hash, plan.query_hash);
     assert_eq!(deser.statement_type, plan.statement_type);
     assert_eq!(
-        deser.memory_grant.as_ref().map(|m| m.serial_required_memory),
+        deser
+            .memory_grant
+            .as_ref()
+            .map(|m| m.serial_required_memory),
         plan.memory_grant.as_ref().map(|m| m.serial_required_memory)
     );
 }
@@ -282,14 +282,8 @@ fn parse_output_list() {
         plan.root.output_list[0].database.as_deref(),
         Some("[TestDB]")
     );
-    assert_eq!(
-        plan.root.output_list[0].schema.as_deref(),
-        Some("[dbo]")
-    );
-    assert_eq!(
-        plan.root.output_list[0].table.as_deref(),
-        Some("[Orders]")
-    );
+    assert_eq!(plan.root.output_list[0].schema.as_deref(), Some("[dbo]"));
+    assert_eq!(plan.root.output_list[0].table.as_deref(), Some("[Orders]"));
 
     assert_eq!(plan.root.output_list[1].column, "OrderDate");
     assert_eq!(plan.root.output_list[2].column, "CustomerName");
@@ -316,10 +310,7 @@ fn parse_missing_indexes() {
     assert_eq!(mi.table, "[Orders]");
     assert_eq!(mi.equality_columns, vec!["[CustomerName]"]);
     assert_eq!(mi.inequality_columns, vec!["[OrderDate]"]);
-    assert_eq!(
-        mi.include_columns,
-        vec!["[OrderID]", "[Status]"]
-    );
+    assert_eq!(mi.include_columns, vec!["[OrderID]", "[Status]"]);
 }
 
 // -----------------------------------------------------------------------
@@ -346,7 +337,10 @@ fn parse_warnings() {
     assert!(relop_warning.spill_occurred);
     assert_eq!(relop_warning.spill_to_temp_db.len(), 2);
     assert_eq!(relop_warning.spill_to_temp_db[0].spill_level, Some(1));
-    assert_eq!(relop_warning.spill_to_temp_db[0].spilled_thread_count, Some(2));
+    assert_eq!(
+        relop_warning.spill_to_temp_db[0].spilled_thread_count,
+        Some(2)
+    );
     assert_eq!(relop_warning.spill_to_temp_db[1].spill_level, Some(2));
 
     let mgw = relop_warning
@@ -364,10 +358,7 @@ fn parse_warnings() {
     assert!(!table_scan.warnings.is_empty());
     let child_warning = &table_scan.warnings[0];
     assert_eq!(child_warning.columns_with_no_statistics.len(), 1);
-    assert_eq!(
-        child_warning.columns_with_no_statistics[0].column,
-        "Value"
-    );
+    assert_eq!(child_warning.columns_with_no_statistics[0].column, "Value");
 
     // Multi-thread runtime stats on table scan
     let stats = table_scan
@@ -394,7 +385,10 @@ fn parse_memory_grant_and_wait_stats() {
     let plan = parse(xml).unwrap();
 
     // Memory grant
-    let mg = plan.memory_grant.as_ref().expect("should have memory grant");
+    let mg = plan
+        .memory_grant
+        .as_ref()
+        .expect("should have memory grant");
     assert_eq!(mg.serial_required_memory, 1024);
     assert_eq!(mg.serial_desired_memory, 4096);
     assert_eq!(mg.required_memory, Some(2048));
@@ -462,11 +456,7 @@ fn parse_query_plan_level_warnings() {
     // (which becomes the parent). The sentinel's warnings end up merged into the root.
     // In our parser, it actually attaches to the sentinel which wraps everything.
     // Let's verify the root has warnings with no_join_predicate set.
-    let has_njp = plan
-        .root
-        .warnings
-        .iter()
-        .any(|w| w.no_join_predicate);
+    let has_njp = plan.root.warnings.iter().any(|w| w.no_join_predicate);
     assert!(has_njp, "should have no_join_predicate warning");
 }
 
@@ -485,14 +475,8 @@ fn parse_statement_metadata() {
         plan.early_abort_reason.as_deref(),
         Some("GoodEnoughPlanFound")
     );
-    assert_eq!(
-        plan.cardinality_estimation_model.as_deref(),
-        Some("150")
-    );
-    assert_eq!(
-        plan.query_plan_hash.as_deref(),
-        Some("0x1234567890ABCDEF")
-    );
+    assert_eq!(plan.cardinality_estimation_model.as_deref(), Some("150"));
+    assert_eq!(plan.query_plan_hash.as_deref(), Some("0x1234567890ABCDEF"));
 }
 
 // -----------------------------------------------------------------------

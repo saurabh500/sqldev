@@ -326,9 +326,7 @@ impl PlanNode {
             "EstimateRows" => self.estimated_rows.map(|v| v.to_string()),
             "EstimateCPU" => self.estimated_cpu.map(|v| v.to_string()),
             "EstimateIO" => self.estimated_io.map(|v| v.to_string()),
-            "EstimatedTotalSubtreeCost" => {
-                self.estimated_total_subtree_cost.map(|v| v.to_string())
-            }
+            "EstimatedTotalSubtreeCost" => self.estimated_total_subtree_cost.map(|v| v.to_string()),
             "Parallel" => Some(self.parallel.to_string()),
             "AvgRowSize" => self.avg_row_size.map(|v| v.to_string()),
             "EstimateRebinds" => self.estimated_rebinds.map(|v| v.to_string()),
@@ -744,8 +742,7 @@ impl StatementState {
             self.early_abort_reason = attr_str(e, b"StatementOptmEarlyAbortReason");
         }
         if self.cardinality_estimation_model.is_none() {
-            self.cardinality_estimation_model =
-                attr_str(e, b"CardinalityEstimationModelVersion");
+            self.cardinality_estimation_model = attr_str(e, b"CardinalityEstimationModelVersion");
         }
     }
 
@@ -824,10 +821,8 @@ impl StatementState {
                 self.current_missing_index_impact = attr_parse(e, b"Impact").unwrap_or(0.0);
             }
             b"MissingIndex" if self.in_missing_indexes => {
-                self.current_missing_index_database =
-                    attr_str(e, b"Database").unwrap_or_default();
-                self.current_missing_index_schema =
-                    attr_str(e, b"Schema").unwrap_or_default();
+                self.current_missing_index_database = attr_str(e, b"Database").unwrap_or_default();
+                self.current_missing_index_schema = attr_str(e, b"Schema").unwrap_or_default();
                 self.current_missing_index_table = attr_str(e, b"Table").unwrap_or_default();
                 self.current_missing_index_equality.clear();
                 self.current_missing_index_inequality.clear();
@@ -986,9 +981,7 @@ impl StatementState {
                     schema: std::mem::take(&mut self.current_missing_index_schema),
                     table: std::mem::take(&mut self.current_missing_index_table),
                     equality_columns: std::mem::take(&mut self.current_missing_index_equality),
-                    inequality_columns: std::mem::take(
-                        &mut self.current_missing_index_inequality,
-                    ),
+                    inequality_columns: std::mem::take(&mut self.current_missing_index_inequality),
                     include_columns: std::mem::take(&mut self.current_missing_index_include),
                 });
                 self.in_missing_index_element = false;
@@ -1204,12 +1197,10 @@ fn parse_runtime_counters(e: &BytesStart<'_>, node: &mut PlanNode) {
         stats.actual_read_aheads = Some(stats.actual_read_aheads.unwrap_or(0) + ra);
     }
     if let Some(ll) = attr_parse::<u64>(e, b"ActualLobLogicalReads") {
-        stats.actual_lob_logical_reads =
-            Some(stats.actual_lob_logical_reads.unwrap_or(0) + ll);
+        stats.actual_lob_logical_reads = Some(stats.actual_lob_logical_reads.unwrap_or(0) + ll);
     }
     if let Some(lp) = attr_parse::<u64>(e, b"ActualLobPhysicalReads") {
-        stats.actual_lob_physical_reads =
-            Some(stats.actual_lob_physical_reads.unwrap_or(0) + lp);
+        stats.actual_lob_physical_reads = Some(stats.actual_lob_physical_reads.unwrap_or(0) + lp);
     }
 }
 
