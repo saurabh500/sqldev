@@ -134,8 +134,11 @@ pub fn generate<R: Rng + ?Sized>(
         "last_name" => LAST_NAMES.choose(rng)?.to_string(),
         "name" => format!("{} {}", FIRST_NAMES.choose(rng)?, LAST_NAMES.choose(rng)?),
         "email" => {
+            // Append a 4-digit suffix so seeding moderately-sized tables
+            // with a UNIQUE email column does not collide.
+            let suffix = rng.gen_range(1000u32..10_000);
             let user = format!(
-                "{}.{}",
+                "{}.{}{suffix}",
                 FIRST_NAMES.choose(rng)?.to_ascii_lowercase(),
                 LAST_NAMES.choose(rng)?.to_ascii_lowercase(),
             );
