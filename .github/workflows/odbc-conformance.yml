@@ -2,7 +2,7 @@ name: ODBC conformance
 
 on:
   push:
-    branches: [main]
+    branches: [main, odbc-conformance]
   pull_request:
   workflow_dispatch:
 
@@ -48,7 +48,7 @@ jobs:
           sudo dpkg -i /tmp/packages-microsoft-prod.deb
           sudo apt-get update
           sudo env ACCEPT_EULA=Y apt-get install -y \
-            msodbcsql18 unixodbc unixodbc-dev cmake ninja-build
+            msodbcsql18 unixodbc unixodbc-dev cmake ninja-build g++ libgtest-dev
           odbcinst -j
           odbcinst -q -d -n "${ODBC_DRIVER}"
 
@@ -63,7 +63,8 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in $(seq 1 60); do
-            if build/odbc-conformance/odbc-conformance connection \
+            if build/odbc-conformance/odbc-conformance \
+                --gtest_filter=OdbcConformance.Connection \
                 > /tmp/odbc-readiness.log 2>&1; then
               cat /tmp/odbc-readiness.log
               exit 0
@@ -78,6 +79,16 @@ jobs:
         run: |
           ctest --test-dir build/odbc-conformance \
             --output-on-failure --no-tests=error
+
+      - name: Upload GoogleTest results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: odbc-conformance-results
+          path: |
+            build/odbc-conformance/test-results/*.xml
+            build/odbc-conformance/Testing/Temporary/LastTest.log
+          if-no-files-found: warn
 
       - name: Dump SQL Server logs on failure
         if: failure()
