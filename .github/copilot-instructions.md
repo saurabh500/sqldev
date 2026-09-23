@@ -2,18 +2,18 @@
 
 ## Repository purpose
 
-`sqldev` is an ODBC conformance test suite written in C99 for Microsoft ODBC
+`sqldev` is an ODBC conformance test suite using C++17 GoogleTest for Microsoft ODBC
 Driver 18 for SQL Server. It runs through unixODBC against a real SQL Server
-instance. The executable in `odbc-conformance/src/conformance.c` exposes one
-named test area at a time, and CTest registers each area independently.
+2025 instance. The executable in `odbc-conformance/src/conformance.cpp` uses
+GoogleTest fixtures and CTest discovers each case independently.
 
 ## Before changing code
 
 1. Read `odbc-conformance/README.md`, `odbc-conformance/CMakeLists.txt`, and
-   the relevant parts of `src/conformance.c`.
+   the relevant parts of `src/conformance.cpp` and `src/datatype_samples.h`.
 2. Check the CI workflow in `.github/workflows/odbc-conformance.yml` when
    changing dependencies, setup, or test behavior.
-3. Keep the existing C99, unixODBC, and Microsoft ODBC Driver 18 assumptions
+3. Keep the existing C++17/GoogleTest, unixODBC, and Microsoft ODBC Driver 18 assumptions
    unless the task explicitly changes them.
 
 ## Build and test
@@ -35,23 +35,26 @@ docker compose -f odbc-conformance/compose.yaml down
 To iterate on one area:
 
 ```bash
-build/odbc-conformance/odbc-conformance <test-area>
+build/odbc-conformance/odbc-conformance --gtest_filter=OdbcConformance.Diagnostics
 ```
 
-Valid areas are `connection`, `statements`, `parameters`, `transactions`,
-`metadata`, `diagnostics`, and `unicode`.
+Use `--gtest_list_tests` to list cases without connecting. The complete datatype
+suite requires SQL Server 2025 (JSON and vector included). Install `libgtest-dev`
+and the Driver 18 headers along with the documented build dependencies.
 
 ## Coding and testing rules
 
-- Use C99 and the existing ODBC helper functions and failure-reporting style.
+- Use C++17, GoogleTest assertions, and the existing ODBC diagnostic helpers.
 - Preserve warning-free builds (`-Wall -Wextra -Wpedantic -Werror` on GCC and
   Clang; `/W4 /WX` on MSVC).
 - Make every test deterministic and clean up allocated ODBC handles, cursors,
   transactions, and database objects on both success and failure.
 - Keep tests independent and use uniquely named temporary objects where
   appropriate.
-- When adding a test area, register it in both the `CONFORMANCE_TESTS` CMake
-  list and the executable's test table.
+- Add `TEST_F` or parameterized cases; `gtest_discover_tests` registers them
+  automatically. Register additional source files explicitly in CMake.
+- Preserve real conformance failures and document the specification/observed
+  behavior; do not silently skip or weaken assertions to make CI pass.
 - Update the README when commands, prerequisites, environment variables, or
   coverage change.
 - Avoid unrelated refactors, new dependencies, generated build artifacts, and
