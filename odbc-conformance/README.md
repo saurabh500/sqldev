@@ -247,7 +247,7 @@ The full inventory contains **1,238 cases**. Current exact exclusions are:
 | Driver | Disabled cases | Follow-up |
 | --- | ---: | --- |
 | Driver 18 | 1 | End-of-data rows-fetched count (#52) |
-| Driver 18 | 1 | Inconsistent reference parsing case (#59) |
+| Driver 18 | 2 | Inconsistent reference parsing cases, SQLBindCol under ODBC 3.0/3.8 (#59) |
 | mssql-rs | 568 | Interval conversion family (#53) |
 | mssql-rs | 12 | Numeric struct retrieval, including column-wise binding (#54) |
 | mssql-rs | 8 | Numeric exponent underflow (#55) |
@@ -259,6 +259,9 @@ The full inventory contains **1,238 cases**. Current exact exclusions are:
 Compatibility differences and the inconsistent reference case are not
 automatically classified as driver bugs. Unaffected parameter combinations
 continue to run, even when other cases from the same source file are excluded.
+For #59, both bound-column variants have now failed intermittently in SQL Server
+2025 CI; the `SQLGetData` variants remain enabled. The reference assertions are
+unchanged and can still be run directly or with `--include-known-failures`.
 
 For newly observed failures, inspect the driver-specific XML/logs first to
 distinguish test/infrastructure problems from conformance or parity failures.
