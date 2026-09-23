@@ -150,8 +150,7 @@ Ported from `mssql-rs/mssql-odbc`'s own
 project's `CMakeLists.txt` and continue to run as part of its broader
 (26+ suite) end-to-end test set. `include/odbc_test_fixture.h` and the
 three `lib/odbc_test_*.cpp` files are that harness's shared fixture,
-copied here because both suites depend on it. All copied files retain
-their original "Copyright (c) Microsoft Corporation" headers.
+copied here because both suites depend on it.
 Repository integration adds canonical `ODBC_*` environment fallbacks, a bounded
 login timeout, and a default member initializer for warning-free compilation.
 The test assertions and expected conversion outcomes remain unchanged.

@@ -1,5 +1,3 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-
 #include "odbc_test_fixture.h"
 
 #include <algorithm>

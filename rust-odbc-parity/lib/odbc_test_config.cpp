@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
 // odbc_test_config.cpp  –  Read test connection info from environment.
 
 #include "odbc_test_fixture.h"

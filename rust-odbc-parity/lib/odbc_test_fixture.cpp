@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
 // odbc_test_fixture.cpp  –  ODBCTest base fixture implementation.
 
 #include "odbc_test_fixture.h"

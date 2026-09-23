@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
 // odbc_test_utils.cpp  –  Diagnostic and connection-string helpers.
 
 #include "odbc_test_fixture.h"
