@@ -199,14 +199,20 @@ TEST_F(OdbcConformance, Connection)
     SQLSMALLINT length = 0;
     ASSERT_ODBC(SQLGetInfo(dbc.value, SQL_DRIVER_NAME, driver, sizeof(driver), &length),
                 SQL_HANDLE_DBC, dbc.value);
-    EXPECT_NE(std::string::npos,
-              std::string(reinterpret_cast<char*>(driver)).find("msodbcsql"));
+    const std::string target = env_or_default("ODBC_TEST_TARGET", "msodbcsql18");
+    ASSERT_TRUE(target == "msodbcsql18" || target == "mssql-rs")
+        << "Unknown ODBC_TEST_TARGET: " << target;
+    EXPECT_NE(std::string::npos, std::string(reinterpret_cast<char*>(driver)).find(
+        target == "mssql-rs" ? "mssqlodbc" : "msodbcsql"));
     ASSERT_ODBC(SQLGetInfo(dbc.value, SQL_DRIVER_VER, version, sizeof(version), &length),
                 SQL_HANDLE_DBC, dbc.value);
     EXPECT_NE('\0', version[0]);
     ASSERT_ODBC(SQLGetInfo(dbc.value, SQL_DM_VER, manager, sizeof(manager), &length),
                 SQL_HANDLE_DBC, dbc.value);
     EXPECT_NE('\0', manager[0]);
+    RecordProperty("driver_name", reinterpret_cast<char*>(driver));
+    RecordProperty("driver_version", reinterpret_cast<char*>(version));
+    RecordProperty("driver_manager_version", reinterpret_cast<char*>(manager));
     std::cout << "driver=" << driver << " driver_version=" << version
               << " driver_manager_version=" << manager << '\n';
 }
@@ -699,8 +705,8 @@ INSTANTIATE_TEST_SUITE_P(Retrieval, DataTypeRowsets,
         return info.param == RowBinding::ColumnWise ? "ColumnWise" : "RowWise";
     });
 
-// Disabled pending investigation of the driver/driver-manager behavior: #52.
-TEST_F(OdbcConformance, DISABLED_FetchScrollEndOfDataRowsFetched)
+// Driver-specific exclusions live in known-failures.json; see #52.
+TEST_F(OdbcConformance, FetchScrollEndOfDataRowsFetched)
 {
     std::array<SQLINTEGER, 2> values{};
     std::array<SQLLEN, 2> lengths{};

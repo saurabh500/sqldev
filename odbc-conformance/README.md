@@ -1,7 +1,8 @@
 # Microsoft SQL Server ODBC conformance tests
 
-This suite exercises Microsoft ODBC Driver 18 for SQL Server through the
-unixODBC driver manager against a real SQL Server instance. It covers:
+This suite compares Microsoft ODBC Driver 18 for SQL Server with the Rust ODBC
+driver from [microsoft/mssql-rs](https://github.com/microsoft/mssql-rs), through
+the same unixODBC driver manager against SQL Server 2025. It covers:
 
 - connection setup and driver/driver-manager information;
 - direct statements and result metadata;
@@ -10,6 +11,32 @@ unixODBC driver manager against a real SQL Server instance. It covers:
 - table and column metadata;
 - SQLSTATE diagnostic records; and
 - wide-character parameter and result round trips.
+
+## Imported conversion tests
+
+The two suites under `rust-odbc-parity/tests/` are compiled into the same
+GoogleTest executable and discovered automatically by CTest and CI. No Rust
+compiler or separate driver build is required:
+
+- `interval_conversion_test.cpp`: exact numeric and character-to-interval
+  conversions, interval fields, fractional truncation, range errors, SQLSTATEs,
+  NULLs, buffer guards, and statement recovery.
+- `numeric_parser_conversion_test.cpp`: varchar/nvarchar-to-numeric conversions,
+  signed/unsigned boundaries, exponent parsing, malformed inputs, precision,
+  SQLSTATEs, buffer guards, and recovery after conversion errors.
+
+Together they add **1,108 parameterized cases**, exercising `SQLGetData` and
+`SQLBindCol` under ODBC 3.0 and 3.8. Their assertions are preserved; adaptations
+are limited to build integration, connection configuration, and a login timeout.
+Their existing `ODBC_TEST_*` settings take precedence when supplied, falling back
+to the corresponding repository `ODBC_*` settings so CI uses the same SQL Server.
+`ODBC_TEST_CONNSTR` overrides `ODBC_CONNECTION_STRING`; otherwise the mapped pairs
+are SERVER/SERVER, DATABASE/DATABASE, UID/USER, PWD/PASSWORD, and DRIVER/DRIVER.
+
+```bash
+ctest --test-dir build/odbc-conformance -R 'IntervalConversionTest' --output-on-failure
+ctest --test-dir build/odbc-conformance -R 'NumericParserConversionTest' --output-on-failure
+```
 
 ## Datatype coverage
 
@@ -55,12 +82,13 @@ user-defined types are outside this built-in column suite.
 
 ### Observed conformance failure
 
-`OdbcConformance.DISABLED_FetchScrollEndOfDataRowsFetched` isolates an observed failure
+`OdbcConformance.FetchScrollEndOfDataRowsFetched` isolates an observed failure
 with Driver 18/unixODBC: after a partial final rowset, `SQLFetchScroll` returns
 `SQL_NO_DATA` but leaves `SQL_ATTR_ROWS_FETCHED_PTR` at `1`.
 [ODBC requires that count to be zero][rows-fetched]. The test is disabled by
-request while [issue #52](https://github.com/saurabh500/sqldev/issues/52) tracks
-investigation. CTest lists it as disabled; the assertion remains unchanged.
+request for Driver 18 while [issue #52](https://github.com/saurabh500/sqldev/issues/52)
+tracks investigation. `known-failures.json` excludes it only for that driver in
+the comparison run; its assertion remains unchanged and it runs for mssql-rs.
 The datatype rowset tests separately check values, NULL indicators, and counts
 on successful fetches.
 
@@ -68,8 +96,7 @@ Run the disabled regression explicitly when investigating:
 
 ```bash
 build/odbc-conformance/odbc-conformance \
-  --gtest_also_run_disabled_tests \
-  --gtest_filter=OdbcConformance.DISABLED_FetchScrollEndOfDataRowsFetched
+  --gtest_filter=OdbcConformance.FetchScrollEndOfDataRowsFetched
 ```
 
 [rows-fetched]: https://learn.microsoft.com/sql/odbc/reference/syntax/sqlfetch-function#rows-fetched-buffer
@@ -83,11 +110,11 @@ and clean up the uniquely named table used for catalog metadata.
 ## Run locally on Ubuntu
 
 Install [Microsoft ODBC Driver 18 for SQL Server][driver-install], then install
-CMake 3.20 or newer, a C++17 compiler, GoogleTest, and unixODBC development headers
+CMake 3.21 or newer, a C++17 compiler, GoogleTest, and unixODBC development headers
 (Ubuntu 22.04 or newer):
 
 ```bash
-sudo apt-get install -y cmake ninja-build g++ libgtest-dev unixodbc-dev
+sudo apt-get install -y cmake ninja-build g++ libgtest-dev unixodbc-dev libssl-dev pkg-config
 ```
 
 GoogleTest is supplied by the system package; configuring the build does not
@@ -108,6 +135,10 @@ export ODBC_PASSWORD='Conformance!Pass2026'
 build/odbc-conformance/odbc-conformance --gtest_filter=OdbcConformance.Connection
 ctest --test-dir build/odbc-conformance --output-on-failure --no-tests=error
 ```
+
+Direct CTest/GoogleTest runs deliberately include every assertion, including
+known failures. Use the comparison runner below for issue-linked, driver-specific
+exclusions.
 
 If port 1433 is already occupied, set `ODBC_SQLSERVER_PORT` when starting
 Compose and use the same port in `ODBC_SERVER`.
@@ -148,10 +179,92 @@ with `--gtest_output=xml:results.xml`.
 ## GitHub Actions
 
 The `ODBC conformance` workflow runs on pull requests, pushes to `main` and
-`odbc-conformance`, and manual dispatch. It builds with GoogleTest and unixODBC,
-waits for a successful filtered connection test through Microsoft ODBC Driver 18,
-then runs all discovered cases against SQL Server 2025. XML reports and the CTest
-log are uploaded as the `odbc-conformance-results` artifact, including on failure
-when those files exist. Connection failures are failures, not skipped tests.
+`odbc-conformance`, and manual dispatch. Its required check remains named
+`live SQL Server 2025`. It installs Driver 18, checks out the Rust driver's pinned
+commit from `driver-source.json`, builds `mssqlodbc` with the specified Rust
+toolchain, and builds the GoogleTest executable once.
+
+After a successful ODBC readiness check, `compare.py` runs the identical CTest
+inventory separately against both drivers. Each driver gets its own connection
+settings, logs, CTest JUnit report, and GoogleTest XML reports. Failures on the
+first driver do not prevent execution against the second.
+
+The `odbc-conformance-comparison` artifact contains `comparison.csv` (one row per
+test with both driver outcomes and issue links), `comparison.json`, `summary.md`,
+per-driver XML/logs, and the resolved upstream Cargo lockfile. The job summary
+shows pass/failure/disabled counts and issue groups. Unexpected failures, skipped
+cases, missing results, and infrastructure errors fail CI.
+
+## Side-by-side comparison locally
+
+Install Rust through rustup as well as the prerequisites above. From the
+repository root, build the pinned upstream driver without changing system ODBC
+registration:
+
+```bash
+revision=$(python3 -c 'import json; print(json.load(open("odbc-conformance/driver-source.json"))["revision"])')
+toolchain=$(python3 -c 'import json; print(json.load(open("odbc-conformance/driver-source.json"))["rust_toolchain"])')
+git clone https://github.com/microsoft/mssql-rs.git build/external/mssql-rs
+git -C build/external/mssql-rs checkout "$revision"
+rustup toolchain install "$toolchain" --profile minimal
+(
+  cd build/external/mssql-rs
+  export RUSTUP_TOOLCHAIN="$toolchain"
+  cargo build -p mssqlodbc --release
+  bash mssql-odbc/scripts/finalize-artifact.sh release
+)
+python3 odbc-conformance/compare.py \
+  --build-dir build/odbc-conformance \
+  --rust-driver build/external/mssql-rs/target/release/mssqlodbc.so \
+  --output-dir build/comparison
+```
+
+Use the same `ODBC_SERVER`, `ODBC_DATABASE`, `ODBC_USER`, and `ODBC_PASSWORD`
+settings as above. Comparison mode intentionally rejects DSN/full-connection-string
+overrides so neither driver can silently be replaced. It synchronizes the imported
+suites' credentials and TLS settings with the main suite. Driver 18 can be selected
+by another registered name/path using `--msodbcsql-driver`.
+
+To run the executable directly against Rust, set `ODBC_DRIVER` to the absolute
+library path and `ODBC_TEST_TARGET=mssql-rs`. No Rust driver registration is needed:
+unixODBC can load the library path supplied in `DRIVER={...}`.
+
+## Issue-linked conformance failures
+
+`known-failures.json` stores **exact CTest names per driver**, grouped by issue.
+It cannot exclude the connection test, unknown test names, or the whole inventory,
+and every entry requires a reason and a repository issue. No wildcards are stored:
+unaffected parameter combinations continue to run. A disabled case is reported
+as `disabled`, never as passed.
+
+The current Rust-driver follow-ups cover interval conversions (#53), numeric
+struct retrieval (#54), underflow (#55), and three reference-driver compatibility
+decisions (#56–#58). The latter are not automatically classified as Rust bugs.
+All corresponding Driver 18 cases remain enabled.
+
+For newly observed failures, inspect the driver-specific XML/logs first to
+distinguish test/infrastructure problems from conformance or parity failures.
+Then create an `odbc`-labeled issue and record only the selected failed names:
+
+```bash
+python3 odbc-conformance/quarantine.py \
+  --report build/comparison/comparison.json \
+  --driver mssql-rs \
+  --match '^ExactTestName$' \
+  --reason 'Observed behavior and expected contract after investigation' \
+  --create-issue 'ODBC mssql-rs: concise failure description'
+```
+
+Use `--issue NUMBER` instead to attach a reviewed group to an existing open issue.
+The command requires a passing connection test, refuses infrastructure failures,
+and changes the registry only after GitHub returns a valid issue URL. Review and
+commit the resulting exact-name list in the PR. CI has read-only repository
+permissions: it never automatically files issues or modifies source from
+untrusted pull-request code.
+
+Use `compare.py --include-known-failures` with the other comparison arguments to
+retest all excluded cases. Remove resolved entries and close their issues after
+confirming the fix. Assertion expectations must not be weakened just to match a
+driver's incorrect behavior.
 
 [driver-install]: https://learn.microsoft.com/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server

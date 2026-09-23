@@ -65,6 +65,12 @@ artifacts.
 
 ## Building
 
+The repository CI builds both suites into `odbc-conformance/odbc-conformance`
+with system GoogleTest and discovers each parameterized case separately through
+CTest. See [the combined suite](../odbc-conformance/README.md) for the pinned
+Rust-driver build, side-by-side reports, and issue-linked exclusions. The commands
+below remain available for standalone development of the imported suites.
+
 Requires CMake 3.15+, a C++17 compiler, and unixODBC development headers
 (`unixodbc-dev` on Ubuntu). GoogleTest is fetched automatically by CMake;
 no system GoogleTest package or running SQL Server is needed to configure
@@ -139,12 +145,15 @@ Filter to one suite or case with GoogleTest's own flag:
 
 ## Provenance
 
-Ported unchanged (except for this README) from `mssql-rs/mssql-odbc`'s own
+Ported from `mssql-rs/mssql-odbc`'s own
 `tests/e2e` GoogleTest harness, where they remain registered in that
 project's `CMakeLists.txt` and continue to run as part of its broader
 (26+ suite) end-to-end test set. `include/odbc_test_fixture.h` and the
 three `lib/odbc_test_*.cpp` files are that harness's shared fixture,
 copied here because both suites depend on it. All copied files retain
 their original "Copyright (c) Microsoft Corporation" headers.
+Repository integration adds canonical `ODBC_*` environment fallbacks, a bounded
+login timeout, and a default member initializer for warning-free compilation.
+The test assertions and expected conversion outcomes remain unchanged.
 
 [sql-to-c-numeric]: https://learn.microsoft.com/en-us/sql/odbc/reference/appendixes/sql-to-c-numeric
