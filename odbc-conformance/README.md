@@ -53,6 +53,18 @@ payload here; exhaustive variant subtypes and all precision/length combinations
 are not claimed. `cursor` and `table` cannot be column types, and custom
 user-defined types are outside this built-in column suite.
 
+### Observed conformance failure
+
+`OdbcConformance.FetchScrollEndOfDataRowsFetched` isolates an observed failure
+with Driver 18/unixODBC: after a partial final rowset, `SQLFetchScroll` returns
+`SQL_NO_DATA` but leaves `SQL_ATTR_ROWS_FETCHED_PTR` at `1`.
+[ODBC requires that count to be zero][rows-fetched]. The assertion remains
+enabled, so CI reports this as a failure rather than silently accepting it.
+The datatype rowset tests separately check values, NULL indicators, and counts
+on successful fetches.
+
+[rows-fetched]: https://learn.microsoft.com/sql/odbc/reference/syntax/sqlfetch-function#rows-fetched-buffer
+
 The C++17 suite uses GoogleTest fixtures and assertions. Each area is discovered
 as a separate CTest test, so failures identify the ODBC surface that regressed.
 Each test opens its own connection and releases ODBC handles even after assertion

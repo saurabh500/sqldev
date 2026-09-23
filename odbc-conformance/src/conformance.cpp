@@ -685,7 +685,6 @@ TEST_P(DataTypeRowsets, FetchScroll)
             }
         }
         EXPECT_EQ(SQL_NO_DATA, SQLFetchScroll(stmt.value, SQL_FETCH_NEXT, 0));
-        EXPECT_EQ(0U, fetched);
         ASSERT_NO_FATAL_FAILURE(reset_statement());
     }
     ASSERT_ODBC(SQLSetStmtAttr(stmt.value, SQL_ATTR_ROWS_FETCHED_PTR, nullptr, 0),
@@ -699,6 +698,30 @@ INSTANTIATE_TEST_SUITE_P(Retrieval, DataTypeRowsets,
     [](const testing::TestParamInfo<RowBinding>& info) {
         return info.param == RowBinding::ColumnWise ? "ColumnWise" : "RowWise";
     });
+
+TEST_F(OdbcConformance, FetchScrollEndOfDataRowsFetched)
+{
+    std::array<SQLINTEGER, 2> values{};
+    std::array<SQLLEN, 2> lengths{};
+    SQLULEN fetched = 0;
+    ASSERT_ODBC(SQLSetStmtAttr(stmt.value, SQL_ATTR_ROW_ARRAY_SIZE,
+                              reinterpret_cast<SQLPOINTER>(2), 0), SQL_HANDLE_STMT, stmt.value);
+    ASSERT_ODBC(SQLSetStmtAttr(stmt.value, SQL_ATTR_ROWS_FETCHED_PTR, &fetched, 0),
+                SQL_HANDLE_STMT, stmt.value);
+    ASSERT_NO_FATAL_FAILURE(execute(
+        "SELECT value FROM (VALUES (1),(2),(3)) AS sample(value) ORDER BY value"));
+    ASSERT_ODBC(SQLBindCol(stmt.value, 1, SQL_C_SLONG, values.data(), sizeof(SQLINTEGER),
+                          lengths.data()), SQL_HANDLE_STMT, stmt.value);
+    ASSERT_ODBC(SQLFetchScroll(stmt.value, SQL_FETCH_NEXT, 0), SQL_HANDLE_STMT, stmt.value);
+    ASSERT_EQ(2U, fetched);
+    ASSERT_ODBC(SQLFetchScroll(stmt.value, SQL_FETCH_NEXT, 0), SQL_HANDLE_STMT, stmt.value);
+    ASSERT_EQ(1U, fetched);
+    ASSERT_EQ(SQL_NO_DATA, SQLFetchScroll(stmt.value, SQL_FETCH_NEXT, 0));
+    // ODBC specifies zero here, unlike other output buffers after SQL_NO_DATA.
+    EXPECT_EQ(0U, fetched) << "SQL_ATTR_ROWS_FETCHED_PTR must be zero at end of data";
+    ASSERT_ODBC(SQLSetStmtAttr(stmt.value, SQL_ATTR_ROWS_FETCHED_PTR, nullptr, 0),
+                SQL_HANDLE_STMT, stmt.value);
+}
 
 TEST_F(DataTypes, ChunkedGetData)
 {

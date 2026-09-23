@@ -23,5 +23,6 @@ endif()
 include(GoogleTest)
 gtest_discover_tests(odbc-conformance
   DISCOVERY_TIMEOUT 30
+  NO_PRETTY_VALUES
   XML_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/test-results"
   PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE)
