@@ -69,3 +69,8 @@ CI compares Driver 18 and the pinned `microsoft/mssql-rs` driver with `compare.p
 Reviewed failures are disabled only for exact driver/test pairs in
 `known-failures.json`, with a required `odbc`-labeled issue. See the README for
 the comparison and quarantine commands.
+Every-three-hour audits build upstream main and rerun quarantined Rust cases.
+Keep PR/push runs pinned and read-only. Recovery issues are managed by a separate
+job; preserve its event restrictions, deduplication, and separation from driver
+execution. Audit reports must record the resolved upstream SHA and distinguish
+expected failures from newly passing quarantines and unexpected failures.

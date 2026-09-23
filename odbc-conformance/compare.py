@@ -134,7 +134,36 @@ def run_driver(driver, library, build, output, tests, exclusions, include_known)
     return {"library": library, "exit_code": result.returncode, "tests": results}
 
 
-def write_comparison(output, runs, source):
+def audit_results(runs, exclusions):
+    audit = {"recoveries": [], "expected_failures": [], "unexpected_failures": [],
+             "infrastructure_errors": []}
+    for driver in DRIVERS:
+        run = runs[driver]
+        if "error" in run:
+            audit["infrastructure_errors"].append(f"{driver}: {run['error']}")
+            continue
+        cases = run["tests"]
+        failed = any(case["status"] in ("failed", "skipped") for case in cases.values())
+        if run["exit_code"] not in (0, 8) or (run["exit_code"] != 0 and not failed):
+            audit["infrastructure_errors"].append(
+                f"{driver}: unexpected CTest exit code {run['exit_code']}")
+        for name, case in cases.items():
+            known = driver == "mssql-rs" and name in exclusions[driver]
+            if known and case["status"] == "passed":
+                reference = runs["msodbcsql18"].get("tests", {}).get(name, {})
+                audit["recoveries"].append({
+                    "test": name, **exclusions[driver][name],
+                    "reference_status": reference.get("status", "missing"),
+                })
+            elif known and case["status"] == "failed":
+                audit["expected_failures"].append(name)
+            elif case["status"] not in ("passed", "disabled"):
+                audit["unexpected_failures"].append(
+                    {"driver": driver, "test": name, "status": case["status"]})
+    return audit
+
+
+def write_comparison(output, runs, source, audit=None):
     names = sorted(set().union(*(run.get("tests", {}) for run in runs.values())))
     summary = ["# ODBC side-by-side comparison", "",
                f"mssql-rs source: `{source['revision']}`", "",
@@ -147,6 +176,20 @@ def write_comparison(output, runs, source):
         summary.append(f"| {driver} | " + " | ".join(str(n) for n in counts.values()) + " |")
         if "error" in runs[driver]:
             summary.extend(["", f"**{driver} infrastructure failure:** {runs[driver]['error']}"])
+    if audit is not None:
+        summary.extend(["", "## Upstream-main quarantine audit", "",
+                        f"- Still failing as tracked: {len(audit['expected_failures'])}",
+                        f"- Newly passing quarantined Rust cases: {len(audit['recoveries'])}",
+                        f"- Unexpected failures/skips: {len(audit['unexpected_failures'])}",
+                        f"- Infrastructure errors: {len(audit['infrastructure_errors'])}",
+                        "", "New passes are candidate fixes, not automatic approval to remove "
+                        "quarantines. Exact names and reference outcomes are in "
+                        "`comparison.json` under `audit.recoveries`."])
+        groups = {}
+        for case in audit["recoveries"]:
+            groups[case["issue"]] = groups.get(case["issue"], 0) + 1
+        for issue, count in sorted(groups.items()):
+            summary.append(f"- {issue}: {count} newly passing cases")
     with (output / "comparison.csv").open("w", newline="") as stream:
         writer = csv.writer(stream)
         writer.writerow(["test", *DRIVERS, "msodbcsql18_issue", "mssql_rs_issue"])
@@ -166,7 +209,10 @@ def write_comparison(output, runs, source):
     summary.extend(["", "Full per-test comparison: `comparison.csv`. "
                     "Per-driver CTest and GoogleTest XML/logs are included in the artifact."])
     (output / "summary.md").write_text("\n".join(summary) + "\n")
-    (output / "comparison.json").write_text(json.dumps({"source": source, "drivers": runs}, indent=2) + "\n")
+    report = {"source": source, "drivers": runs}
+    if audit is not None:
+        report["audit"] = audit
+    (output / "comparison.json").write_text(json.dumps(report, indent=2) + "\n")
 
 
 def main():
@@ -175,7 +221,12 @@ def main():
     parser.add_argument("--rust-driver", type=Path, required=True)
     parser.add_argument("--msodbcsql-driver", default="ODBC Driver 18 for SQL Server")
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--include-known-failures", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--include-known-failures", action="store_true")
+    mode.add_argument("--audit-known-failures", action="store_true",
+                      help="Run quarantined Rust cases and classify recoveries against the registry")
+    parser.add_argument("--source-metadata", type=Path, default=ROOT / "driver-source.json",
+                        help="Metadata recording the actual checked-out Rust revision")
     args = parser.parse_args()
     build = args.build_dir.resolve()
     output = args.output_dir.resolve()
@@ -191,17 +242,26 @@ def main():
         if any(p["name"] == "DISABLED" and p["value"] for p in test["properties"]):
             parser.error("Use driver-specific known-failures.json, not globally disabled cases")
     registry = load_exclusions(ROOT / "known-failures.json", names)
-    source = json.loads((ROOT / "driver-source.json").read_text())
+    source = json.loads(args.source_metadata.read_text())
+    if args.audit_known_failures and (
+            source.get("ref") != "main" or
+            source.get("repository") != "https://github.com/microsoft/mssql-rs" or
+            not re.fullmatch(r"[0-9a-f]{40}", source.get("revision", ""))):
+        parser.error("Audit mode requires resolved mssql-rs main source metadata")
     output.mkdir(parents=True, exist_ok=True)
     runs = {}
     for driver, library in zip(DRIVERS, (args.msodbcsql_driver, str(args.rust_driver.resolve()))):
         try:
             runs[driver] = run_driver(driver, library, build, output, tests, registry[driver],
-                                      args.include_known_failures)
+                                      args.include_known_failures or
+                                      (args.audit_known_failures and driver == "mssql-rs"))
         except (RuntimeError, ValueError, OSError, ET.ParseError, subprocess.TimeoutExpired) as error:
             print(f"{driver}: {error}", file=sys.stderr, flush=True)
             runs[driver] = {"exit_code": 2, "error": str(error)}
-    write_comparison(output, runs, source)
+    audit = audit_results(runs, registry) if args.audit_known_failures else None
+    write_comparison(output, runs, source, audit)
+    if audit is not None:
+        return int(bool(audit["infrastructure_errors"] or audit["unexpected_failures"]))
     return int(any(run["exit_code"] != 0 or
                    any(case["status"] != "passed" and case["status"] != "disabled"
                        for case in run.get("tests", {}).values())
