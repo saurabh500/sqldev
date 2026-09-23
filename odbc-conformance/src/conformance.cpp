@@ -374,6 +374,101 @@ TEST_F(OdbcConformance, Unicode)
     EXPECT_EQ(SQL_NO_DATA, SQLFetch(stmt.value));
 }
 
+struct NullBinarySource {
+    const char* name;
+    const char* declaration;
+};
+
+struct NullBufferTarget {
+    const char* name;
+    SQLSMALLINT type;
+};
+
+void PrintTo(const NullBinarySource& source, std::ostream* output)
+{
+    *output << source.declaration;
+}
+
+void PrintTo(const NullBufferTarget& target, std::ostream* output)
+{
+    *output << target.name;
+}
+
+using NullBufferParameter = std::tuple<NullBinarySource, NullBufferTarget>;
+
+class OutputBufferPreservation : public OdbcConformance,
+                                 public testing::WithParamInterface<NullBufferParameter> {
+protected:
+    static constexpr size_t guard_size = 16;
+    static constexpr size_t buffer_size = 32;
+    static constexpr unsigned char sentinel = 0x7e;
+    alignas(std::max_align_t) std::array<unsigned char, guard_size * 2 + buffer_size> storage{};
+    std::array<SQLLEN, 3> indicators{{0x12345678, -999, 0x23456789}};
+
+    void check_null_binary(bool bound)
+    {
+        const auto& source = std::get<0>(GetParam());
+        const auto& target = std::get<1>(GetParam());
+        RecordProperty("contract", "Driver 18 NULL output-buffer preservation parity");
+        RecordProperty("upstream_issue", "https://github.com/microsoft/mssql-rs/issues/555");
+        RecordProperty("source_type", source.declaration);
+        RecordProperty("target_type", target.name);
+        RecordProperty("retrieval", bound ? "SQLBindCol/SQLFetch" : "SQLGetData");
+        storage.fill(sentinel);
+        const auto query = std::string("SELECT CAST(NULL AS ") + source.declaration + ")";
+        ASSERT_NO_FATAL_FAILURE(execute(query.c_str()));
+        auto* output = storage.data() + guard_size;
+        if (bound) {
+            ASSERT_ODBC(SQLBindCol(stmt.value, 1, target.type, output, buffer_size, &indicators[1]),
+                        SQL_HANDLE_STMT, stmt.value);
+        }
+        auto rc = SQLFetch(stmt.value);
+        if (!bound) {
+            ASSERT_EQ(SQL_SUCCESS, rc) << diagnostics(SQL_HANDLE_STMT, stmt.value);
+            rc = SQLGetData(stmt.value, 1, target.type, output, buffer_size, &indicators[1]);
+        }
+        RecordProperty("return_code", rc);
+        RecordProperty("indicator", std::to_string(indicators[1]));
+        EXPECT_EQ(SQL_SUCCESS, rc) << diagnostics(SQL_HANDLE_STMT, stmt.value);
+        EXPECT_EQ(SQL_NULL_DATA, indicators[1]);
+        EXPECT_EQ(SQLLEN{0x12345678}, indicators[0]);
+        EXPECT_EQ(SQLLEN{0x23456789}, indicators[2]);
+        // Check the destination as well as its guards: a terminator write is in bounds.
+        for (size_t i = 0; i < storage.size(); ++i) {
+            EXPECT_EQ(sentinel, storage[i])
+                << "Changed storage byte " << i << " (destination occupies bytes "
+                << guard_size << ".." << guard_size + buffer_size - 1 << ")";
+        }
+        EXPECT_EQ(SQL_NO_DATA, SQLFetch(stmt.value));
+        if (bound) {
+            ASSERT_ODBC(SQLFreeStmt(stmt.value, SQL_UNBIND), SQL_HANDLE_STMT, stmt.value);
+        }
+        ASSERT_NO_FATAL_FAILURE(close_cursor());
+    }
+};
+
+TEST_P(OutputBufferPreservation, NullBinaryGetData)
+{
+    ASSERT_NO_FATAL_FAILURE(check_null_binary(false));
+}
+
+TEST_P(OutputBufferPreservation, NullBinaryBindCol)
+{
+    ASSERT_NO_FATAL_FAILURE(check_null_binary(true));
+}
+
+INSTANTIATE_TEST_SUITE_P(Nulls, OutputBufferPreservation,
+    testing::Combine(
+        testing::Values(NullBinarySource{"Binary", "binary(3)"},
+                        NullBinarySource{"Varbinary", "varbinary(8)"},
+                        NullBinarySource{"VarbinaryMax", "varbinary(max)"}),
+        testing::Values(NullBufferTarget{"Char", SQL_C_CHAR},
+                        NullBufferTarget{"WideChar", SQL_C_WCHAR},
+                        NullBufferTarget{"Binary", SQL_C_BINARY})),
+    [](const testing::TestParamInfo<NullBufferParameter>& info) {
+        return std::string(std::get<0>(info.param).name) + "_" + std::get<1>(info.param).name;
+    });
+
 struct alignas(std::max_align_t) DataBuffer {
     std::array<unsigned char, 40000> data{};
 };

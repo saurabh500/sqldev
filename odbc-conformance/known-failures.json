@@ -727,6 +727,24 @@
         "Retrieval/DataTypeRowsets.FetchScroll/datetimeoffset_ColumnWise",
         "Retrieval/DataTypeRowsets.FetchScroll/time_ColumnWise"
       ]
+    },
+    {
+      "issue": "https://github.com/saurabh500/sqldev/issues/63",
+      "reason": "At mssql-rs revision 3adfb4a4a099df5f10c9baa3934157750522b944, NULL binary values write a zero terminator into SQL_C_CHAR (one byte) and SQL_C_WCHAR (two bytes) destinations through SQLGetData and SQLBindCol/SQLFetch. Both drivers return SQL_SUCCESS/SQL_NULL_DATA, but Driver 18.6.2.1 leaves all bytes untouched. Reproduced on Linux with unixODBC 2.3.9 and SQL Server 2022. This is Driver 18 buffer-preservation parity, tracked upstream at https://github.com/microsoft/mssql-rs/issues/555. The six SQL_C_BINARY cases pass and remain enabled.",
+      "tests": [
+        "Nulls/OutputBufferPreservation.NullBinaryBindCol/Binary_Char",
+        "Nulls/OutputBufferPreservation.NullBinaryBindCol/Binary_WideChar",
+        "Nulls/OutputBufferPreservation.NullBinaryBindCol/Varbinary_Char",
+        "Nulls/OutputBufferPreservation.NullBinaryBindCol/Varbinary_WideChar",
+        "Nulls/OutputBufferPreservation.NullBinaryBindCol/VarbinaryMax_Char",
+        "Nulls/OutputBufferPreservation.NullBinaryBindCol/VarbinaryMax_WideChar",
+        "Nulls/OutputBufferPreservation.NullBinaryGetData/Binary_Char",
+        "Nulls/OutputBufferPreservation.NullBinaryGetData/Binary_WideChar",
+        "Nulls/OutputBufferPreservation.NullBinaryGetData/Varbinary_Char",
+        "Nulls/OutputBufferPreservation.NullBinaryGetData/Varbinary_WideChar",
+        "Nulls/OutputBufferPreservation.NullBinaryGetData/VarbinaryMax_Char",
+        "Nulls/OutputBufferPreservation.NullBinaryGetData/VarbinaryMax_WideChar"
+      ]
     }
   ]
 }

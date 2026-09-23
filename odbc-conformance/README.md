@@ -40,6 +40,38 @@ ctest --test-dir build/odbc-conformance -R 'NumericParserConversionTest' --outpu
 
 ## Datatype coverage
 
+### NULL output-buffer preservation
+
+`OutputBufferPreservation` adds **18 independently discovered cases** for NULL
+`binary(3)`, `varbinary(8)`, and `varbinary(max)`, retrieved as `SQL_C_CHAR`,
+`SQL_C_WCHAR`, or `SQL_C_BINARY` through both `SQLGetData` and
+`SQLBindCol`/`SQLFetch`. Each case starts with a 32-byte destination and surrounding
+guard bytes filled with `0x7E`, then checks `SQL_SUCCESS`, `SQL_NULL_DATA`, an
+entirely unchanged destination, and unchanged buffer/indicator guards.
+
+These are **Driver 18 buffer-preservation parity assertions**, not a claim that
+every byte-preservation rule is mandated by the ODBC specification. They capture
+[microsoft/mssql-rs#555](https://github.com/microsoft/mssql-rs/issues/555), where a
+NULL binary value causes an unwanted character terminator to be written inside
+the destination. Return-code, indicator-only, and out-of-bounds-only assertions
+would miss this behavior. Binary targets and bound delivery have independent
+cases, so confirmed failures can be excluded without hiding passing paths.
+Driver 18 passes all 18 cases. The pinned Rust driver fails the 12 character and
+wide-character cases across both APIs; those exact cases are quarantined under
+[#63](https://github.com/saurabh500/sqldev/issues/63). Its six binary-target cases
+remain enabled.
+
+The focused fixture uses a simple SELECT rather than the full datatype table;
+it also runs against SQL Server 2022. Run all its assertions, including any
+driver-specific quarantines, directly:
+
+```bash
+build/odbc-conformance/odbc-conformance \
+  --gtest_filter='Nulls/OutputBufferPreservation.*'
+```
+
+### Datatype retrieval matrix
+
 The datatype fixture creates a single session-local table with **39 datatype
 columns** plus a row-order key,
 covering SQL Server 2025 built-in column types and important storage variants:
@@ -242,7 +274,7 @@ and every entry requires a reason and a repository issue. No wildcards are store
 unaffected parameter combinations continue to run. A disabled case is reported
 as `disabled`, never as passed.
 
-The full inventory contains **1,238 cases**. Current exact exclusions are:
+The full inventory contains **1,256 cases**. Current exact exclusions are:
 
 | Driver | Disabled cases | Follow-up |
 | --- | ---: | --- |
@@ -255,6 +287,7 @@ The full inventory contains **1,238 cases**. Current exact exclusions are:
 | mssql-rs | 39 | Row-wise array binding (#60) |
 | mssql-rs | 4 | Descriptor-based numeric retrieval (#61) |
 | mssql-rs | 4 | Binary temporal structure retrieval (#62) |
+| mssql-rs | 12 | NULL binary character-buffer preservation, both retrieval APIs (#63; upstream microsoft/mssql-rs#555) |
 
 Compatibility differences and the inconsistent reference case are not
 automatically classified as driver bugs. Unaffected parameter combinations
