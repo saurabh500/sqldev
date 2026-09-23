@@ -182,12 +182,14 @@ with `--gtest_output=xml:results.xml`.
 ## GitHub Actions
 
 The `ODBC conformance` workflow runs on pull requests, pushes to `main` and
-`odbc-conformance`, and manual dispatch. Its required check remains named
+`odbc-conformance`, manual dispatch, and every three hours. Its required check remains named
 `unixODBC + Microsoft ODBC Driver 18` to match branch protection; despite the
 historical check name, it exercises both drivers against SQL Server 2025.
 It installs Driver 18, checks out the Rust driver's pinned
 commit from `driver-source.json`, builds `mssqlodbc` with the specified Rust
-toolchain, and builds the GoogleTest executable once.
+toolchain, and builds the GoogleTest executable once. PR/push runs and default
+manual runs stay pinned; scheduled audits use upstream `main` as described below.
+Every CI report records the actual checked-out Rust commit, not just a branch name.
 
 After a successful ODBC readiness check, `compare.py` runs the identical CTest
 inventory separately against both drivers. Each driver gets its own connection
@@ -199,6 +201,58 @@ test with both driver outcomes and issue links), `comparison.json`, `summary.md`
 per-driver XML/logs, and the resolved upstream Cargo lockfile. The job summary
 shows pass/failure/disabled counts and issue groups. Unexpected failures, skipped
 cases, missing results, and infrastructure errors fail CI.
+
+### Three-hourly upstream-main audit
+
+The cron `17 */3 * * *` requests runs at 00:17, 03:17, 06:17, and so on **UTC**.
+GitHub schedules run only from the repository's default branch (`odbc-conformance`)
+after this workflow is merged there, and execution may be delayed by GitHub.
+
+Scheduled runs build **`microsoft/mssql-rs/main`**, resolved to an immutable SHA in
+the report, using the configured Rust toolchain. They run the same discovered
+inventory against both drivers, but also **execute every quarantined Rust case**.
+Driver 18 retains its reviewed exclusions.
+
+Audit reports preserve raw pass/fail results and distinguish:
+
+- Known Rust cases that still fail: expected audit failures, not a broken audit.
+- Known Rust cases that now pass: candidate fixes requiring registry/pin review.
+- Newly failing tests, skips, missing results, and infrastructure errors: fail CI.
+
+A separate fresh-runner job with `issues: write` creates an `odbc`-labeled sqldev
+issue for each original tracking issue with newly passing cases. It includes the
+resolved upstream SHA, workflow/artifact link, exact test names (up to 50 in the
+body, with the full list in `comparison.json`), and Driver 18 outcomes. It does
+not claim that a single passing run proves a stable upstream fix.
+
+One open notification per original issue is updated rather than duplicated every
+three hours. Closing a notification suppresses that exact set of recovered cases
+on later runs; a different recovered set can generate a new notification. A
+managed section is updated without overwriting surrounding human-written notes.
+The notification job does not execute driver code, and the build/test job remains
+read-only. PR/push/default manual runs cannot file recovery issues. Neither
+`driver-source.json` nor `known-failures.json` is modified automatically.
+
+To trigger the same audit explicitly (including issue reporting):
+
+```bash
+gh workflow run odbc-conformance.yml --ref odbc-conformance -f upstream_main=true
+```
+
+For a local audit after building upstream main, supply a JSON metadata file with
+`repository`, `ref: "main"`, the resolved 40-character `revision`, and
+`rust_toolchain`, then add `--audit-known-failures --source-metadata PATH` to the
+comparison command below. `--include-known-failures` remains a separate diagnostic
+mode that runs exclusions for both drivers and fails on any failing assertion.
+
+Preview recovery notifications without changing GitHub:
+
+```bash
+python3 odbc-conformance/report_recoveries.py \
+  --report build/comparison/comparison.json \
+  --run-url https://github.com/saurabh500/sqldev/actions/runs/RUN_ID \
+  --dry-run
+```
 
 ## Side-by-side comparison locally
 
@@ -279,9 +333,10 @@ python3 odbc-conformance/quarantine.py \
 Use `--issue NUMBER` instead to attach a reviewed group to an existing open issue.
 The command requires a passing connection test, refuses infrastructure failures,
 and changes the registry only after GitHub returns a valid issue URL. Review and
-commit the resulting exact-name list in the PR. CI has read-only repository
-permissions: it never automatically files issues or modifies source from
-untrusted pull-request code.
+commit the resulting exact-name list in the PR. Normal comparison CI has read-only
+repository permissions. Only the separate scheduled/explicit upstream-audit
+notification job can file recovery issues; it never modifies the source pin or
+quarantine registry.
 
 Use `compare.py --include-known-failures` with the other comparison arguments to
 retest all excluded cases. Remove resolved entries and close their issues after

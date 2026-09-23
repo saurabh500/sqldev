@@ -4,10 +4,17 @@ on:
   push:
     branches: [main, odbc-conformance]
   pull_request:
+  schedule:
+    - cron: "17 */3 * * *"
   workflow_dispatch:
+    inputs:
+      upstream_main:
+        description: Audit upstream main, including quarantined Rust cases
+        type: boolean
+        default: false
 
 concurrency:
-  group: odbc-conformance-${{ github.ref }}
+  group: odbc-conformance-${{ github.ref }}-${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upstream_main)) && 'audit' || 'pinned' }}
   cancel-in-progress: true
 
 permissions:
@@ -19,12 +26,15 @@ env:
   ODBC_USER: sa
   ODBC_PASSWORD: "Conformance!Pass2026"
   ODBC_DATABASE: tempdb
+  UPSTREAM_AUDIT: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.upstream_main) }}
 
 jobs:
   conformance:
     name: unixODBC + Microsoft ODBC Driver 18
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    outputs:
+      audit_report: ${{ steps.comparison-summary.outputs.audit_report }}
 
     services:
       sqlserver:
@@ -53,15 +63,16 @@ jobs:
           odbcinst -j
           odbcinst -q -d -n "${ODBC_DRIVER}"
 
-      - name: Read pinned Rust driver source
+      - name: Select Rust driver source
         id: rust-source
         run: |
           python3 - <<'PY'
           import json, os
           with open("odbc-conformance/driver-source.json") as f:
               source = json.load(f)
+          revision = "main" if os.environ["UPSTREAM_AUDIT"] == "true" else source["revision"]
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              print(f"revision={source['revision']}", file=f)
+              print(f"revision={revision}", file=f)
               print(f"toolchain={source['rust_toolchain']}", file=f)
           PY
 
@@ -71,6 +82,22 @@ jobs:
           ref: ${{ steps.rust-source.outputs.revision }}
           path: build/external/mssql-rs
           persist-credentials: false
+
+      - name: Record resolved Rust revision
+        env:
+          REQUESTED_REF: ${{ steps.rust-source.outputs.revision }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          source = json.loads(Path("odbc-conformance/driver-source.json").read_text())
+          source["ref"] = os.environ["REQUESTED_REF"]
+          source["revision"] = subprocess.check_output(
+              ["git", "-C", "build/external/mssql-rs", "rev-parse", "HEAD"],
+              text=True).strip()
+          Path("build/driver-source.json").write_text(json.dumps(source, indent=2) + "\n")
+          print(f"Testing mssql-rs {source['ref']} at {source['revision']}")
+          PY
 
       - name: Build mssql-rs ODBC driver
         working-directory: build/external/mssql-rs
@@ -107,16 +134,25 @@ jobs:
 
       - name: Compare both ODBC drivers
         run: |
+          args=()
+          if [ "$UPSTREAM_AUDIT" = "true" ]; then
+            args+=(--audit-known-failures)
+          fi
           python3 odbc-conformance/compare.py \
             --build-dir build/odbc-conformance \
             --rust-driver build/external/mssql-rs/target/release/mssqlodbc.so \
-            --output-dir build/comparison
+            --source-metadata build/driver-source.json \
+            --output-dir build/comparison "${args[@]}"
 
       - name: Publish side-by-side summary
+        id: comparison-summary
         if: always()
         run: |
           if [ -f build/comparison/summary.md ]; then
             cat build/comparison/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "$UPSTREAM_AUDIT" = "true" ] && [ -f build/comparison/comparison.json ]; then
+            echo "audit_report=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Upload GoogleTest results
@@ -132,3 +168,37 @@ jobs:
       - name: Dump SQL Server logs on failure
         if: failure()
         run: docker logs "${{ job.services.sqlserver.id }}" --tail 200
+
+  report-recoveries:
+    name: Report upstream-main recoveries
+    needs: conformance
+    if: >-
+      ${{ always() && needs.conformance.outputs.audit_report == 'true' &&
+          (github.event_name == 'schedule' ||
+           (github.event_name == 'workflow_dispatch' && inputs.upstream_main)) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    concurrency:
+      group: odbc-upstream-recovery-issues
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: odbc-conformance-comparison
+          path: build/audit-report
+
+      - name: File or update recovery issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 odbc-conformance/report_recoveries.py \
+            --report build/audit-report/comparison/comparison.json \
+            --run-url "$RUN_URL"
