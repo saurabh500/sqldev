@@ -183,7 +183,9 @@ with `--gtest_output=xml:results.xml`.
 
 The `ODBC conformance` workflow runs on pull requests, pushes to `main` and
 `odbc-conformance`, and manual dispatch. Its required check remains named
-`live SQL Server 2025`. It installs Driver 18, checks out the Rust driver's pinned
+`unixODBC + Microsoft ODBC Driver 18` to match branch protection; despite the
+historical check name, it exercises both drivers against SQL Server 2025.
+It installs Driver 18, checks out the Rust driver's pinned
 commit from `driver-source.json`, builds `mssqlodbc` with the specified Rust
 toolchain, and builds the GoogleTest executable once.
 

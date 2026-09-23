@@ -22,7 +22,7 @@ env:
 
 jobs:
   conformance:
-    name: live SQL Server 2025
+    name: unixODBC + Microsoft ODBC Driver 18
     runs-on: ubuntu-24.04
     timeout-minutes: 45
 
