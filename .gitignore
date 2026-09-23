@@ -1,6 +1,8 @@
 # Build artifacts
 /target
 **/target
+/build/
+__pycache__/
 
 # IDE / OS
 .DS_Store

@@ -2,7 +2,7 @@ name: ODBC conformance
 
 on:
   push:
-    branches: [main]
+    branches: [main, odbc-conformance]
   pull_request:
   workflow_dispatch:
 
@@ -24,7 +24,7 @@ jobs:
   conformance:
     name: unixODBC + Microsoft ODBC Driver 18
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 45
 
     services:
       sqlserver:
@@ -48,22 +48,53 @@ jobs:
           sudo dpkg -i /tmp/packages-microsoft-prod.deb
           sudo apt-get update
           sudo env ACCEPT_EULA=Y apt-get install -y \
-            msodbcsql18 unixodbc unixodbc-dev cmake ninja-build
+            msodbcsql18 unixodbc unixodbc-dev cmake ninja-build g++ libgtest-dev \
+            libssl-dev pkg-config
           odbcinst -j
           odbcinst -q -d -n "${ODBC_DRIVER}"
+
+      - name: Read pinned Rust driver source
+        id: rust-source
+        run: |
+          python3 - <<'PY'
+          import json, os
+          with open("odbc-conformance/driver-source.json") as f:
+              source = json.load(f)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              print(f"revision={source['revision']}", file=f)
+              print(f"toolchain={source['rust_toolchain']}", file=f)
+          PY
+
+      - uses: actions/checkout@v4
+        with:
+          repository: microsoft/mssql-rs
+          ref: ${{ steps.rust-source.outputs.revision }}
+          path: build/external/mssql-rs
+          persist-credentials: false
+
+      - name: Build mssql-rs ODBC driver
+        working-directory: build/external/mssql-rs
+        env:
+          RUSTUP_TOOLCHAIN: ${{ steps.rust-source.outputs.toolchain }}
+        run: |
+          rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal
+          cargo build -p mssqlodbc --release
+          bash mssql-odbc/scripts/finalize-artifact.sh release
 
       - name: Configure and build
         run: |
           cmake -S odbc-conformance -B build/odbc-conformance \
             -G Ninja -DCMAKE_BUILD_TYPE=Release
           cmake --build build/odbc-conformance
+          python3 -m unittest discover -s odbc-conformance -p 'test_*.py'
 
       - name: Wait for SQL Server through ODBC
         shell: bash
         run: |
           set -euo pipefail
           for attempt in $(seq 1 60); do
-            if build/odbc-conformance/odbc-conformance connection \
+            if build/odbc-conformance/odbc-conformance \
+                --gtest_filter=OdbcConformance.Connection \
                 > /tmp/odbc-readiness.log 2>&1; then
               cat /tmp/odbc-readiness.log
               exit 0
@@ -74,10 +105,29 @@ jobs:
           echo "SQL Server did not become ready through ODBC" >&2
           exit 1
 
-      - name: Run ODBC conformance tests
+      - name: Compare both ODBC drivers
         run: |
-          ctest --test-dir build/odbc-conformance \
-            --output-on-failure --no-tests=error
+          python3 odbc-conformance/compare.py \
+            --build-dir build/odbc-conformance \
+            --rust-driver build/external/mssql-rs/target/release/mssqlodbc.so \
+            --output-dir build/comparison
+
+      - name: Publish side-by-side summary
+        if: always()
+        run: |
+          if [ -f build/comparison/summary.md ]; then
+            cat build/comparison/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload GoogleTest results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: odbc-conformance-comparison
+          path: |
+            build/comparison/
+            build/external/mssql-rs/Cargo.lock
+          if-no-files-found: warn
 
       - name: Dump SQL Server logs on failure
         if: failure()

@@ -2,12 +2,14 @@
 
 ## Scope and project layout
 
-This repository contains a small C99 ODBC conformance suite for Microsoft ODBC
+This repository contains a C++17 GoogleTest ODBC conformance suite for Microsoft ODBC
 Driver 18 for SQL Server:
 
-- `odbc-conformance/src/conformance.c` contains the executable and all test
-  cases.
-- `odbc-conformance/CMakeLists.txt` defines the CMake target and CTest tests.
+- `odbc-conformance/src/conformance.cpp` contains fixtures and test cases.
+- `odbc-conformance/src/datatype_samples.h` defines datatype fixtures and expected values.
+- `rust-odbc-parity/tests/` contains the imported interval and numeric parser
+  GoogleTest suites; their supporting fixture is under `include/` and `lib/`.
+- `odbc-conformance/CMakeLists.txt` defines the target and GoogleTest discovery for CTest.
 - `odbc-conformance/compose.yaml` starts the local SQL Server dependency.
 - `odbc-conformance/README.md` documents local setup and connection overrides.
 - `.github/workflows/odbc-conformance.yml` is the CI workflow.
@@ -28,22 +30,23 @@ ctest --test-dir build/odbc-conformance --output-on-failure
 docker compose -f odbc-conformance/compose.yaml down
 ```
 
-The build requires CMake, Ninja, a C99 compiler, unixODBC development headers,
-Microsoft ODBC Driver 18 for SQL Server, Docker, and a reachable SQL Server.
+The build requires CMake 3.21+, Ninja, a C++17 compiler, GoogleTest, unixODBC
+development headers, Microsoft ODBC Driver 18 (including msodbcsql.h), Docker,
+and a reachable SQL Server 2025 for the complete datatype suite.
 Use `ODBC_CONNECTION_STRING` or the documented `ODBC_*` variables for local
 configuration; never hard-code real credentials.
 
-CTest runs these areas serially: `connection`, `statements`, `parameters`,
-`transactions`, `metadata`, `diagnostics`, and `unicode`. A single area can be
-run directly with:
+CTest discovers GoogleTest cases and runs them serially, including connection,
+statements, parameters, transactions, metadata, diagnostics, Unicode, and
+datatype retrieval. A single case can be run directly with:
 
 ```bash
-build/odbc-conformance/odbc-conformance diagnostics
+build/odbc-conformance/odbc-conformance --gtest_filter=OdbcConformance.Diagnostics
 ```
 
 ## Implementation conventions
 
-- Keep production code portable C99 and compatible with unixODBC.
+- Keep test code C++17 and compatible with unixODBC.
 - Treat compiler warnings as errors; preserve the existing `-Wall -Wextra
   -Wpedantic -Werror` and MSVC warning settings.
 - Use the existing diagnostic and assertion helpers so failures identify the
@@ -60,3 +63,9 @@ The workflow installs unixODBC and Microsoft ODBC Driver 18, builds with CMake
 and Ninja, waits for SQL Server through the ODBC connection itself, then runs
 CTest. Changes to the test executable should be validated with the same
 build/test commands where the required services are available.
+GoogleTest XML reports and CTest logs are uploaded even on failures. Preserve
+real conformance failures instead of weakening assertions to make CI pass.
+CI compares Driver 18 and the pinned `microsoft/mssql-rs` driver with `compare.py`.
+Reviewed failures are disabled only for exact driver/test pairs in
+`known-failures.json`, with a required `odbc`-labeled issue. See the README for
+the comparison and quarantine commands.

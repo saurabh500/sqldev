@@ -1,0 +1,5 @@
+{
+  "repository": "https://github.com/microsoft/mssql-rs",
+  "revision": "3adfb4a4a099df5f10c9baa3934157750522b944",
+  "rust_toolchain": "1.95"
+}
