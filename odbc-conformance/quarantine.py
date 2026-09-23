@@ -20,6 +20,8 @@ def main():
     issue.add_argument("--issue", type=int, help="Existing issue number in saurabh500/sqldev")
     issue.add_argument("--create-issue", help="Title for a new odbc-labeled follow-up issue")
     args = parser.parse_args()
+    if not args.reason.strip():
+        parser.error("A nonempty investigation reason is required")
     report = json.loads(args.report.read_text())
     run = report["drivers"][args.driver]
     if "error" in run:

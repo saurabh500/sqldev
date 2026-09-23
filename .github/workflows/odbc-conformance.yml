@@ -86,7 +86,7 @@ jobs:
           cmake -S odbc-conformance -B build/odbc-conformance \
             -G Ninja -DCMAKE_BUILD_TYPE=Release
           cmake --build build/odbc-conformance
-          python3 -m unittest discover -s odbc-conformance -p 'test_compare.py'
+          python3 -m unittest discover -s odbc-conformance -p 'test_*.py'
 
       - name: Wait for SQL Server through ODBC
         shell: bash

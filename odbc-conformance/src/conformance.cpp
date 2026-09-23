@@ -565,9 +565,12 @@ protected:
         }
     }
 
-    void get_data(SQLSMALLINT text_type = 0)
+    void get_data(SQLSMALLINT text_type = 0, const std::string& only_name = {})
     {
         for (const auto& sample : samples) {
+            if (!only_name.empty() && sample.name != only_name) {
+                continue;
+            }
             SCOPED_TRACE(sample.name);
             ASSERT_NO_FATAL_FAILURE(select(sample));
             for (size_t row = 0; row < 3; ++row) {
@@ -592,10 +595,24 @@ protected:
     }
 };
 
-TEST_F(DataTypes, GetDataNative)
+std::vector<std::string> datatype_names()
 {
-    ASSERT_NO_FATAL_FAILURE(get_data());
+    std::vector<std::string> names;
+    for (const auto& sample : odbc_samples::all()) {
+        names.push_back(sample.name);
+    }
+    return names;
 }
+
+class DataTypeNative : public DataTypes, public testing::WithParamInterface<std::string> {};
+
+TEST_P(DataTypeNative, GetData)
+{
+    ASSERT_NO_FATAL_FAILURE(get_data(0, GetParam()));
+}
+
+INSTANTIATE_TEST_SUITE_P(Native, DataTypeNative, testing::ValuesIn(datatype_names()),
+    [](const testing::TestParamInfo<std::string>& info) { return info.param; });
 
 TEST_F(DataTypes, GetDataChar)
 {
@@ -638,7 +655,8 @@ TEST_F(DataTypes, BindColumns)
 
 enum class RowBinding { ColumnWise, RowWise };
 
-class DataTypeRowsets : public DataTypes, public testing::WithParamInterface<RowBinding> {};
+using RowsetParameter = std::tuple<std::string, RowBinding>;
+class DataTypeRowsets : public DataTypes, public testing::WithParamInterface<RowsetParameter> {};
 
 TEST_P(DataTypeRowsets, FetchScroll)
 {
@@ -651,7 +669,7 @@ TEST_P(DataTypeRowsets, FetchScroll)
     std::array<SQLLEN, 2> lengths{};
     std::array<SQLUSMALLINT, 2> status{};
     SQLULEN fetched = 0;
-    const bool row_wise = GetParam() == RowBinding::RowWise;
+    const bool row_wise = std::get<1>(GetParam()) == RowBinding::RowWise;
     ASSERT_ODBC(SQLSetStmtAttr(stmt.value, SQL_ATTR_ROW_ARRAY_SIZE,
                               reinterpret_cast<SQLPOINTER>(2), 0), SQL_HANDLE_STMT, stmt.value);
     ASSERT_ODBC(SQLSetStmtAttr(stmt.value, SQL_ATTR_ROW_BIND_TYPE,
@@ -662,6 +680,9 @@ TEST_P(DataTypeRowsets, FetchScroll)
     ASSERT_ODBC(SQLSetStmtAttr(stmt.value, SQL_ATTR_ROW_STATUS_PTR, status.data(), 0),
                 SQL_HANDLE_STMT, stmt.value);
     for (const auto& sample : samples) {
+        if (sample.name != std::get<0>(GetParam())) {
+            continue;
+        }
         SCOPED_TRACE(sample.name);
         ASSERT_NO_FATAL_FAILURE(select(sample));
         // Fixed C types use their structure size for column-wise array strides.
@@ -676,7 +697,7 @@ TEST_P(DataTypeRowsets, FetchScroll)
         for (size_t first = 0; first < 3; first += 2) {
             const auto rc = SQLFetchScroll(stmt.value, SQL_FETCH_NEXT, 0);
             ASSERT_ODBC(rc, SQL_HANDLE_STMT, stmt.value);
-            ASSERT_EQ(SQL_SUCCESS, rc);
+            ASSERT_EQ(SQL_SUCCESS, rc) << diagnostics(SQL_HANDLE_STMT, stmt.value);
             ASSERT_EQ(first == 0 ? 2U : 1U, fetched);
             for (size_t i = 0; i < fetched; ++i) {
                 SCOPED_TRACE(first + i);
@@ -700,9 +721,11 @@ TEST_P(DataTypeRowsets, FetchScroll)
 }
 
 INSTANTIATE_TEST_SUITE_P(Retrieval, DataTypeRowsets,
-    testing::Values(RowBinding::ColumnWise, RowBinding::RowWise),
-    [](const testing::TestParamInfo<RowBinding>& info) {
-        return info.param == RowBinding::ColumnWise ? "ColumnWise" : "RowWise";
+    testing::Combine(testing::ValuesIn(datatype_names()),
+                     testing::Values(RowBinding::ColumnWise, RowBinding::RowWise)),
+    [](const testing::TestParamInfo<RowsetParameter>& info) {
+        return std::get<0>(info.param) +
+               (std::get<1>(info.param) == RowBinding::ColumnWise ? "_ColumnWise" : "_RowWise");
     });
 
 // Driver-specific exclusions live in known-failures.json; see #52.
