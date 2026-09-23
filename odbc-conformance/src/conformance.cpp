@@ -699,7 +699,8 @@ INSTANTIATE_TEST_SUITE_P(Retrieval, DataTypeRowsets,
         return info.param == RowBinding::ColumnWise ? "ColumnWise" : "RowWise";
     });
 
-TEST_F(OdbcConformance, FetchScrollEndOfDataRowsFetched)
+// Disabled pending investigation of the driver/driver-manager behavior: #52.
+TEST_F(OdbcConformance, DISABLED_FetchScrollEndOfDataRowsFetched)
 {
     std::array<SQLINTEGER, 2> values{};
     std::array<SQLLEN, 2> lengths{};

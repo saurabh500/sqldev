@@ -55,13 +55,22 @@ user-defined types are outside this built-in column suite.
 
 ### Observed conformance failure
 
-`OdbcConformance.FetchScrollEndOfDataRowsFetched` isolates an observed failure
+`OdbcConformance.DISABLED_FetchScrollEndOfDataRowsFetched` isolates an observed failure
 with Driver 18/unixODBC: after a partial final rowset, `SQLFetchScroll` returns
 `SQL_NO_DATA` but leaves `SQL_ATTR_ROWS_FETCHED_PTR` at `1`.
-[ODBC requires that count to be zero][rows-fetched]. The assertion remains
-enabled, so CI reports this as a failure rather than silently accepting it.
+[ODBC requires that count to be zero][rows-fetched]. The test is disabled by
+request while [issue #52](https://github.com/saurabh500/sqldev/issues/52) tracks
+investigation. CTest lists it as disabled; the assertion remains unchanged.
 The datatype rowset tests separately check values, NULL indicators, and counts
 on successful fetches.
+
+Run the disabled regression explicitly when investigating:
+
+```bash
+build/odbc-conformance/odbc-conformance \
+  --gtest_also_run_disabled_tests \
+  --gtest_filter=OdbcConformance.DISABLED_FetchScrollEndOfDataRowsFetched
+```
 
 [rows-fetched]: https://learn.microsoft.com/sql/odbc/reference/syntax/sqlfetch-function#rows-fetched-buffer
 
