@@ -1,0 +1,84 @@
+name: ODBC conformance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: odbc-conformance-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  ODBC_DRIVER: ODBC Driver 18 for SQL Server
+  ODBC_SERVER: 127.0.0.1,1433
+  ODBC_USER: sa
+  ODBC_PASSWORD: "Conformance!Pass2026"
+  ODBC_DATABASE: tempdb
+
+jobs:
+  conformance:
+    name: unixODBC + Microsoft ODBC Driver 18
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_PID: Developer
+          MSSQL_SA_PASSWORD: "Conformance!Pass2026"
+        ports:
+          - 1433:1433
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install unixODBC and Microsoft ODBC Driver 18
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSLo /tmp/packages-microsoft-prod.deb \
+            https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb
+          sudo dpkg -i /tmp/packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo env ACCEPT_EULA=Y apt-get install -y \
+            msodbcsql18 unixodbc unixodbc-dev cmake ninja-build
+          odbcinst -j
+          odbcinst -q -d -n "${ODBC_DRIVER}"
+
+      - name: Configure and build
+        run: |
+          cmake -S odbc-conformance -B build/odbc-conformance \
+            -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/odbc-conformance
+
+      - name: Wait for SQL Server through ODBC
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            if build/odbc-conformance/odbc-conformance connection \
+                > /tmp/odbc-readiness.log 2>&1; then
+              cat /tmp/odbc-readiness.log
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/odbc-readiness.log
+          echo "SQL Server did not become ready through ODBC" >&2
+          exit 1
+
+      - name: Run ODBC conformance tests
+        run: |
+          ctest --test-dir build/odbc-conformance \
+            --output-on-failure --no-tests=error
+
+      - name: Dump SQL Server logs on failure
+        if: failure()
+        run: docker logs "${{ job.services.sqlserver.id }}" --tail 200
