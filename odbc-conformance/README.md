@@ -40,7 +40,8 @@ ctest --test-dir build/odbc-conformance -R 'NumericParserConversionTest' --outpu
 
 ## Datatype coverage
 
-The datatype fixture creates a single session-local table with **39 columns**
+The datatype fixture creates a single session-local table with **39 datatype
+columns** plus a row-order key,
 covering SQL Server 2025 built-in column types and important storage variants:
 
 | Family | Columns |
@@ -66,6 +67,8 @@ through all of these retrieval paths:
   payloads.
 
 Assertions compare fixed expected values, not just successful return codes.
+Native retrieval and both rowset layouts are independently parameterized by
+column, so quarantining one driver/type combination does not hide the rest.
 Each assertion includes the column and row context. Generated rowversion values
 are snapshotted as binary(8) and compared across retrieval paths; a separate
 `TimestampAlias` case verifies the timestamp synonym and changes after updates
@@ -237,10 +240,23 @@ and every entry requires a reason and a repository issue. No wildcards are store
 unaffected parameter combinations continue to run. A disabled case is reported
 as `disabled`, never as passed.
 
-The current Rust-driver follow-ups cover interval conversions (#53), numeric
-struct retrieval (#54), underflow (#55), and three reference-driver compatibility
-decisions (#56–#58). The latter are not automatically classified as Rust bugs.
-All corresponding Driver 18 cases remain enabled.
+The full inventory contains **1,238 cases**. Current exact exclusions are:
+
+| Driver | Disabled cases | Follow-up |
+| --- | ---: | --- |
+| Driver 18 | 1 | End-of-data rows-fetched count (#52) |
+| Driver 18 | 1 | Inconsistent reference parsing case (#59) |
+| mssql-rs | 568 | Interval conversion family (#53) |
+| mssql-rs | 12 | Numeric struct retrieval, including column-wise binding (#54) |
+| mssql-rs | 8 | Numeric exponent underflow (#55) |
+| mssql-rs | 16 | Reference-driver compatibility decisions (#56, #57, #58) |
+| mssql-rs | 39 | Row-wise array binding (#60) |
+| mssql-rs | 4 | Descriptor-based numeric retrieval (#61) |
+| mssql-rs | 4 | Binary temporal structure retrieval (#62) |
+
+Compatibility differences and the inconsistent reference case are not
+automatically classified as driver bugs. Unaffected parameter combinations
+continue to run, even when other cases from the same source file are excluded.
 
 For newly observed failures, inspect the driver-specific XML/logs first to
 distinguish test/infrastructure problems from conformance or parity failures.

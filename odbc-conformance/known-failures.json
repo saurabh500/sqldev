@@ -6,6 +6,13 @@
       "tests": [
         "OdbcConformance.FetchScrollEndOfDataRowsFetched"
       ]
+    },
+    {
+      "issue": "https://github.com/saurabh500/sqldev/issues/59",
+      "reason": "In SQL Server 2025 CI run 35830743874, the nvarchar -.0 / SQL_C_DOUBLE / SQLBindCol / ODBC 3.8 reference case returned SQL_SUCCESS rather than SQL_ERROR/22018. This exact case passed prior CI runs, and all four nvarchar variants passed 50 repetitions each locally with Driver 18.6 against SQL Server 2022. Treat as an unresolved reference-parity/stability investigation, not a confirmed driver conformance bug. Disable only the single observed failing CI case. Related reference-policy discussion: #58.",
+      "tests": [
+        "Shared/NumericParserConversionTest.ReferenceContract/DoubleNegativeDotZero_Nvarchar_BindCol_Odbc38"
+      ]
     }
   ],
   "mssql-rs": [
@@ -643,6 +650,81 @@
         "Shared/NumericParserConversionTest.ReferenceContract/DoubleNegativeDotZero_Nvarchar_BindCol_Odbc38",
         "Shared/NumericParserConversionTest.ReferenceContract/DoubleNegativeDotZero_Nvarchar_GetData_Odbc30",
         "Shared/NumericParserConversionTest.ReferenceContract/DoubleNegativeDotZero_Nvarchar_GetData_Odbc38"
+      ]
+    },
+    {
+      "issue": "https://github.com/saurabh500/sqldev/issues/60",
+      "reason": "All 39 exact row-wise datatype cases return HYC00: Row-wise binding is not yet implemented, at the first SQLFetchScroll call. Column-wise binding and direct retrieval for supported types continue to pass. Driver 18 passes all 39 row-wise counterparts. Evidence: SQL Server 2025 CI run 35830743874, artifact odbc-conformance-comparison.",
+      "tests": [
+        "Retrieval/DataTypeRowsets.FetchScroll/bigint_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/binary_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/bit_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/char_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/date_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/datetime2_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/datetime_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/datetimeoffset_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/decimal_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/float_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/geography_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/geometry_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/hierarchyid_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/image_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/int_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/json_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/money_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/nchar_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/ntext_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/numeric_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/nvarchar_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/nvarchar_max_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/real_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/rowversion_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/smalldatetime_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/smallint_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/smallmoney_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/sql_variant_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/sysname_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/text_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/time_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/tinyint_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/uniqueidentifier_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/varbinary_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/varbinary_max_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/varchar_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/varchar_max_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/vector_RowWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/xml_RowWise"
+      ]
+    },
+    {
+      "issue": "https://github.com/saurabh500/sqldev/issues/61",
+      "reason": "With SQL_DESC_TYPE=SQL_C_NUMERIC, precision 38, and the column-specific scale set on the ARD, SQLGetData with SQL_ARD_TYPE returns HY003 (Invalid application buffer type) for decimal, numeric, money, and smallmoney. Driver 18 successfully returns the exact SQL_NUMERIC_STRUCT values. Evidence: SQL Server 2025 CI run 35830743874. Related missing SQL_C_NUMERIC delivery: #54.",
+      "tests": [
+        "Native/DataTypeNative.GetData/decimal",
+        "Native/DataTypeNative.GetData/money",
+        "Native/DataTypeNative.GetData/numeric",
+        "Native/DataTypeNative.GetData/smallmoney"
+      ]
+    },
+    {
+      "issue": "https://github.com/saurabh500/sqldev/issues/54",
+      "reason": "Column-wise SQL_C_NUMERIC retrieval of decimal, numeric, money, and smallmoney returns SQL_SUCCESS_WITH_INFO/HYC00 (Column type conversion not yet implemented), not correctly populated numeric rows. Driver 18 passes these exact counterparts. Extends the SQL_C_NUMERIC delivery gap tracked in #54; evidence from SQL Server 2025 run 35830743874.",
+      "tests": [
+        "Retrieval/DataTypeRowsets.FetchScroll/decimal_ColumnWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/money_ColumnWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/numeric_ColumnWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/smallmoney_ColumnWise"
+      ]
+    },
+    {
+      "issue": "https://github.com/saurabh500/sqldev/issues/62",
+      "reason": "Retrieving time(7) and datetimeoffset(7) as SQL_C_BINARY should return SQL_SS_TIME2_STRUCT and SQL_SS_TIMESTAMPOFFSET_STRUCT respectively. The Rust driver returns HYC00 for SQLGetData and SQL_SUCCESS_WITH_INFO/HYC00 for column-wise rowset binding. Driver 18 passes all four exact counterparts. This ODBC 3.x binary representation is documented at https://learn.microsoft.com/sql/relational-databases/native-client-odbc-date-time/data-type-support-for-odbc-date-and-time-improvements . Evidence: SQL Server 2025 CI run 35830743874.",
+      "tests": [
+        "Native/DataTypeNative.GetData/datetimeoffset",
+        "Native/DataTypeNative.GetData/time",
+        "Retrieval/DataTypeRowsets.FetchScroll/datetimeoffset_ColumnWise",
+        "Retrieval/DataTypeRowsets.FetchScroll/time_ColumnWise"
       ]
     }
   ]
